@@ -4,14 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Protected Hex Editor</title>
+
+<!-- Zotero Metadata -->
+<meta name="citation_title" content="Protected Hex Editor: Header-Safe Hex Editing for Image Databending">
+<meta name="citation_author" content="Peña, Ernesto">
+<meta name="citation_publication_date" content="2025">
+<meta name="citation_online_date" content="2025-01-19">
+<meta name="DC.title" content="Protected Hex Editor: Header-Safe Hex Editing for Image Databending">
+<meta name="DC.creator" content="Ernesto Peña">
+<meta name="DC.date" content="2025-01-19">
+<meta name="DC.type" content="Software">
+<meta name="DC.format" content="text/html">
+<meta name="DC.language" content="en">
+<meta name="description" content="Educational hex editor tool for glitch art pedagogy supporting JPEG, PNG, GIF, WebP, BMP, and TIFF formats with protected header regions, multi-select capabilities, and GIF frame navigation.">
+<meta name="keywords" content="hex editor, databending, glitch art, image manipulation, digital art, pedagogy, educational tool">
+
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8XQLL5N022"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-8XQLL5N022');
-  </script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8XQLL5N022"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-8XQLL5N022');
+</script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
@@ -32,7 +47,7 @@ body {
   min-height: 100vh;
   padding: 24px;
 }
-.container { max-width: 1200px; margin: 0 auto; }
+.container { max-width: 1600px; margin: 0 auto; }
 h1 { color: var(--accent); font-size: 24px; margin-bottom: 4px; }
 .subtitle { color: var(--fg-dim); font-size: 12px; margin-bottom: 24px; }
 .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; }
@@ -54,8 +69,6 @@ h1 { color: var(--accent); font-size: 24px; margin-bottom: 4px; }
 .btn-action { border-color: var(--editable); color: var(--editable); }
 .btn-action:hover { background: var(--editable); color: var(--bg); }
 .btn-small { padding: 4px 8px; font-size: 10px; }
-.btn-toggle { min-width: 50px; }
-.btn-toggle.active { background: var(--accent); color: var(--bg); }
 .file-info { margin-left: auto; font-size: 12px; color: var(--fg-dim); }
 .file-info .format { color: var(--accent); }
 .file-info .editable { color: var(--editable); }
@@ -63,16 +76,34 @@ h1 { color: var(--accent); font-size: 24px; margin-bottom: 4px; }
   background: var(--bg-panel);
   border: 1px solid var(--border);
   padding: 16px;
+  margin-bottom: 16px;
 }
-.label {
+.panel-title {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--fg-dim);
+  color: var(--accent);
+  margin-bottom: 12px;
 }
-.label-accent { color: var(--accent); }
-.main-layout { display: flex; gap: 16px; flex-wrap: wrap; }
-.structure-panel { width: 220px; max-height: 540px; overflow-y: auto; flex-shrink: 0; }
+.main-layout { display: grid; grid-template-columns: 220px minmax(520px, 1fr) 280px; gap: 16px; }
+.structure-panel { 
+  max-height: 800px; 
+  overflow-y: scroll; 
+}
+.structure-panel::-webkit-scrollbar {
+  width: 12px;
+}
+.structure-panel::-webkit-scrollbar-track {
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border);
+}
+.structure-panel::-webkit-scrollbar-thumb {
+  background: var(--fg-dim);
+  border-radius: 2px;
+}
+.structure-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
 .structure-item {
   padding: 8px;
   border-left: 2px solid var(--protected);
@@ -84,36 +115,124 @@ h1 { color: var(--accent); font-size: 24px; margin-bottom: 4px; }
 .structure-item.editable { border-color: var(--editable); }
 .structure-item .desc { font-size: 12px; }
 .structure-item .offset { font-size: 11px; color: var(--fg-dim); margin-top: 2px; }
-.hex-panel { flex: 1; min-width: 500px; }
-.hex-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.legend { display: flex; gap: 16px; font-size: 12px; }
-.legend-protected { color: var(--protected); }
-.legend-editable { color: var(--editable); }
-.hex-content { display: flex; gap: 0; position: relative; }
-#hexCanvas { display: block; cursor: text; }
-.scrollbar-track {
+.hex-panel { position: relative; }
+.hex-wrapper {
+  display: flex;
+  gap: 0;
+}
+.hex-container {
+  background: #000;
+  color: var(--fg);
+  padding: 8px;
+  border-radius: 4px 0 0 4px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.62rem;
+  overflow: hidden;
+  height: 520px;
+  position: relative;
+  flex: 1;
+}
+.hex-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 2px;
+  padding: 2px 0;
+  height: 17px;
+}
+.hex-row:hover { background: #1a1a1a; }
+.hex-offset {
+  color: #666;
+  width: 52px;
+  flex-shrink: 0;
+  font-size: 0.6rem;
+}
+.hex-bytes {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+  width: 461px;
+  flex-wrap: nowrap;
+}
+.hex-byte {
+  width: 26px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+}
+.hex-byte:hover { background: #333; }
+.hex-byte:focus { outline: 2px solid var(--cursor); }
+.hex-byte.selected {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: bold;
+}
+.hex-byte-protected {
+  background: #1a1a2a !important;
+  color: #666 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+.hex-byte-editable { color: var(--editable); }
+.hex-ascii {
+  color: #666;
+  margin-left: 4px;
+  flex-shrink: 0;
+  font-size: 0.62rem;
+}
+.hex-scrollbar {
   width: 14px;
-  background: var(--bg);
+  background: #1a1a1a;
   border: 1px solid var(--border);
   border-left: none;
+  border-radius: 0 4px 4px 0;
+  height: 520px;
   position: relative;
   cursor: pointer;
   flex-shrink: 0;
 }
-.scrollbar-thumb {
+.hex-scrollbar-thumb {
   position: absolute;
   width: 100%;
   background: var(--fg-dim);
   min-height: 20px;
   transition: background 150ms;
   left: 0;
+  display: none;
 }
-.scrollbar-thumb:hover, .scrollbar-thumb.dragging { background: var(--accent); }
+.hex-scrollbar-thumb:hover,
+.hex-scrollbar-thumb.dragging {
+  background: var(--accent);
+}
+.legend { display: flex; gap: 16px; font-size: 12px; margin-bottom: 12px; }
+.legend-protected { color: var(--protected); }
+.legend-editable { color: var(--editable); }
 .hex-status { margin-top: 12px; font-size: 12px; color: var(--fg-dim); }
 .hex-status .pos { color: var(--accent); }
 .hex-status .status-editable { color: var(--editable); }
 .hex-status .status-locked { color: var(--protected); }
-.preview-panel { width: 256px; flex-shrink: 0; }
+.preview-box {
+  margin-top: 8px;
+  height: 220px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+}
+.preview-box img { object-fit: contain; image-rendering: pixelated; }
+.preview-box img.zoom-1x { max-width: 100%; max-height: 100%; }
+.preview-box img.zoom-2x { max-width: none; max-height: none; transform: scale(2); transform-origin: top left; }
+.preview-box img.zoom-4x { max-width: none; max-height: none; transform: scale(4); transform-origin: top left; }
+.preview-error { text-align: center; padding: 16px; }
+.preview-error .icon { color: var(--protected); font-size: 14px; }
+.preview-error .msg { color: var(--fg-dim); font-size: 11px; margin-top: 4px; }
 .preview-controls { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
 .zoom-btn {
   font-family: 'Roboto Mono', monospace;
@@ -126,74 +245,71 @@ h1 { color: var(--accent); font-size: 24px; margin-bottom: 4px; }
   transition: all 150ms;
 }
 .zoom-btn:hover, .zoom-btn.active { border-color: var(--accent); color: var(--accent); }
-.preview-box {
-  margin-top: 8px;
-  height: 220px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+.field-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-dim);
+  margin: 12px 0 6px 0;
+}
+.ctrl-row {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: auto;
-  position: relative;
+  gap: 4px;
 }
-.preview-box img { object-fit: contain; image-rendering: pixelated; }
-.preview-box img.zoom-1x { max-width: 100%; max-height: 100%; }
-.preview-box img.zoom-2x { max-width: none; max-height: none; transform: scale(2); transform-origin: top left; }
-.preview-box img.zoom-4x { max-width: none; max-height: none; transform: scale(4); transform-origin: top left; }
-.preview-error { text-align: center; padding: 16px; }
-.preview-error .icon { color: var(--protected); font-size: 14px; }
-.preview-error .msg { color: var(--fg-dim); font-size: 11px; margin-top: 4px; }
-.preview-position { margin-top: 8px; font-size: 10px; color: var(--fg-dim); min-height: 32px; }
-.preview-position .label { color: var(--accent); }
-.preview-position .value { color: var(--fg); }
-.preview-position .note { color: var(--fg-dim); font-style: italic; }
-.pixel-marker {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border: 2px solid var(--cursor);
-  box-shadow: 0 0 0 1px var(--bg), 0 0 8px var(--cursor);
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 10;
+.ctrl-row button {
+  flex: 1;
+  padding: 6px;
+  font-size: 10px;
 }
-.tools-panel { margin-bottom: 24px; display: none; }
-.tools-panel.show { display: block; }
-.tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 16px; }
-.tools-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
-.tool-section h3 { color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; }
-.tool-row { margin-bottom: 12px; }
-.tool-row label { display: block; font-size: 11px; color: var(--fg-dim); margin-bottom: 4px; }
-.tool-row input[type="range"] { width: 100%; accent-color: var(--accent); }
-.tool-row select, .tool-row input[type="text"] {
+input[type="text"], input[type="number"] {
   width: 100%;
-  padding: 8px;
+  padding: 6px;
   font-family: 'Roboto Mono', monospace;
-  font-size: 12px;
+  font-size: 10px;
   background: var(--bg);
   border: 1px solid var(--border);
   color: var(--fg);
 }
-.tool-row input[type="text"] { color: var(--accent); }
-.tool-row .range-value { float: right; color: var(--fg); }
+.hidden { display: none; }
+.gif-frame-info {
+  font-size: 10px;
+  color: var(--fg-dim);
+  margin-top: 8px;
+  text-align: center;
+}
+.scope-options label {
+  display: block;
+  font-size: 11px;
+  color: var(--fg);
+  margin: 6px 0;
+  cursor: pointer;
+}
+.scope-options input[type="radio"] {
+  margin-right: 6px;
+  accent-color: var(--accent);
+}
+.action-section {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.action-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
 .footer { margin-top: 24px; font-size: 11px; color: var(--fg-dim); }
 .footer span { color: var(--accent); }
 #fileInput { display: none; }
-@media (max-width: 1100px) {
-  .tools-grid-3 { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 900px) {
-  .main-layout { flex-direction: column; }
-  .structure-panel, .preview-panel { width: 100%; }
-  .tools-grid, .tools-grid-3 { grid-template-columns: 1fr; }
+@media (max-width: 1400px) {
+  .main-layout { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>PROTECTED HEX EDITOR</h1>
-  <p class="subtitle">Header-safe hex editing for image databending</p>
+  <p class="subtitle">Header-safe hex editing with virtual scrolling and GIF frame support</p>
   
   <div class="controls">
     <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.tif,.tiff">
@@ -201,167 +317,171 @@ h1 { color: var(--accent); font-size: 24px; margin-bottom: 4px; }
     <button class="btn" id="saveBtn" disabled onclick="saveFile()">SAVE</button>
     <button class="btn btn-secondary" id="undoBtn" disabled onclick="undo()">UNDO <span id="undoCount"></span></button>
     <button class="btn btn-secondary" id="resetBtn" disabled onclick="resetFile()">RESET</button>
-    <button class="btn btn-action" id="toolsBtn" disabled onclick="toggleTools()">+ TOOLS</button>
     <div class="file-info" id="fileInfo"></div>
   </div>
   
-  <div class="panel tools-panel" id="toolsPanel">
-    <div class="tools-grid-3">
-      <div class="tool-section">
-        <h3>Randomization</h3>
-        <div class="tool-row">
-          <label>Intensity <span class="range-value" id="intensityValue">50%</span></label>
-          <input type="range" id="randomIntensity" min="1" max="100" value="50" oninput="document.getElementById('intensityValue').textContent=this.value+'%'">
-        </div>
-        <div class="tool-row">
-          <label>Mode</label>
-          <select id="randomMode">
-            <option value="xor">XOR (classic glitch)</option>
-            <option value="add">ADD (color shift)</option>
-            <option value="replace">REPLACE (chaos)</option>
-            <option value="bitflip">BITFLIP (subtle)</option>
-          </select>
-        </div>
-        <button class="btn btn-action" style="width:100%;margin-top:8px" onclick="applyRandomization()">APPLY RANDOMIZATION</button>
+  <!-- GIF Frame Navigation -->
+  <div id="gifNavigation" class="hidden">
+    <div class="panel">
+      <div class="panel-title">GIF FRAME NAVIGATION</div>
+      <div class="ctrl-row">
+        <button class="btn btn-small" onclick="changeGifFrame(-1)">← PREV</button>
+        <input type="number" id="gifFrameInput" value="0" min="0" style="width:60px;text-align:center" onchange="setGifFrame(parseInt(this.value))">
+        <button class="btn btn-small" onclick="changeGifFrame(1)">NEXT →</button>
       </div>
-      <div class="tool-section">
-        <h3>Pattern Injection</h3>
-        <div class="tool-row">
-          <label>Hex Pattern</label>
-          <input type="text" id="patternInput" value="FF00FF" placeholder="FF00FF">
-        </div>
-        <div class="tool-row">
-          <label>Mode</label>
-          <select id="patternMode">
-            <option value="xor">XOR</option>
-            <option value="overwrite">OVERWRITE</option>
-            <option value="add">ADD</option>
-            <option value="and">AND</option>
-            <option value="or">OR</option>
-          </select>
-        </div>
-        <button class="btn btn-action" style="width:100%;margin-top:8px" onclick="applyPattern()">APPLY PATTERN</button>
-      </div>
-      <div class="tool-section">
-        <h3>Cut / Paste</h3>
-        <div class="tool-row">
-          <label>Cut copies selection and zeros editable bytes. Paste overwrites from cursor.</label>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn btn-secondary" style="flex:1" onclick="cutSelection()">CUT</button>
-          <button class="btn btn-action" style="flex:1" onclick="pasteAtCursor()">PASTE</button>
-        </div>
-        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-          <label style="font-size:11px;color:var(--fg-dim)">Selection info</label>
-          <div id="selectionInfo" style="font-size:11px;color:var(--fg);margin-top:4px">No selection</div>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
-      <h3 style="color:var(--accent);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px">Find / Replace</h3>
-      <div class="tools-grid">
-        <div>
-          <div class="tool-row">
-            <label>Search mode
-              <span style="float:right">
-                <button class="btn btn-small btn-toggle" id="searchModeHex" onclick="setSearchMode('hex')">HEX</button>
-                <button class="btn btn-small btn-toggle active" id="searchModeAscii" onclick="setSearchMode('ascii')">ASCII</button>
-              </span>
-            </label>
-          </div>
-          <div class="tool-row">
-            <label>Find</label>
-            <input type="text" id="searchInput" placeholder="Enter text to find...">
-          </div>
-          <div class="tool-row">
-            <label>Replace with</label>
-            <input type="text" id="replaceInput" placeholder="Replacement text...">
-          </div>
-        </div>
-        <div>
-          <div class="tool-row">
-            <label>Actions</label>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button class="btn btn-secondary" onclick="findPrev()">PREV</button>
-            <button class="btn btn-secondary" onclick="findNext()">NEXT</button>
-            <button class="btn btn-secondary" onclick="findAll()">FIND ALL</button>
-            <button class="btn btn-secondary" onclick="clearSearch()">CLEAR</button>
-            <button class="btn btn-action" onclick="replaceCurrent()">REPLACE</button>
-            <button class="btn btn-action" onclick="replaceAll()">REPLACE ALL</button>
-          </div>
-          <div id="searchStatus" style="font-size:11px;margin-top:12px;min-height:20px"></div>
-        </div>
+      <div class="gif-frame-info">
+        Frame <span id="currentGifFrame">0</span> / <span id="totalGifFrames">0</span>
       </div>
     </div>
   </div>
   
   <div class="main-layout">
+    <!-- Column 1: File Structure -->
     <div class="panel structure-panel">
-      <div class="label label-accent">FILE STRUCTURE</div>
+      <div class="panel-title">FILE STRUCTURE</div>
       <div id="structureList"><p style="color:var(--fg-dim);font-size:12px;margin-top:16px">No file loaded</p></div>
     </div>
     
-    <div class="panel hex-panel" tabindex="0" id="hexPanel">
-      <div class="hex-header">
-        <div class="label label-accent">HEX VIEW</div>
-        <div style="display:flex;align-items:center;gap:16px">
-          <div style="font-size:10px;color:var(--fg-dim)">EDIT MODE</div>
-          <button class="btn btn-small btn-toggle active" id="editModeHex" onclick="setEditMode('hex')">HEX</button>
-          <button class="btn btn-small btn-toggle" id="editModeAscii" onclick="setEditMode('ascii')">ASCII</button>
-          <div class="legend">
-            <span class="legend-protected">■ PROTECTED</span>
-            <span class="legend-editable">■ EDITABLE</span>
+    <!-- Column 2: Hex Editor -->
+    <div>
+      <div class="panel hex-panel">
+        <div class="panel-title">HEX VIEW</div>
+        <div class="legend">
+          <span class="legend-protected">■ PROTECTED</span>
+          <span class="legend-editable">■ EDITABLE</span>
+        </div>
+        <div class="hex-wrapper">
+          <div class="hex-container" id="hexView"></div>
+          <div class="hex-scrollbar" id="hexScrollbar">
+            <div class="hex-scrollbar-thumb" id="hexScrollbarThumb"></div>
+          </div>
+        </div>
+        <div class="hex-status" id="hexStatus"></div>
+      </div>
+    </div>
+    
+    <!-- Column 3: Preview and Tools -->
+    <div>
+      <!-- Preview -->
+      <div class="panel">
+        <div class="panel-title">PREVIEW</div>
+        <div class="preview-controls">
+          <span style="font-size:10px;color:var(--fg-dim)">ZOOM</span>
+          <button class="zoom-btn active" onclick="setZoom(1)">1×</button>
+          <button class="zoom-btn" onclick="setZoom(2)">2×</button>
+          <button class="zoom-btn" onclick="setZoom(4)">4×</button>
+        </div>
+        <div class="preview-box" id="previewBox">
+          <span style="color:var(--fg-dim);font-size:12px">No image</span>
+        </div>
+      </div>
+      
+      <!-- Selection Panel -->
+      <div class="panel">
+        <div class="panel-title">1. SELECTION</div>
+        <div class="field-label">Find & Select</div>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:6px">
+          <input type="text" id="findInput" placeholder="FF D8">
+          <button class="btn btn-small" onclick="findAndSelect()">FIND</button>
+        </div>
+        <div class="field-label">Select Bytes</div>
+        <div class="ctrl-row">
+          <button class="btn btn-small btn-secondary" onclick="selectColumn()">↕ COL</button>
+          <button class="btn btn-small btn-secondary" onclick="selectRow()">↔ ROW</button>
+        </div>
+        <div class="ctrl-row" style="margin-top:4px">
+          <button class="btn btn-small btn-secondary" onclick="expandSelection()">+</button>
+          <button class="btn btn-small btn-secondary" onclick="shrinkSelection()">−</button>
+          <button class="btn btn-small btn-secondary" onclick="clearSelection()">✕</button>
+        </div>
+        <div id="selectionInfo" style="font-size:10px;color:var(--fg-dim);margin-top:8px">No selection</div>
+      </div>
+      
+      <!-- Scope Panel -->
+      <div id="scopePanel" class="panel hidden">
+        <div class="panel-title">2. SCOPE</div>
+        <div class="scope-options">
+          <label><input type="radio" name="frameScope" value="current" checked>Current Frame</label>
+          <label><input type="radio" name="frameScope" value="all">All Frames</label>
+        </div>
+      </div>
+      
+      <!-- Action Panel -->
+      <div class="panel">
+        <div class="panel-title" id="actionPanelTitle">2. ACTION</div>
+        
+        <div class="action-section">
+          <div class="field-label">Basic Operations</div>
+          <div class="ctrl-row">
+            <button class="btn btn-small btn-action" onclick="deleteSelection()">DEL</button>
+            <button class="btn btn-small btn-action" onclick="invertSelection()">INV</button>
+            <button class="btn btn-small btn-action" onclick="randomizeSelection()">RND</button>
+          </div>
+        </div>
+        
+        <div class="action-section">
+          <div class="field-label">Set Value</div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:6px">
+            <input type="text" id="setValueInput" placeholder="FF" maxlength="2">
+            <button class="btn btn-small btn-action" onclick="setValueAction()">SET</button>
+          </div>
+        </div>
+        
+        <div class="action-section">
+          <div class="field-label">Gradient</div>
+          <div style="display:grid;grid-template-columns:auto 1fr auto;gap:6px;margin-bottom:6px">
+            <input type="text" id="gradientStart" placeholder="00" maxlength="2" style="width:45px">
+            <span style="text-align:center;align-self:center;color:var(--fg-dim)">→</span>
+            <input type="text" id="gradientEnd" placeholder="FF" maxlength="2" style="width:45px">
+          </div>
+          <div class="ctrl-row">
+            <button class="btn btn-small btn-action" onclick="applyGradient('absolute')">ABS</button>
+            <button class="btn btn-small btn-action" onclick="applyGradient('relative')">REL</button>
+          </div>
+        </div>
+        
+        <div class="action-section">
+          <div class="field-label">Pattern</div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:6px">
+            <input type="text" id="patternInput" placeholder="FF 00 FF">
+            <button class="btn btn-small btn-action" onclick="applyPattern()">GO</button>
+          </div>
+        </div>
+        
+        <div class="action-section">
+          <div class="field-label">Shift Bytes</div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:6px">
+            <input type="number" id="shiftAmount" value="1" style="width:100%">
+            <button class="btn btn-small btn-action" onclick="shiftBytes()">↔</button>
           </div>
         </div>
       </div>
-      <div class="hex-content">
-        <canvas id="hexCanvas" width="660" height="504"></canvas>
-        <div class="scrollbar-track" id="scrollbarTrack" style="height:504px">
-          <div class="scrollbar-thumb" id="scrollbarThumb" style="display:none"></div>
-        </div>
-      </div>
-      <div class="hex-status" id="hexStatus"></div>
-    </div>
-    
-    <div class="panel preview-panel">
-      <div class="label label-accent">PREVIEW</div>
-      <div class="preview-controls">
-        <span style="font-size:10px;color:var(--fg-dim)">ZOOM</span>
-        <button class="zoom-btn active" onclick="setZoom(1)">1×</button>
-        <button class="zoom-btn" onclick="setZoom(2)">2×</button>
-        <button class="zoom-btn" onclick="setZoom(4)">4×</button>
-      </div>
-      <div class="preview-box" id="previewBox">
-        <span style="color:var(--fg-dim);font-size:12px">No image</span>
-      </div>
-      <div class="preview-position" id="previewPosition"></div>
     </div>
   </div>
   
   <div class="footer">
     <span>FORMATS</span> JPEG · PNG · GIF · WebP · BMP · TIFF &nbsp;|&nbsp;
-    <span>SELECT</span> Shift+Click · Shift+Arrow · Ctrl+A &nbsp;|&nbsp;
-    <span>UNDO</span> Ctrl+Z &nbsp;|&nbsp;
-    <span>TOOLS</span> Use + TOOLS panel for Cut/Paste, Find/Replace
+    <span>NEW</span> Virtual scrolling · Multi-select · GIF frames &nbsp;|&nbsp;
+    <span>SELECT</span> Shift+Click · Column/Row tools
   </div>
 </div>
 
 <script>
-const COLORS = { bg:'#0a0a0a', accent:'#ff00ff', protected:'#ff6b9d', editable:'#9dff6b', cursor:'#ffff00', fgDim:'#666666' };
-const BYTES_PER_ROW = 16, ROW_HEIGHT = 18, VISIBLE_ROWS = 28;
-
-let data = null, originalData = null, regions = [], regionMap = {}, format = null, filename = '';
-let cursor = 0, scrollOffset = 0, currentZoom = 1, imageWidth = 0, imageHeight = 0, bitsPerPixel = 24;
-let undoStack = [];
-let selectionStart = null, selectionEnd = null;
-let editMode = 'hex'; // 'hex' or 'ascii'
-let searchMatches = [];
-let currentMatchIndex = -1;
+const BYTES_PER_ROW = 16;
+const VISIBLE_ROWS = 28;
+const ROW_HEIGHT = 17;
 const MAX_UNDO = 10;
 
-const canvas = document.getElementById('hexCanvas');
-const ctx = canvas.getContext('2d');
+let data = null, originalData = null, regions = [], regionMap = {}, format = null, filename = '';
+let undoStack = [];
+let selectedBytes = new Set();
+let currentZoom = 1;
+let scrollOffset = 0;
+
+// GIF-specific state
+let gifFrames = [];
+let currentGifFrame = 0;
+let isAnimatedFormat = false;
 
 // Parsers
 function parseJPEG(d) {
@@ -399,20 +519,39 @@ function parsePNG(d) {
 
 function parseGIF(d) {
   const r = [];
+  const frames = [];
   if (d.length < 6 || String.fromCharCode(...d.slice(0,3)) !== 'GIF') return null;
   r.push({start:0,end:6,type:'header',desc:'GIF Header'});
-  if (d.length < 13) return r;
+  if (d.length < 13) return {regions: r, frames: []};
   r.push({start:6,end:13,type:'header',desc:'Screen Descriptor'});
   const packed = d[10], hasGCT = packed & 0x80, gctSize = hasGCT ? 3 * Math.pow(2,(packed&0x07)+1) : 0;
   let pos = 13;
   if (hasGCT) { r.push({start:pos,end:pos+gctSize,type:'header',desc:'Global Color Table'}); pos += gctSize; }
+  let frameIndex = 0;
   while (pos < d.length) {
     if (d[pos] === 0x3B) { r.push({start:pos,end:pos+1,type:'header',desc:'Trailer'}); break; }
     else if (d[pos] === 0x21) { const extStart=pos; pos+=2; while(pos<d.length&&d[pos]!==0)pos+=d[pos]+1; pos++; r.push({start:extStart,end:pos,type:'header',desc:'Extension'}); }
-    else if (d[pos] === 0x2C) { if(pos+10>d.length)break; const p=d[pos+9],hasLCT=p&0x80,lctSize=hasLCT?3*Math.pow(2,(p&0x07)+1):0; r.push({start:pos,end:pos+10,type:'header',desc:'Image Descriptor'}); pos+=10; if(hasLCT){r.push({start:pos,end:pos+lctSize,type:'header',desc:'Local Color Table'});pos+=lctSize;} r.push({start:pos,end:pos+1,type:'header',desc:'LZW Min Code'}); pos++; const dataStart=pos; while(pos<d.length&&d[pos]!==0)pos+=d[pos]+1; if(pos>dataStart)r.push({start:dataStart,end:pos,type:'content',desc:'Image Data (EDITABLE)'}); pos++; }
+    else if (d[pos] === 0x2C) { 
+      if(pos+10>d.length)break; 
+      const p=d[pos+9],hasLCT=p&0x80,lctSize=hasLCT?3*Math.pow(2,(p&0x07)+1):0; 
+      const imageDescStart = pos;
+      r.push({start:pos,end:pos+10,type:'header',desc:`Image Descriptor ${frameIndex}`}); 
+      pos+=10; 
+      if(hasLCT){r.push({start:pos,end:pos+lctSize,type:'header',desc:'Local Color Table'});pos+=lctSize;} 
+      r.push({start:pos,end:pos+1,type:'header',desc:'LZW Min Code'}); 
+      pos++; 
+      const dataStart=pos; 
+      while(pos<d.length&&d[pos]!==0)pos+=d[pos]+1; 
+      if(pos>dataStart) {
+        r.push({start:dataStart,end:pos,type:'content',desc:`Frame ${frameIndex} Data (EDITABLE)`});
+        frames.push({start:dataStart, end:pos, frameIndex: frameIndex, desc: `Frame ${frameIndex}`});
+      }
+      pos++;
+      frameIndex++;
+    }
     else { pos++; }
   }
-  return r;
+  return {regions: r, frames: frames};
 }
 
 function parseWebP(d) {
@@ -434,9 +573,7 @@ function parseWebP(d) {
 function parseBMP(d) {
   if (d.length<54||d[0]!==0x42||d[1]!==0x4D) return null;
   const getU32LE = p => d[p]|(d[p+1]<<8)|(d[p+2]<<16)|(d[p+3]<<24);
-  const getU16LE = p => d[p]|(d[p+1]<<8);
   const dataOff = getU32LE(10), hdrSize = getU32LE(14);
-  bitsPerPixel = getU16LE(28); // Store bits per pixel
   const r = [{start:0,end:14,type:'header',desc:'BMP File Header'},{start:14,end:14+hdrSize,type:'header',desc:'DIB Header'}];
   if (dataOff > 14+hdrSize) r.push({start:14+hdrSize,end:dataOff,type:'header',desc:'Color Table'});
   r.push({start:dataOff,end:d.length,type:'content',desc:'Pixel Data (EDITABLE)'});
@@ -466,10 +603,37 @@ function parseTIFF(d) {
 
 function parseFormat(d, fname) {
   const ext = fname.toLowerCase().split('.').pop();
-  const parsers = [{exts:['jpg','jpeg'],fn:parseJPEG,name:'JPEG'},{exts:['png'],fn:parsePNG,name:'PNG'},{exts:['gif'],fn:parseGIF,name:'GIF'},{exts:['webp'],fn:parseWebP,name:'WebP'},{exts:['bmp'],fn:parseBMP,name:'BMP'},{exts:['tif','tiff','dng'],fn:parseTIFF,name:'TIFF'}];
-  for (const p of parsers) { if(p.exts.includes(ext)){const r=p.fn(d);if(r)return{regions:r,format:p.name};} }
-  for (const p of parsers) { const r=p.fn(d); if(r)return{regions:r,format:p.name}; }
-  return {regions:null,format:null};
+  const parsers = [
+    {exts:['jpg','jpeg'],fn:parseJPEG,name:'JPEG'},
+    {exts:['png'],fn:parsePNG,name:'PNG'},
+    {exts:['gif'],fn:parseGIF,name:'GIF',special:true},
+    {exts:['webp'],fn:parseWebP,name:'WebP'},
+    {exts:['bmp'],fn:parseBMP,name:'BMP'},
+    {exts:['tif','tiff','dng'],fn:parseTIFF,name:'TIFF'}
+  ];
+  
+  for (const p of parsers) { 
+    if(p.exts.includes(ext)){
+      const r = p.fn(d);
+      if(r) {
+        if(p.special && r.regions) {
+          return {regions: r.regions, format: p.name, frames: r.frames || []};
+        }
+        return {regions:r,format:p.name,frames:[]};
+      }
+    } 
+  }
+  
+  for (const p of parsers) { 
+    const r = p.fn(d); 
+    if(r) {
+      if(p.special && r.regions) {
+        return {regions: r.regions, format: p.name, frames: r.frames || []};
+      }
+      return {regions:r,format:p.name,frames:[]};
+    }
+  }
+  return {regions:null,format:null,frames:[]};
 }
 
 function isEditable(pos) { return regionMap[pos] === 'content'; }
@@ -485,7 +649,7 @@ function undo() {
   if (undoStack.length === 0) return;
   data = undoStack.pop();
   updateUndoButton();
-  drawHex();
+  renderHex();
   updatePreview();
 }
 
@@ -496,18 +660,92 @@ function updateUndoButton() {
   count.textContent = undoStack.length > 0 ? `(${undoStack.length})` : '';
 }
 
-function updateScrollbar() {
+function renderHex() {
+  const container = document.getElementById('hexView');
+  container.innerHTML = '';
   if (!data) {
-    scrollbarThumb.style.display = 'none';
+    updateHexScrollbar();
     return;
   }
-  const track = document.getElementById('scrollbarTrack');
-  const thumb = document.getElementById('scrollbarThumb');
-  const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
-  const trackHeight = canvas.height;
   
-  // Set track height to match canvas
-  track.style.height = trackHeight + 'px';
+  const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
+  const startRow = scrollOffset;
+  const endRow = Math.min(startRow + VISIBLE_ROWS, totalRows);
+  const fragment = document.createDocumentFragment();
+  
+  for (let row = startRow; row < endRow; row++) {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'hex-row';
+    
+    const offset = row * BYTES_PER_ROW;
+    const offsetSpan = document.createElement('span');
+    offsetSpan.className = 'hex-offset';
+    offsetSpan.textContent = offset.toString(16).toUpperCase().padStart(8, '0');
+    rowDiv.appendChild(offsetSpan);
+    
+    const bytesDiv = document.createElement('div');
+    bytesDiv.className = 'hex-bytes';
+    
+    let ascii = '';
+    for (let i = 0; i < BYTES_PER_ROW; i++) {
+      const pos = offset + i;
+      if (pos >= data.length) break;
+      
+      const byte = data[pos];
+      const editable = isEditable(pos);
+      
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'hex-byte' + (editable ? ' hex-byte-editable' : ' hex-byte-protected');
+      input.value = byte.toString(16).toUpperCase().padStart(2, '0');
+      input.maxLength = 2;
+      input.dataset.pos = pos;
+      
+      if (selectedBytes.has(pos)) {
+        input.classList.add('selected');
+      }
+      
+      if (!editable) {
+        input.disabled = true;
+      }
+      
+      input.addEventListener('click', (e) => handleByteClick(e, pos));
+      input.addEventListener('change', (e) => handleByteChange(e, pos));
+      input.addEventListener('keydown', (e) => handleByteKeydown(e, pos));
+      input.addEventListener('focus', () => updateStatus(pos));
+      
+      bytesDiv.appendChild(input);
+      ascii += byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '·';
+    }
+    
+    rowDiv.appendChild(bytesDiv);
+    
+    const asciiSpan = document.createElement('span');
+    asciiSpan.className = 'hex-ascii';
+    asciiSpan.textContent = ascii;
+    rowDiv.appendChild(asciiSpan);
+    
+    fragment.appendChild(rowDiv);
+  }
+  
+  container.appendChild(fragment);
+  updateHexScrollbar();
+  updateStatus();
+}
+
+function updateHexScrollbar() {
+  const scrollbar = document.getElementById('hexScrollbar');
+  const thumb = document.getElementById('hexScrollbarThumb');
+  
+  if (!scrollbar || !thumb) return;
+  
+  if (!data) {
+    thumb.style.display = 'none';
+    return;
+  }
+  
+  const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
+  const trackHeight = 520;
   
   if (totalRows <= VISIBLE_ROWS) {
     thumb.style.display = 'none';
@@ -523,606 +761,452 @@ function updateScrollbar() {
   thumb.style.top = thumbTop + 'px';
 }
 
-function drawHex() {
-  ctx.fillStyle = COLORS.bg;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  if (!data) return;
-  ctx.font = '12px "Roboto Mono", monospace';
-  const startRow = scrollOffset, endRow = Math.min(startRow + VISIBLE_ROWS, Math.ceil(data.length / BYTES_PER_ROW));
-  
-  // Calculate selection range
-  const selMin = selectionStart !== null ? Math.min(selectionStart, selectionEnd) : null;
-  const selMax = selectionStart !== null ? Math.max(selectionStart, selectionEnd) : null;
-  
-  // Create set of match positions for highlighting
-  const matchPositions = new Set();
-  searchMatches.forEach(match => {
-    for (let i = match.start; i < match.start + match.length; i++) {
-      matchPositions.add(i);
-    }
-  });
-  
-  for (let row = startRow; row < endRow; row++) {
-    const y = (row - startRow) * ROW_HEIGHT + 15, offset = row * BYTES_PER_ROW;
-    ctx.fillStyle = COLORS.accent;
-    ctx.fillText(offset.toString(16).toUpperCase().padStart(8, '0'), 8, y);
-    let ascii = '';
-    for (let i = 0; i < BYTES_PER_ROW; i++) {
-      const pos = offset + i;
-      if (pos >= data.length) break;
-      const byte = data[pos], x = 95 + i * 26, editable = regionMap[pos] === 'content';
-      const isSelected = selMin !== null && pos >= selMin && pos <= selMax;
-      const isMatch = matchPositions.has(pos);
-      
-      if (pos === cursor) { 
-        ctx.fillStyle = COLORS.cursor; 
-        ctx.fillRect(x-2, y-12, 22, 16); 
-        ctx.fillStyle = COLORS.bg; 
-      } else if (isMatch) {
-        ctx.fillStyle = '#664400';
-        ctx.fillRect(x-2, y-12, 22, 16);
-        ctx.fillStyle = '#ffaa00';
-      } else if (isSelected) {
-        ctx.fillStyle = editable ? '#2a4a2a' : '#4a2a3a';
-        ctx.fillRect(x-2, y-12, 22, 16);
-        ctx.fillStyle = editable ? COLORS.editable : COLORS.protected;
-      } else { 
-        ctx.fillStyle = editable ? COLORS.editable : COLORS.protected; 
+function handleByteClick(e, pos) {
+  if (e.shiftKey) {
+    if (selectedBytes.size === 0) {
+      selectedBytes.add(pos);
+    } else {
+      const first = Math.min(...selectedBytes);
+      const last = Math.max(...selectedBytes);
+      const start = Math.min(first, pos);
+      const end = Math.max(last, pos);
+      for (let i = start; i <= end; i++) {
+        selectedBytes.add(i);
       }
-      ctx.fillText(byte.toString(16).toUpperCase().padStart(2, '0'), x, y);
-      ascii += byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '·';
     }
-    ctx.fillStyle = COLORS.fgDim;
-    ctx.fillText(ascii, 520, y);
+    updateSelectionVisuals();
+  } else if (e.ctrlKey || e.metaKey) {
+    if (selectedBytes.has(pos)) {
+      selectedBytes.delete(pos);
+    } else {
+      selectedBytes.add(pos);
+    }
+    updateSelectionVisuals();
+  } else {
+    selectedBytes.clear();
+    selectedBytes.add(pos);
+    updateSelectionVisuals();
   }
-  updateStatus();
-  updateScrollbar();
 }
 
-function updateStatus() {
+function updateSelectionVisuals() {
+  document.querySelectorAll('.hex-byte').forEach(input => {
+    const pos = parseInt(input.dataset.pos);
+    if (selectedBytes.has(pos)) {
+      input.classList.add('selected');
+    } else {
+      input.classList.remove('selected');
+    }
+  });
+  updateStatus();
+}
+
+function handleByteChange(e, pos) {
+  if (!isEditable(pos)) return;
+  
+  const value = e.target.value.trim();
+  if (!/^[0-9A-Fa-f]{1,2}$/.test(value)) {
+    e.target.value = data[pos].toString(16).toUpperCase().padStart(2, '0');
+    return;
+  }
+  
+  pushUndo();
+  data[pos] = parseInt(value, 16);
+  updatePreview();
+}
+
+function handleByteKeydown(e, pos) {
+  if (e.key === 'ArrowRight' || e.key === 'Tab') {
+    e.preventDefault();
+    const next = pos + 1;
+    if (next < data.length) {
+      const nextInput = document.querySelector(`input[data-pos="${next}"]`);
+      if (nextInput) {
+        nextInput.focus();
+      } else {
+        scrollToPosition(next);
+      }
+    }
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    const prev = pos - 1;
+    if (prev >= 0) {
+      const prevInput = document.querySelector(`input[data-pos="${prev}"]`);
+      if (prevInput) {
+        prevInput.focus();
+      } else {
+        scrollToPosition(prev);
+      }
+    }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    const up = pos - BYTES_PER_ROW;
+    if (up >= 0) {
+      scrollToPosition(up);
+    }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    const down = pos + BYTES_PER_ROW;
+    if (down < data.length) {
+      scrollToPosition(down);
+    }
+  }
+}
+
+function scrollToPosition(pos) {
+  const row = Math.floor(pos / BYTES_PER_ROW);
+  const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
+  
+  if (row < scrollOffset || row >= scrollOffset + VISIBLE_ROWS) {
+    scrollOffset = Math.max(0, Math.min(row - 5, totalRows - VISIBLE_ROWS));
+    renderHex();
+    setTimeout(() => {
+      const input = document.querySelector(`input[data-pos="${pos}"]`);
+      if (input) input.focus();
+    }, 10);
+  }
+}
+
+function updateStatus(pos = null) {
   const el = document.getElementById('hexStatus');
   if (!data) { el.innerHTML = ''; return; }
-  const editable = isEditable(cursor);
-  let statusHTML = `Position: <span class="pos">${cursor.toString(16).toUpperCase().padStart(8,'0')}</span> · <span class="${editable?'status-editable':'status-locked'}">${editable?'EDITABLE':'LOCKED'}</span>`;
-  statusHTML += ` · Mode: <span style="color:var(--accent)">${editMode.toUpperCase()}</span>`;
   
-  if (selectionStart !== null) {
-    const selMin = Math.min(selectionStart, selectionEnd);
-    const selMax = Math.max(selectionStart, selectionEnd);
-    const selSize = selMax - selMin + 1;
-    statusHTML += ` · <span style="color:var(--cursor)">Selected: ${selSize} bytes</span>`;
+  const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
+  const currentRow = scrollOffset + 1;
+  const endRow = Math.min(scrollOffset + VISIBLE_ROWS, totalRows);
+  
+  let statusHTML = `Rows ${currentRow}-${endRow} of ${totalRows} · ${data.length.toLocaleString()} bytes`;
+  
+  if (pos !== null && pos !== undefined) {
+    const editable = isEditable(pos);
+    statusHTML += ` · Pos: <span class="pos">${pos.toString(16).toUpperCase().padStart(8,'0')}</span> <span class="${editable?'status-editable':'status-locked'}">${editable?'EDIT':'LOCK'}</span>`;
+  }
+  
+  if (selectedBytes.size > 0) {
+    statusHTML += ` · <span style="color:var(--accent)">${selectedBytes.size} selected</span>`;
   }
   
   el.innerHTML = statusHTML;
-  updatePositionIndicator();
   updateSelectionInfo();
 }
 
 function updateSelectionInfo() {
   const el = document.getElementById('selectionInfo');
-  if (!el || !data) return;
-  
-  if (selectionStart === null) {
-    el.innerHTML = '<span style="color:var(--fg-dim)">No selection</span><br><span style="color:var(--fg-dim);font-size:10px">Use Shift+Click or Shift+Arrow to select bytes</span>';
+  if (!data || selectedBytes.size === 0) {
+    el.textContent = 'No selection';
     return;
   }
   
-  const selMin = Math.min(selectionStart, selectionEnd);
-  const selMax = Math.max(selectionStart, selectionEnd);
-  const selSize = selMax - selMin + 1;
-  const bytes = data.slice(selMin, selMax + 1);
-  
-  // Count editable bytes in selection
-  let editableInSelection = 0;
-  for (let i = selMin; i <= selMax; i++) {
-    if (isEditable(i)) editableInSelection++;
-  }
-  
-  // Show preview of selection
+  const bytes = Array.from(selectedBytes).sort((a,b) => a-b);
   let hexPreview = '';
-  let asciiPreview = '';
-  const maxPreview = 6;
-  
-  for (let i = 0; i < Math.min(bytes.length, maxPreview); i++) {
-    hexPreview += bytes[i].toString(16).toUpperCase().padStart(2, '0') + ' ';
-    asciiPreview += bytes[i] >= 32 && bytes[i] <= 126 ? String.fromCharCode(bytes[i]) : '.';
+  for (let i = 0; i < Math.min(bytes.length, 6); i++) {
+    hexPreview += data[bytes[i]].toString(16).toUpperCase().padStart(2, '0') + ' ';
   }
-  if (bytes.length > maxPreview) {
-    hexPreview += '...';
-    asciiPreview += '...';
-  }
+  if (bytes.length > 6) hexPreview += '...';
   
-  let html = `<span style="color:var(--cursor)">${selSize} bytes</span> selected`;
-  if (editableInSelection < selSize) {
-    html += ` <span style="color:var(--protected)">(${selSize - editableInSelection} protected)</span>`;
-  }
-  html += `<br><span style="color:var(--fg-dim)">HEX:</span> <span style="color:var(--editable)">${hexPreview}</span>`;
-  html += `<br><span style="color:var(--fg-dim)">ASCII:</span> <span style="color:var(--fg)">${asciiPreview}</span>`;
-  
-  el.innerHTML = html;
+  el.innerHTML = `<span style="color:var(--accent)">${bytes.length} bytes</span><br><span style="color:var(--fg-dim)">${hexPreview}</span>`;
 }
 
 function clearSelection() {
-  selectionStart = null;
-  selectionEnd = null;
-  updateSelectionInfo();
+  selectedBytes.clear();
+  renderHex();
 }
 
-function getSelectionRange() {
-  if (selectionStart === null) return null;
-  return { start: Math.min(selectionStart, selectionEnd), end: Math.max(selectionStart, selectionEnd) };
-}
-
-function setEditMode(mode) {
-  editMode = mode;
-  document.getElementById('editModeHex').classList.toggle('active', mode === 'hex');
-  document.getElementById('editModeAscii').classList.toggle('active', mode === 'ascii');
-}
-
-let searchMode = 'ascii';
-function setSearchMode(mode) {
-  searchMode = mode;
-  document.getElementById('searchModeHex').classList.toggle('active', mode === 'hex');
-  document.getElementById('searchModeAscii').classList.toggle('active', mode === 'ascii');
-  document.getElementById('searchInput').placeholder = mode === 'hex' ? 'Hex bytes (e.g., FF 00 FF)' : 'Text to find...';
-  document.getElementById('replaceInput').placeholder = mode === 'hex' ? 'Hex bytes (e.g., 00 FF 00)' : 'Replacement text...';
-}
-
-function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  document.getElementById('replaceInput').value = '';
-  searchMatches = [];
-  currentMatchIndex = -1;
-  clearSelection();
-  document.getElementById('searchStatus').textContent = '';
-  document.getElementById('searchStatus').style.color = 'var(--fg-dim)';
-  drawHex();
-}
-
-function getSearchBytes() {
-  const input = document.getElementById('searchInput').value;
-  if (!input) return null;
-  
-  if (searchMode === 'hex') {
-    const hex = input.replace(/[^0-9a-fA-F]/g, '');
-    if (hex.length < 2) return null;
-    const bytes = [];
-    for (let i = 0; i + 1 < hex.length; i += 2) {
-      bytes.push(parseInt(hex.substr(i, 2), 16));
-    }
-    return bytes.length > 0 ? bytes : null;
-  } else {
-    if (input.length === 0) return null;
-    return Array.from(input).map(c => c.charCodeAt(0) & 0xFF);
+function selectColumn() {
+  if (selectedBytes.size === 0) {
+    alert('Select at least one byte first');
+    return;
   }
-}
-
-function getReplaceBytes() {
-  const input = document.getElementById('replaceInput').value;
   
-  if (searchMode === 'hex') {
-    const hex = input.replace(/[^0-9a-fA-F]/g, '');
-    const bytes = [];
-    for (let i = 0; i + 1 < hex.length; i += 2) {
-      bytes.push(parseInt(hex.substr(i, 2), 16));
-    }
-    return bytes;
-  } else {
-    return Array.from(input).map(c => c.charCodeAt(0) & 0xFF);
+  const cols = new Set();
+  selectedBytes.forEach(pos => {
+    cols.add(pos % BYTES_PER_ROW);
+  });
+  
+  selectedBytes.clear();
+  const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
+  for (let row = 0; row < totalRows; row++) {
+    cols.forEach(col => {
+      const pos = row * BYTES_PER_ROW + col;
+      if (pos < data.length && isEditable(pos)) {
+        selectedBytes.add(pos);
+      }
+    });
   }
+  renderHex();
 }
 
-function findMatches(searchBytes) {
-  const matches = [];
-  if (!data || !searchBytes || searchBytes.length === 0) return matches;
+function selectRow() {
+  if (selectedBytes.size === 0) {
+    alert('Select at least one byte first');
+    return;
+  }
   
+  const rows = new Set();
+  selectedBytes.forEach(pos => {
+    rows.add(Math.floor(pos / BYTES_PER_ROW));
+  });
+  
+  selectedBytes.clear();
+  rows.forEach(row => {
+    const start = row * BYTES_PER_ROW;
+    const end = Math.min(start + BYTES_PER_ROW, data.length);
+    for (let pos = start; pos < end; pos++) {
+      if (isEditable(pos)) {
+        selectedBytes.add(pos);
+      }
+    }
+  });
+  renderHex();
+}
+
+function expandSelection() {
+  if (selectedBytes.size === 0) {
+    alert('Select at least one byte first');
+    return;
+  }
+  
+  const toAdd = new Set();
+  
+  selectedBytes.forEach(pos => {
+    if (pos > 0 && pos % BYTES_PER_ROW !== 0) {
+      if (isEditable(pos - 1)) toAdd.add(pos - 1);
+    }
+    if ((pos + 1) % BYTES_PER_ROW !== 0 && pos + 1 < data.length) {
+      if (isEditable(pos + 1)) toAdd.add(pos + 1);
+    }
+    if (pos >= BYTES_PER_ROW) {
+      if (isEditable(pos - BYTES_PER_ROW)) toAdd.add(pos - BYTES_PER_ROW);
+    }
+    if (pos + BYTES_PER_ROW < data.length) {
+      if (isEditable(pos + BYTES_PER_ROW)) toAdd.add(pos + BYTES_PER_ROW);
+    }
+  });
+  
+  toAdd.forEach(pos => selectedBytes.add(pos));
+  renderHex();
+}
+
+function shrinkSelection() {
+  if (selectedBytes.size === 0) return;
+  
+  const bytes = Array.from(selectedBytes).sort((a,b) => a-b);
+  const min = bytes[0];
+  const max = bytes[bytes.length - 1];
+  
+  selectedBytes.delete(min);
+  selectedBytes.delete(max);
+  
+  renderHex();
+}
+
+function findAndSelect() {
+  const query = document.getElementById('findInput').value.trim();
+  if (!query || !data) return;
+  
+  const searchBytes = [];
+  const hex = query.replace(/[^0-9a-fA-F]/g, '');
+  for (let i = 0; i + 1 < hex.length; i += 2) {
+    searchBytes.push(parseInt(hex.substr(i, 2), 16));
+  }
+  
+  if (searchBytes.length === 0) return;
+  
+  selectedBytes.clear();
   for (let i = 0; i <= data.length - searchBytes.length; i++) {
-    let found = true;
+    let match = true;
     for (let j = 0; j < searchBytes.length; j++) {
       if (data[i + j] !== searchBytes[j]) {
-        found = false;
+        match = false;
         break;
       }
     }
-    if (found) {
-      matches.push({ start: i, length: searchBytes.length });
+    if (match) {
+      for (let j = 0; j < searchBytes.length; j++) {
+        if (isEditable(i + j)) {
+          selectedBytes.add(i + j);
+        }
+      }
     }
   }
-  return matches;
-}
-
-function findNext() {
-  const searchBytes = getSearchBytes();
-  if (!searchBytes) {
-    document.getElementById('searchStatus').textContent = 'Enter search term';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
   
-  searchMatches = findMatches(searchBytes);
-  if (searchMatches.length === 0) {
-    document.getElementById('searchStatus').textContent = 'No matches found';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    currentMatchIndex = -1;
-    clearSelection();
-    drawHex();
-    return;
-  }
-  
-  // Find next match after cursor
-  let nextIndex = searchMatches.findIndex(m => m.start > cursor);
-  if (nextIndex === -1) nextIndex = 0; // Wrap around
-  
-  currentMatchIndex = nextIndex;
-  const match = searchMatches[currentMatchIndex];
-  cursor = match.start;
-  selectionStart = match.start;
-  selectionEnd = match.start + match.length - 1;
-  
-  // Scroll to match
-  const cursorRow = Math.floor(cursor / BYTES_PER_ROW);
-  if (cursorRow < scrollOffset || cursorRow >= scrollOffset + VISIBLE_ROWS) {
-    scrollOffset = Math.max(0, cursorRow - 5);
-  }
-  
-  document.getElementById('searchStatus').textContent = `Match ${currentMatchIndex + 1} of ${searchMatches.length}`;
-  document.getElementById('searchStatus').style.color = 'var(--editable)';
-  drawHex();
-  document.getElementById('hexPanel').focus();
-}
-
-function findPrev() {
-  const searchBytes = getSearchBytes();
-  if (!searchBytes) {
-    document.getElementById('searchStatus').textContent = 'Enter search term';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
-  
-  searchMatches = findMatches(searchBytes);
-  if (searchMatches.length === 0) {
-    document.getElementById('searchStatus').textContent = 'No matches found';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    currentMatchIndex = -1;
-    clearSelection();
-    drawHex();
-    return;
-  }
-  
-  // Find previous match before cursor
-  let prevIndex = -1;
-  for (let i = searchMatches.length - 1; i >= 0; i--) {
-    if (searchMatches[i].start < cursor) {
-      prevIndex = i;
-      break;
-    }
-  }
-  if (prevIndex === -1) prevIndex = searchMatches.length - 1; // Wrap around
-  
-  currentMatchIndex = prevIndex;
-  const match = searchMatches[currentMatchIndex];
-  cursor = match.start;
-  selectionStart = match.start;
-  selectionEnd = match.start + match.length - 1;
-  
-  // Scroll to match
-  const cursorRow = Math.floor(cursor / BYTES_PER_ROW);
-  if (cursorRow < scrollOffset || cursorRow >= scrollOffset + VISIBLE_ROWS) {
-    scrollOffset = Math.max(0, cursorRow - 5);
-  }
-  
-  document.getElementById('searchStatus').textContent = `Match ${currentMatchIndex + 1} of ${searchMatches.length}`;
-  document.getElementById('searchStatus').style.color = 'var(--editable)';
-  drawHex();
-  document.getElementById('hexPanel').focus();
-}
-
-function findAll() {
-  const searchBytes = getSearchBytes();
-  if (!searchBytes) {
-    document.getElementById('searchStatus').textContent = 'Enter search term';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
-  
-  searchMatches = findMatches(searchBytes);
-  currentMatchIndex = searchMatches.length > 0 ? 0 : -1;
-  
-  if (searchMatches.length === 0) {
-    document.getElementById('searchStatus').textContent = 'No matches found';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
+  renderHex();
+  if (selectedBytes.size > 0) {
+    const occurrences = selectedBytes.size / searchBytes.length;
+    alert(`Found ${occurrences} occurrence${occurrences > 1 ? 's' : ''}`);
   } else {
-    document.getElementById('searchStatus').textContent = `Found ${searchMatches.length} match${searchMatches.length > 1 ? 'es' : ''} (highlighted)`;
-    document.getElementById('searchStatus').style.color = 'var(--editable)';
-    cursor = searchMatches[0].start;
-    selectionStart = searchMatches[0].start;
-    selectionEnd = searchMatches[0].start + searchMatches[0].length - 1;
-    const cursorRow = Math.floor(cursor / BYTES_PER_ROW);
-    if (cursorRow < scrollOffset || cursorRow >= scrollOffset + VISIBLE_ROWS) {
-      scrollOffset = Math.max(0, cursorRow - 5);
-    }
+    alert('No matches found');
   }
-  drawHex();
 }
 
-function replaceCurrent() {
-  if (!data) return;
-  
-  const searchBytes = getSearchBytes();
-  if (!searchBytes) {
-    document.getElementById('searchStatus').textContent = 'Enter search term';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
-  
-  if (currentMatchIndex === -1 || searchMatches.length === 0) {
-    findNext();
-    if (currentMatchIndex === -1) return;
-  }
-  
-  const replaceBytes = getReplaceBytes();
-  const match = searchMatches[currentMatchIndex];
-  
-  // Check if match is in editable region
-  for (let i = match.start; i < match.start + match.length; i++) {
-    if (!isEditable(i)) {
-      document.getElementById('searchStatus').textContent = 'Cannot replace: contains protected bytes';
-      document.getElementById('searchStatus').style.color = 'var(--protected)';
-      return;
-    }
-  }
-  
-  pushUndo();
-  
-  // In-place replacement (overwrite bytes)
-  const bytesToWrite = Math.min(replaceBytes.length, match.length);
-  for (let i = 0; i < bytesToWrite; i++) {
-    data[match.start + i] = replaceBytes[i];
-  }
-  
-  // If replacement is shorter, fill remaining with zeros or leave original
-  // If replacement is longer, extra bytes are ignored (in-place only)
-  
-  if (replaceBytes.length !== searchBytes.length) {
-    document.getElementById('searchStatus').textContent = `Replaced (${bytesToWrite} of ${replaceBytes.length} bytes written - in-place mode)`;
-    document.getElementById('searchStatus').style.color = '#ffaa00';
-  } else {
-    document.getElementById('searchStatus').textContent = 'Replaced';
-    document.getElementById('searchStatus').style.color = 'var(--editable)';
-  }
-  
-  // Re-search and find next match
-  searchMatches = findMatches(searchBytes);
-  if (searchMatches.length > 0) {
-    let nextIdx = searchMatches.findIndex(m => m.start >= match.start + bytesToWrite);
-    if (nextIdx === -1) nextIdx = 0;
-    currentMatchIndex = nextIdx;
-    
-    const nextMatch = searchMatches[currentMatchIndex];
-    cursor = nextMatch.start;
-    selectionStart = nextMatch.start;
-    selectionEnd = nextMatch.start + nextMatch.length - 1;
-    
-    document.getElementById('searchStatus').textContent += ` · ${searchMatches.length} remaining`;
-    
-    const cursorRow = Math.floor(cursor / BYTES_PER_ROW);
-    if (cursorRow < scrollOffset || cursorRow >= scrollOffset + VISIBLE_ROWS) {
-      scrollOffset = Math.max(0, cursorRow - 5);
-    }
-  } else {
-    currentMatchIndex = -1;
-    clearSelection();
-    document.getElementById('searchStatus').textContent += ' · No more matches';
-  }
-  
-  drawHex();
-  updatePreview();
+function getSelectedEditableBytes() {
+  return Array.from(selectedBytes).filter(pos => isEditable(pos)).sort((a,b) => a-b);
 }
 
-function replaceAll() {
-  if (!data) return;
-  
-  const searchBytes = getSearchBytes();
-  if (!searchBytes) {
-    document.getElementById('searchStatus').textContent = 'Enter search term';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
-  
-  const replaceBytes = getReplaceBytes();
-  searchMatches = findMatches(searchBytes);
-  
-  if (searchMatches.length === 0) {
-    document.getElementById('searchStatus').textContent = 'No matches found';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
-  
-  // Filter to only editable matches
-  const editableMatches = searchMatches.filter(match => {
-    for (let i = match.start; i < match.start + match.length; i++) {
-      if (!isEditable(i)) return false;
-    }
-    return true;
-  });
-  
-  if (editableMatches.length === 0) {
-    document.getElementById('searchStatus').textContent = 'No matches in editable regions';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
+function deleteSelection() {
+  const editable = getSelectedEditableBytes();
+  if (editable.length === 0) {
+    alert('No editable bytes selected');
     return;
   }
   
   pushUndo();
-  
-  // In-place replacement for all matches
-  const bytesToWrite = Math.min(replaceBytes.length, searchBytes.length);
-  editableMatches.forEach(match => {
-    for (let i = 0; i < bytesToWrite; i++) {
-      data[match.start + i] = replaceBytes[i];
-    }
-  });
-  
-  searchMatches = [];
-  currentMatchIndex = -1;
-  clearSelection();
-  
-  if (replaceBytes.length !== searchBytes.length) {
-    document.getElementById('searchStatus').textContent = `Replaced ${editableMatches.length} matches (${bytesToWrite} bytes each - in-place mode)`;
-    document.getElementById('searchStatus').style.color = '#ffaa00';
-  } else {
-    document.getElementById('searchStatus').textContent = `Replaced ${editableMatches.length} match${editableMatches.length > 1 ? 'es' : ''}`;
-    document.getElementById('searchStatus').style.color = 'var(--editable)';
-  }
-  
-  drawHex();
+  editable.forEach(pos => data[pos] = 0x00);
+  renderHex();
   updatePreview();
 }
 
-function rebuildRegionMap() {
-  // Rebuild region map after data size change
-  const newMap = {};
-  for (let i = 0; i < data.length; i++) {
-    newMap[i] = 'content';
+function invertSelection() {
+  const editable = getSelectedEditableBytes();
+  if (editable.length === 0) {
+    alert('No editable bytes selected');
+    return;
   }
-  regions.forEach(r => {
-    if (r.type === 'header') {
-      const end = Math.min(r.end, data.length);
-      for (let i = r.start; i < end; i++) {
-        newMap[i] = 'header';
-      }
-    }
-  });
-  regionMap = newMap;
   
-  const editableCount = Object.values(regionMap).filter(t => t === 'content').length;
-  const pct = ((editableCount / data.length) * 100).toFixed(1);
-  document.getElementById('fileInfo').innerHTML = `<span class="format">${format}</span> · ${data.length.toLocaleString()} bytes · <span class="editable">${pct}% editable</span>`;
+  pushUndo();
+  editable.forEach(pos => data[pos] = 0xFF - data[pos]);
+  renderHex();
+  updatePreview();
 }
 
-// Cut selection to clipboard and zero out bytes
-function cutSelection() {
-  if (!data) {
-    alert('No file loaded');
+function randomizeSelection() {
+  const editable = getSelectedEditableBytes();
+  if (editable.length === 0) {
+    alert('No editable bytes selected');
     return;
   }
   
-  if (selectionStart === null) {
-    alert('No selection. Use Shift+Click or Shift+Arrow to select bytes first.');
-    return;
-  }
-  
-  const start = Math.min(selectionStart, selectionEnd);
-  const end = Math.max(selectionStart, selectionEnd);
-  const bytes = data.slice(start, end + 1);
-  
-  // Create hex and ASCII representations
-  let hexStr = '';
-  let asciiStr = '';
-  for (let i = 0; i < bytes.length; i++) {
-    hexStr += bytes[i].toString(16).toUpperCase().padStart(2, '0');
-    if (i < bytes.length - 1) hexStr += ' ';
-    asciiStr += bytes[i] >= 32 && bytes[i] <= 126 ? String.fromCharCode(bytes[i]) : '.';
-  }
-  
-  const textToCopy = editMode === 'hex' ? hexStr : asciiStr;
-  
-  navigator.clipboard.writeText(textToCopy).then(() => {
-    // Zero out editable bytes
-    pushUndo();
-    let zeroedCount = 0;
-    for (let i = start; i <= end; i++) {
-      if (isEditable(i)) {
-        data[i] = 0x00;
-        zeroedCount++;
-      }
-    }
-    
-    drawHex();
-    updatePreview();
-    alert('Cut ' + bytes.length + ' bytes to clipboard. Zeroed ' + zeroedCount + ' editable bytes.');
-  }).catch(err => {
-    alert('Cut failed: ' + err.message);
-  });
+  pushUndo();
+  editable.forEach(pos => data[pos] = Math.floor(Math.random() * 256));
+  renderHex();
+  updatePreview();
 }
 
-// Paste from clipboard at cursor
-function pasteAtCursor() {
-  if (!data) {
-    alert('No file loaded');
+function setValueAction() {
+  const value = document.getElementById('setValueInput').value.trim();
+  if (!/^[0-9A-Fa-f]{1,2}$/.test(value)) {
+    alert('Enter a valid hex value (00-FF)');
     return;
   }
   
-  if (!isEditable(cursor)) {
-    alert('Cannot paste at protected position. Move cursor to an editable (green) byte.');
+  const editable = getSelectedEditableBytes();
+  if (editable.length === 0) {
+    alert('No editable bytes selected');
     return;
   }
   
-  navigator.clipboard.readText().then(text => {
-    if (!text) {
-      alert('Clipboard is empty');
-      return;
-    }
-    
-    let bytes = [];
-    
-    if (editMode === 'hex') {
-      const hex = text.replace(/[^0-9a-fA-F]/g, '');
-      for (let i = 0; i + 1 < hex.length; i += 2) {
-        bytes.push(parseInt(hex.substr(i, 2), 16));
-      }
-    } else {
-      bytes = Array.from(text).map(c => c.charCodeAt(0) & 0xFF);
-    }
-    
-    if (bytes.length === 0) {
-      alert('No valid bytes to paste. In HEX mode, use hex values like "FF 00 FF".');
-      return;
-    }
-    
-    pushUndo();
-    
-    let pos = cursor;
-    let pastedCount = 0;
-    
-    for (let i = 0; i < bytes.length && pos < data.length; i++) {
-      if (isEditable(pos)) {
-        data[pos] = bytes[i];
-        pastedCount++;
-      }
-      pos++;
-    }
-    
-    cursor = Math.min(data.length - 1, pos);
-    clearSelection();
-    drawHex();
-    updatePreview();
-    
-    alert('Pasted ' + pastedCount + ' bytes.');
-  }).catch(err => {
-    alert('Paste failed: ' + err.message + '\n\nMake sure you have granted clipboard permissions.');
+  pushUndo();
+  const byteValue = parseInt(value, 16);
+  editable.forEach(pos => data[pos] = byteValue);
+  renderHex();
+  updatePreview();
+}
+
+function applyGradient(mode) {
+  const startHex = document.getElementById('gradientStart').value.trim();
+  const endHex = document.getElementById('gradientEnd').value.trim();
+  
+  if (!/^[0-9A-Fa-f]{1,2}$/.test(startHex) || !/^[0-9A-Fa-f]{1,2}$/.test(endHex)) {
+    alert('Enter valid hex values (00-FF)');
+    return;
+  }
+  
+  const editable = getSelectedEditableBytes();
+  if (editable.length === 0) {
+    alert('No editable bytes selected');
+    return;
+  }
+  
+  pushUndo();
+  const start = parseInt(startHex, 16);
+  const end = parseInt(endHex, 16);
+  
+  if (mode === 'absolute') {
+    editable.forEach((pos, i) => {
+      const t = editable.length > 1 ? i / (editable.length - 1) : 0;
+      data[pos] = Math.round(start + (end - start) * t);
+    });
+  } else {
+    editable.forEach((pos, i) => {
+      const t = editable.length > 1 ? i / (editable.length - 1) : 0;
+      const offset = Math.round((end - start) * t);
+      data[pos] = (data[pos] + offset) & 0xFF;
+    });
+  }
+  
+  renderHex();
+  updatePreview();
+}
+
+function applyPattern() {
+  const hex = document.getElementById('patternInput').value.replace(/[^0-9a-fA-F]/g, '');
+  const patternBytes = [];
+  for (let i = 0; i < hex.length; i += 2) {
+    patternBytes.push(parseInt(hex.substr(i, 2), 16));
+  }
+  
+  if (patternBytes.length === 0) {
+    alert('Enter a valid hex pattern');
+    return;
+  }
+  
+  const editable = getSelectedEditableBytes();
+  if (editable.length === 0) {
+    alert('No editable bytes selected');
+    return;
+  }
+  
+  pushUndo();
+  editable.forEach((pos, i) => {
+    data[pos] = patternBytes[i % patternBytes.length];
   });
+  renderHex();
+  updatePreview();
+}
+
+function shiftBytes() {
+  const amount = parseInt(document.getElementById('shiftAmount').value);
+  if (isNaN(amount)) {
+    alert('Enter a valid number');
+    return;
+  }
+  
+  const editable = getSelectedEditableBytes();
+  if (editable.length === 0) {
+    alert('No editable bytes selected');
+    return;
+  }
+  
+  pushUndo();
+  editable.forEach(pos => {
+    data[pos] = (data[pos] + amount) & 0xFF;
+  });
+  renderHex();
+  updatePreview();
 }
 
 function updatePreview() {
   const box = document.getElementById('previewBox');
-  if (!data) { box.innerHTML = '<span style="color:var(--fg-dim);font-size:12px">No image</span>'; updatePositionIndicator(); return; }
+  if (!data) { 
+    box.innerHTML = '<span style="color:var(--fg-dim);font-size:12px">No image</span>'; 
+    return; 
+  }
+  
   const blob = new Blob([data]);
   const url = URL.createObjectURL(blob);
   const img = new Image();
+  
   img.onload = () => {
-    imageWidth = img.naturalWidth;
-    imageHeight = img.naturalHeight;
     img.className = `zoom-${currentZoom}x`;
     img.id = 'previewImg';
     box.innerHTML = '';
     box.appendChild(img);
-    updatePositionIndicator();
   };
+  
   img.onerror = () => {
-    imageWidth = 0; imageHeight = 0;
     box.innerHTML = '<div class="preview-error"><div class="icon">⚠ DECODE ERROR</div><div class="msg">(normal during databending)</div></div>';
-    updatePositionIndicator();
   };
+  
   img.src = url;
 }
 
@@ -1134,138 +1218,106 @@ function setZoom(level) {
   const img = document.getElementById('previewImg');
   if (img) {
     img.className = `zoom-${level}x`;
-    // Re-calculate marker position after zoom change
-    setTimeout(updatePositionIndicator, 50);
   }
-}
-
-function updatePositionIndicator() {
-  const el = document.getElementById('previewPosition');
-  if (!data || !regions.length) { el.innerHTML = ''; return; }
-  
-  // Find which content region the cursor is in
-  let inContentRegion = null;
-  let contentStart = 0, contentEnd = 0;
-  for (const r of regions) {
-    if (r.type === 'content' && cursor >= r.start && cursor < r.end) {
-      inContentRegion = r;
-      contentStart = r.start;
-      contentEnd = r.end;
-      break;
-    }
-  }
-  
-  if (!inContentRegion) {
-    el.innerHTML = '<span class="note">Cursor in protected header region</span>';
-    removePixelMarker();
-    return;
-  }
-  
-  const posInContent = cursor - contentStart;
-  const contentSize = contentEnd - contentStart;
-  const percent = ((posInContent / contentSize) * 100).toFixed(1);
-  
-  // For BMP, calculate actual pixel position
-  if (format === 'BMP' && imageWidth > 0 && imageHeight > 0) {
-    const bytesPerPixel = Math.ceil(bitsPerPixel / 8);
-    const rowSize = Math.ceil((imageWidth * bytesPerPixel) / 4) * 4; // BMP rows padded to 4 bytes
-    const row = Math.floor(posInContent / rowSize);
-    const col = Math.floor((posInContent % rowSize) / bytesPerPixel);
-    const y = imageHeight - 1 - row; // BMP is bottom-to-top
-    const x = Math.min(col, imageWidth - 1);
-    
-    if (y >= 0 && y < imageHeight && x >= 0 && x < imageWidth) {
-      el.innerHTML = `<span class="label">PIXEL:</span> <span class="value">(${x}, ${y})</span><br><span class="label">STREAM:</span> <span class="value">${percent}%</span>`;
-      showPixelMarker(x, y);
-    } else {
-      el.innerHTML = `<span class="label">STREAM:</span> <span class="value">${percent}%</span> <span class="note">(padding)</span>`;
-      removePixelMarker();
-    }
-  } else {
-    // Compressed formats - estimate position
-    const estY = Math.floor((posInContent / contentSize) * (imageHeight || 100));
-    el.innerHTML = `<span class="label">STREAM:</span> <span class="value">${percent}%</span><br><span class="note">~row ${estY} (compressed)</span>`;
-    showPixelMarker(-1, estY); // Show approximate row
-  }
-}
-
-function showPixelMarker(x, y) {
-  const box = document.getElementById('previewBox');
-  const img = document.getElementById('previewImg');
-  if (!img || !imageWidth || !imageHeight) { removePixelMarker(); return; }
-  
-  let marker = document.getElementById('pixelMarker');
-  if (!marker) {
-    marker = document.createElement('div');
-    marker.id = 'pixelMarker';
-    marker.className = 'pixel-marker';
-    box.appendChild(marker);
-  }
-  
-  // Calculate position in preview box
-  const boxRect = box.getBoundingClientRect();
-  const imgRect = img.getBoundingClientRect();
-  
-  // Scale factors based on displayed size vs natural size
-  const scaleX = imgRect.width / imageWidth;
-  const scaleY = imgRect.height / imageHeight;
-  
-  // Offset of image within box
-  const offsetX = imgRect.left - boxRect.left + box.scrollLeft;
-  const offsetY = imgRect.top - boxRect.top + box.scrollTop;
-  
-  if (x >= 0) {
-    // Exact pixel position (BMP)
-    marker.style.left = (offsetX + (x + 0.5) * scaleX) + 'px';
-    marker.style.top = (offsetY + (y + 0.5) * scaleY) + 'px';
-    marker.style.width = '8px';
-    marker.style.height = '8px';
-  } else {
-    // Approximate row (compressed formats)
-    marker.style.left = (offsetX + imgRect.width / 2) + 'px';
-    marker.style.top = (offsetY + (y / imageHeight) * imgRect.height) + 'px';
-    marker.style.width = (imgRect.width * 0.8) + 'px';
-    marker.style.height = '2px';
-  }
-  marker.style.display = 'block';
-}
-
-function removePixelMarker() {
-  const marker = document.getElementById('pixelMarker');
-  if (marker) marker.style.display = 'none';
 }
 
 function updateStructure() {
   const el = document.getElementById('structureList');
-  if (!regions.length) { el.innerHTML = '<p style="color:var(--fg-dim);font-size:12px;margin-top:16px">No file loaded</p>'; return; }
-  el.innerHTML = regions.map((r, i) => `<div class="structure-item ${r.type==='content'?'editable':''}" style="border-color:var(--${r.type==='content'?'editable':'protected'})" onclick="jumpTo(${r.start})"><div class="desc" style="color:var(--${r.type==='content'?'editable':'protected'})">${r.desc}</div><div class="offset">${r.start.toString(16).toUpperCase().padStart(8,'0')} · ${(r.end-r.start).toLocaleString()}B</div></div>`).join('');
+  if (!regions.length) { 
+    el.innerHTML = '<p style="color:var(--fg-dim);font-size:12px;margin-top:16px">No file loaded</p>'; 
+    return; 
+  }
+  
+  el.innerHTML = regions.map(r => 
+    `<div class="structure-item ${r.type==='content'?'editable':''}" 
+          style="border-color:var(--${r.type==='content'?'editable':'protected'})" 
+          onclick="jumpTo(${r.start})">
+      <div class="desc" style="color:var(--${r.type==='content'?'editable':'protected'})">${r.desc}</div>
+      <div class="offset">${r.start.toString(16).toUpperCase().padStart(8,'0')} · ${(r.end-r.start).toLocaleString()}B</div>
+    </div>`
+  ).join('');
 }
 
-function jumpTo(pos) { cursor = pos; scrollOffset = Math.floor(pos / BYTES_PER_ROW); drawHex(); document.getElementById('hexPanel').focus(); }
+function jumpTo(pos) {
+  selectedBytes.clear();
+  selectedBytes.add(pos);
+  scrollToPosition(pos);
+}
+
+function changeGifFrame(delta) {
+  if (!isAnimatedFormat || gifFrames.length === 0) return;
+  
+  currentGifFrame = (currentGifFrame + delta + gifFrames.length) % gifFrames.length;
+  updateGifFrameUI();
+}
+
+function setGifFrame(frameNum) {
+  if (!isAnimatedFormat || gifFrames.length === 0) return;
+  
+  currentGifFrame = Math.max(0, Math.min(frameNum, gifFrames.length - 1));
+  updateGifFrameUI();
+}
+
+function updateGifFrameUI() {
+  document.getElementById('currentGifFrame').textContent = currentGifFrame;
+  document.getElementById('gifFrameInput').value = currentGifFrame;
+  
+  if (gifFrames[currentGifFrame]) {
+    jumpTo(gifFrames[currentGifFrame].start);
+  }
+}
 
 function loadFile(file) {
   const reader = new FileReader();
   reader.onload = e => {
     const bytes = new Uint8Array(e.target.result);
-    bitsPerPixel = 24; // Reset before parsing
     const result = parseFormat(bytes, file.name);
-    if (!result.regions) { alert('Unsupported format.\nSupported: JPEG, PNG, GIF, WebP, BMP, TIFF'); return; }
-    data = bytes; originalData = new Uint8Array(bytes); regions = result.regions; format = result.format; filename = file.name;
+    
+    if (!result.regions) { 
+      alert('Unsupported format.\nSupported: JPEG, PNG, GIF, WebP, BMP, TIFF'); 
+      return; 
+    }
+    
+    data = bytes; 
+    originalData = new Uint8Array(bytes); 
+    regions = result.regions; 
+    format = result.format; 
+    filename = file.name;
+    gifFrames = result.frames || [];
+    isAnimatedFormat = gifFrames.length > 0;
+    currentGifFrame = 0;
+    scrollOffset = 0;
+    
     regionMap = {};
-    regions.forEach(r => { for(let i=r.start;i<r.end;i++) regionMap[i]=r.type; });
-    cursor = 0; scrollOffset = 0; imageWidth = 0; imageHeight = 0;
+    regions.forEach(r => { 
+      for(let i=r.start;i<r.end;i++) regionMap[i]=r.type; 
+    });
+    
     undoStack = [];
-    clearSelection();
-    searchMatches = [];
-    currentMatchIndex = -1;
+    selectedBytes.clear();
     updateUndoButton();
+    
+    document.getElementById('gifNavigation').classList.toggle('hidden', !isAnimatedFormat);
+    document.getElementById('scopePanel').classList.toggle('hidden', !isAnimatedFormat);
+    document.getElementById('actionPanelTitle').textContent = isAnimatedFormat ? '3. ACTION' : '2. ACTION';
+    
+    if (isAnimatedFormat) {
+      document.getElementById('totalGifFrames').textContent = gifFrames.length;
+      document.getElementById('currentGifFrame').textContent = currentGifFrame;
+      document.getElementById('gifFrameInput').value = currentGifFrame;
+      document.getElementById('gifFrameInput').max = gifFrames.length - 1;
+    }
+    
     const editableCount = Object.values(regionMap).filter(t=>t==='content').length;
     const pct = ((editableCount/data.length)*100).toFixed(1);
-    document.getElementById('fileInfo').innerHTML = `<span class="format">${format}</span> · ${data.length.toLocaleString()} bytes · <span class="editable">${pct}% editable</span>`;
+    document.getElementById('fileInfo').innerHTML = `<span class="format">${format}</span> · ${data.length.toLocaleString()} bytes · <span class="editable">${pct}% editable</span>${isAnimatedFormat ? ` · <span style="color:var(--accent)">${gifFrames.length} frames</span>` : ''}`;
+    
     document.getElementById('saveBtn').disabled = false;
     document.getElementById('resetBtn').disabled = false;
-    document.getElementById('toolsBtn').disabled = false;
-    updateStructure(); drawHex(); updatePreview(); updateSelectionInfo();
+    
+    updateStructure(); 
+    renderHex(); 
+    updatePreview();
   };
   reader.readAsArrayBuffer(file);
 }
@@ -1275,7 +1327,9 @@ function saveFile() {
   const blob = new Blob([data]);
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `glitched_${filename}`; a.click();
+  a.href = url; 
+  a.download = `glitched_${filename}`; 
+  a.click();
   URL.revokeObjectURL(url);
 }
 
@@ -1283,220 +1337,72 @@ function resetFile() {
   if (!originalData) return;
   data = new Uint8Array(originalData);
   undoStack = [];
-  clearSelection();
+  selectedBytes.clear();
+  scrollOffset = 0;
   updateUndoButton();
-  drawHex(); updatePreview();
+  renderHex(); 
+  updatePreview();
 }
 
-function toggleTools() {
-  const panel = document.getElementById('toolsPanel');
-  const btn = document.getElementById('toolsBtn');
-  panel.classList.toggle('show');
-  btn.textContent = panel.classList.contains('show') ? '− TOOLS' : '+ TOOLS';
-}
-
-function applyRandomization() {
-  if (!data) return;
-  pushUndo();
-  const intensity = document.getElementById('randomIntensity').value / 100;
-  const mode = document.getElementById('randomMode').value;
-  const range = getSelectionRange();
-  const startIdx = range ? range.start : 0;
-  const endIdx = range ? range.end : data.length - 1;
-  
-  for (let i = startIdx; i <= endIdx; i++) {
-    if (regionMap[i] !== 'content' || Math.random() > intensity) continue;
-    const rand = Math.floor(Math.random() * 256);
-    if (mode === 'xor') data[i] ^= rand;
-    else if (mode === 'add') data[i] = (data[i] + rand) % 256;
-    else if (mode === 'replace') data[i] = rand;
-    else if (mode === 'bitflip') data[i] ^= (1 << Math.floor(Math.random() * 8));
-  }
-  drawHex(); updatePreview();
-}
-
-function applyPattern() {
-  if (!data) return;
-  pushUndo();
-  const hex = document.getElementById('patternInput').value.replace(/[^0-9a-fA-F]/g, '');
-  const mode = document.getElementById('patternMode').value;
-  const patternBytes = [];
-  for (let i = 0; i < hex.length; i += 2) patternBytes.push(parseInt(hex.substr(i, 2), 16) || 0);
-  if (!patternBytes.length) return;
-  
-  const range = getSelectionRange();
-  const startIdx = range ? range.start : 0;
-  const endIdx = range ? range.end : data.length - 1;
-  
-  let idx = 0;
-  for (let i = startIdx; i <= endIdx; i++) {
-    if (regionMap[i] !== 'content') continue;
-    const p = patternBytes[idx % patternBytes.length];
-    if (mode === 'overwrite') data[i] = p;
-    else if (mode === 'xor') data[i] ^= p;
-    else if (mode === 'add') data[i] = (data[i] + p) % 256;
-    else if (mode === 'and') data[i] &= p;
-    else if (mode === 'or') data[i] |= p;
-    idx++;
-  }
-  drawHex(); updatePreview();
-}
-
-// Events
-document.getElementById('fileInput').addEventListener('change', e => { if(e.target.files[0]) loadFile(e.target.files[0]); });
-
-canvas.addEventListener('click', e => {
-  if (!data) return;
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left, y = e.clientY - rect.top;
-  if (x < 95 || x > 510) return;
-  const row = Math.floor(y / ROW_HEIGHT) + scrollOffset;
-  const col = Math.floor((x - 95) / 26);
-  const pos = row * BYTES_PER_ROW + col;
-  if (pos >= 0 && pos < data.length) { 
-    if (e.shiftKey && selectionStart !== null) {
-      // Extend selection
-      selectionEnd = pos;
-      cursor = pos;
-    } else if (e.shiftKey) {
-      // Start new selection from cursor
-      selectionStart = cursor;
-      selectionEnd = pos;
-      cursor = pos;
-    } else {
-      // Normal click - clear selection
-      clearSelection();
-      cursor = pos;
-    }
-    drawHex(); 
-  }
-  document.getElementById('hexPanel').focus();
+document.getElementById('fileInput').addEventListener('change', e => { 
+  if(e.target.files[0]) loadFile(e.target.files[0]); 
 });
 
-document.getElementById('hexPanel').addEventListener('keydown', e => {
-  if (!data) return;
-  const key = e.key.toLowerCase();
-  
-  // Ctrl+Z handled globally now
-  if ((e.ctrlKey || e.metaKey) && key === 'z') {
-    return; // Let global handler take care of it
-  }
-  
-  // Ctrl+A to select all editable bytes
-  if ((e.ctrlKey || e.metaKey) && key === 'a') {
+const hexViewElement = document.getElementById('hexView');
+if (hexViewElement) {
+  hexViewElement.addEventListener('wheel', e => {
+    if (!data) return;
     e.preventDefault();
-    // Find first and last editable byte
-    let first = -1, last = -1;
-    for (let i = 0; i < data.length; i++) {
-      if (regionMap[i] === 'content') {
-        if (first === -1) first = i;
-        last = i;
-      }
-    }
-    if (first !== -1) {
-      selectionStart = first;
-      selectionEnd = last;
-      cursor = last;
-      drawHex();
-    }
-    return;
-  }
-  
-  let newCursor = cursor;
-  const isShift = e.shiftKey;
-  
-  if (key === 'arrowleft') newCursor = Math.max(0, cursor - 1);
-  else if (key === 'arrowright') newCursor = Math.min(data.length - 1, cursor + 1);
-  else if (key === 'arrowup') newCursor = Math.max(0, cursor - BYTES_PER_ROW);
-  else if (key === 'arrowdown') newCursor = Math.min(data.length - 1, cursor + BYTES_PER_ROW);
-  else if (key === 'escape') { clearSelection(); searchMatches = []; currentMatchIndex = -1; drawHex(); return; }
-  else if (editMode === 'hex' && /^[0-9a-f]$/.test(key) && isEditable(cursor)) {
-    pushUndo();
-    const nibble = parseInt(key, 16);
-    data[cursor] = (nibble << 4) | (data[cursor] & 0x0F);
-    clearSelection();
-    cursor = Math.min(data.length - 1, cursor + 1);
-    updatePreview();
-  }
-  else if (editMode === 'ascii' && e.key.length === 1 && !e.ctrlKey && !e.metaKey && isEditable(cursor)) {
-    pushUndo();
-    data[cursor] = e.key.charCodeAt(0) & 0xFF;
-    clearSelection();
-    cursor = Math.min(data.length - 1, cursor + 1);
-    updatePreview();
-  } else return;
-  
-  // Handle selection with shift key
-  if (isShift && (key.startsWith('arrow'))) {
-    if (selectionStart === null) {
-      selectionStart = cursor;
-    }
-    selectionEnd = newCursor;
-  } else if (key.startsWith('arrow')) {
-    clearSelection();
-  }
-  
-  cursor = newCursor;
-  e.preventDefault();
-  const cursorRow = Math.floor(cursor / BYTES_PER_ROW);
-  if (cursorRow < scrollOffset) scrollOffset = cursorRow;
-  else if (cursorRow >= scrollOffset + VISIBLE_ROWS - 1) scrollOffset = cursorRow - VISIBLE_ROWS + 2;
-  drawHex();
-});
+    const delta = e.deltaY > 0 ? 3 : -3;
+    const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
+    const maxScroll = Math.max(0, totalRows - VISIBLE_ROWS);
+    scrollOffset = Math.max(0, Math.min(maxScroll, scrollOffset + delta));
+    renderHex();
+  }, {passive: false});
+}
 
-document.getElementById('hexPanel').addEventListener('wheel', e => {
-  if (!data) return;
-  const delta = e.deltaY > 0 ? 3 : -3;
-  const maxScroll = Math.max(0, Math.ceil(data.length / BYTES_PER_ROW) - VISIBLE_ROWS);
-  scrollOffset = Math.max(0, Math.min(maxScroll, scrollOffset + delta));
-  drawHex();
-  e.preventDefault();
-}, {passive: false});
-
-// Scrollbar interactions
 let isDraggingScrollbar = false;
-const scrollbarTrack = document.getElementById('scrollbarTrack');
-const scrollbarThumb = document.getElementById('scrollbarThumb');
+const hexScrollbar = document.getElementById('hexScrollbar');
+const hexScrollbarThumb = document.getElementById('hexScrollbarThumb');
 
-scrollbarTrack.addEventListener('mousedown', e => {
-  if (!data) return;
-  const rect = scrollbarTrack.getBoundingClientRect();
-  const clickY = e.clientY - rect.top;
-  
-  // Check if clicking on thumb
-  if (e.target === scrollbarThumb) {
-    isDraggingScrollbar = true;
-    scrollbarThumb.classList.add('dragging');
-    return;
-  }
-  
-  // Click on track - jump to position
-  const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
-  const maxScroll = totalRows - VISIBLE_ROWS;
-  const trackHeight = canvas.height;
-  const ratio = clickY / trackHeight;
-  scrollOffset = Math.max(0, Math.min(maxScroll, Math.floor(ratio * totalRows)));
-  drawHex();
-});
+if (hexScrollbar && hexScrollbarThumb) {
+  hexScrollbar.addEventListener('mousedown', e => {
+    if (!data) return;
+    
+    if (e.target === hexScrollbarThumb) {
+      isDraggingScrollbar = true;
+      hexScrollbarThumb.classList.add('dragging');
+      return;
+    }
+    
+    const rect = hexScrollbar.getBoundingClientRect();
+    const clickY = e.clientY - rect.top;
+    const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
+    const maxScroll = totalRows - VISIBLE_ROWS;
+    const trackHeight = 520;
+    const ratio = clickY / trackHeight;
+    scrollOffset = Math.max(0, Math.min(maxScroll, Math.floor(ratio * totalRows)));
+    renderHex();
+  });
 
-document.addEventListener('mousemove', e => {
-  if (!isDraggingScrollbar || !data) return;
-  const rect = scrollbarTrack.getBoundingClientRect();
-  const y = e.clientY - rect.top;
-  const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
-  const maxScroll = totalRows - VISIBLE_ROWS;
-  const trackHeight = canvas.height;
-  const ratio = Math.max(0, Math.min(1, y / trackHeight));
-  scrollOffset = Math.floor(ratio * maxScroll);
-  drawHex();
-});
+  document.addEventListener('mousemove', e => {
+    if (!isDraggingScrollbar || !data) return;
+    const rect = hexScrollbar.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
+    const maxScroll = totalRows - VISIBLE_ROWS;
+    const trackHeight = 520;
+    const ratio = Math.max(0, Math.min(1, y / trackHeight));
+    scrollOffset = Math.floor(ratio * maxScroll);
+    renderHex();
+  });
 
-document.addEventListener('mouseup', () => {
-  isDraggingScrollbar = false;
-  scrollbarThumb.classList.remove('dragging');
-});
+  document.addEventListener('mouseup', () => {
+    isDraggingScrollbar = false;
+    hexScrollbarThumb.classList.remove('dragging');
+  });
+}
 
-// Global undo shortcut
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
     e.preventDefault();
@@ -1505,8 +1411,7 @@ document.addEventListener('keydown', e => {
 });
 
 updateUndoButton();
-updateSelectionInfo();
-drawHex();
+renderHex();
 </script>
 </body>
 </html>
