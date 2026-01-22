@@ -64,6 +64,44 @@
     .hidden { display: none !important; }
     footer { margin-top: 24px; padding-top: 14px; border-top: 1px solid #222; font-size: 0.65rem; color: #666; text-align: center; }
     footer a { color: #e91e8c; text-decoration: none; }
+    
+    /* Tooltips */
+    [data-tooltip] { position: relative; }
+    [data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      color: #e0e0e0;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      white-space: nowrap;
+      border: 1px solid #e91e8c;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0;
+      animation: tooltipFadeIn 0.2s ease-in-out 1.5s forwards;
+    }
+    [data-tooltip]:hover::before {
+      content: '';
+      position: absolute;
+      bottom: calc(100% + 2px);
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: #e91e8c;
+      z-index: 1001;
+      pointer-events: none;
+      opacity: 0;
+      animation: tooltipFadeIn 0.2s ease-in-out 1.5s forwards;
+    }
+    @keyframes tooltipFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -72,17 +110,46 @@
     <p class="subtitle">Frame-by-frame hex editing • Multi-byte selection • Use with VLC for preview</p>
   </header>
 
-  <div class="upload-area">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
     <label class="upload-btn"><input type="file" accept=".avi" id="fileInput" style="display:none">Choose AVI File</label>
+  </div>
+
+  <div id="tutorial" class="panel">
+    <div class="panel-title">Getting Started</div>
+    <div style="font-size:0.72rem;line-height:1.6;color:#ccc">
+      <p style="margin-bottom:12px">This tool allows you to manipulate AVI video files at the byte level while protecting critical file structures. Perfect for databending and glitch art experimentation.</p>
+      
+      <p style="margin-bottom:8px;color:#e91e8c;font-weight:bold">Quick Start:</p>
+      <ol style="margin-left:20px;margin-bottom:12px">
+        <li style="margin-bottom:6px"><strong>Load:</strong> Click "Choose AVI File" to load your video</li>
+        <li style="margin-bottom:6px"><strong>Select:</strong> Click bytes in the hex view, use Find, or select by column/row</li>
+        <li style="margin-bottom:6px"><strong>Scope:</strong> Choose which frames to affect (Current, All, or Range)</li>
+        <li style="margin-bottom:6px"><strong>Action:</strong> Apply transformations (00, Invert, Randomize, etc.)</li>
+        <li style="margin-bottom:6px"><strong>Export:</strong> Download your glitched video and preview in VLC</li>
+      </ol>
+      
+      <p style="margin-bottom:8px;color:#e91e8c;font-weight:bold">Key Features:</p>
+      <ul style="margin-left:20px;margin-bottom:12px">
+        <li style="margin-bottom:4px"><strong>Protected Headers:</strong> File and frame headers are protected by default (click badge to toggle)</li>
+        <li style="margin-bottom:4px"><strong>Multi-byte Search:</strong> Find multiple patterns at once: "FB00, F3, DB0033"</li>
+        <li style="margin-bottom:4px"><strong>Value Proximity:</strong> Select bytes near your selection's values (±3 default)</li>
+        <li style="margin-bottom:4px"><strong>Step Control:</strong> Apply to every frame or every nth frame</li>
+        <li style="margin-bottom:4px"><strong>Timeline Visualization:</strong> See where your selection appears across frames</li>
+      </ul>
+      
+      <p style="font-size:0.65rem;color:#666;margin-top:12px;padding-top:12px;border-top:1px solid #222">
+        <strong>Tip:</strong> Start with small changes on a few frames. Use Undo (↶) liberally. The frequency chart shows byte distribution changes.
+      </p>
+    </div>
   </div>
 
   <div id="controls" class="hidden">
     <div class="ctrl-row" style="margin-bottom:8px">
       <span id="fileName" style="color:#888;font-size:0.72rem;flex:1"></span>
-      <button class="ctrl-btn" id="undoBtn" disabled>↶</button>
-      <button class="ctrl-btn" id="redoBtn" disabled>↷</button>
-      <button class="ctrl-btn" id="resetBtn">↺</button>
-      <button class="ctrl-btn active" id="downloadBtn">⬇ Export</button>
+      <button class="ctrl-btn" id="undoBtn" disabled data-tooltip="Undo last change (Ctrl+Z)">↶</button>
+      <button class="ctrl-btn" id="redoBtn" disabled data-tooltip="Redo (Ctrl+Y)">↷</button>
+      <button class="ctrl-btn" id="resetBtn" data-tooltip="Reset to original file">↺</button>
+      <button class="ctrl-btn active" id="downloadBtn" data-tooltip="Export modified AVI">⬇ Export</button>
     </div>
     <div id="changeCount" style="font-size:0.65rem;color:#666;margin-bottom:14px">No changes</div>
   </div>
@@ -93,10 +160,10 @@
       <canvas id="timeline" class="timeline"></canvas>
       <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
         <div class="ctrl-row" style="margin:0">
-          <button class="ctrl-btn" id="playBtn">▶</button>
-          <button class="ctrl-btn" id="stepBackBtn">←</button>
-          <button class="ctrl-btn" id="stepBtn">→</button>
-          <button class="ctrl-btn" id="rewindBtn">↺</button>
+          <button class="ctrl-btn" id="playBtn" data-tooltip="Play/Pause">▶</button>
+          <button class="ctrl-btn" id="stepBackBtn" data-tooltip="Previous frame">←</button>
+          <button class="ctrl-btn" id="stepBtn" data-tooltip="Next frame">→</button>
+          <button class="ctrl-btn" id="rewindBtn" data-tooltip="Jump to frame 0">↺</button>
         </div>
         <input type="number" id="frameInput" min="0" max="0" value="0" style="width:60px;padding:4px">
         <span style="font-size:0.65rem;color:#888" id="timeDisplay">00:00:000</span>
@@ -146,28 +213,26 @@
               <div class="panel-title">1. SELECTION</div>
               <div class="field-label" style="margin-bottom:6px">Find & Select</div>
               <div style="display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:10px">
-                <input type="text" id="findInput" placeholder="FF D8">
-                <button class="ctrl-btn" onclick="findAndSelect()">Find</button>
+                <input type="text" id="findInput" placeholder="FB00, F3, DB0033">
+                <button class="ctrl-btn" onclick="findAndSelect()" data-tooltip="Find hex patterns (comma-separated)">Find</button>
               </div>
               <div class="field-label" style="margin-bottom:6px">Select Bytes</div>
-              <div class="ctrl-row" style="margin:0 0 6px 0">
-                <button class="ctrl-btn" onclick="selectColumn()">↕</button>
-                <button class="ctrl-btn" onclick="selectRow()">↔</button>
-                <button class="ctrl-btn" onclick="expandSelection()">+</button>
-                <button class="ctrl-btn" onclick="shrinkSelection()">−</button>
-                <button class="ctrl-btn" onclick="clearSelection()">✕</button>
-              </div>
-              <div class="field-label" style="margin-bottom:6px">By Value Range</div>
-              <div style="display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:10px">
-                <input type="number" id="proximityTolerance" value="3" min="1" max="128" placeholder="±" style="width:100%">
-                <button class="ctrl-btn" onclick="selectByValueProximity()">± Range</button>
+              <div class="ctrl-row" style="margin:0 0 6px 0;align-items:center">
+                <button class="ctrl-btn" onclick="selectColumn()" data-tooltip="Select entire column(s)">↕</button>
+                <button class="ctrl-btn" onclick="selectRow()" data-tooltip="Select entire row(s)">↔</button>
+                <button class="ctrl-btn" onclick="expandSelection()" data-tooltip="Expand selection outward">+</button>
+                <button class="ctrl-btn" onclick="shrinkSelection()" data-tooltip="Shrink selection inward">−</button>
+                <input type="number" id="proximityTolerance" value="3" min="1" max="128" placeholder="±" style="flex:1;padding:4px 6px">
+                <button class="ctrl-btn" onclick="selectByValueProximity()" data-tooltip="Select bytes near current values">± Range</button>
+                <button class="ctrl-btn" onclick="clearSelection()" data-tooltip="Clear all selection">✕</button>
               </div>
               <div id="selectionInfo" style="font-size:0.6rem;color:#666;margin-top:8px;padding-top:8px;border-top:1px solid #222">No selection</div>
             </div>
 
             <div class="panel">
               <div class="panel-title">2. SCOPE</div>
-              <div class="radio-group" style="margin:0">
+              <div class="field-label" style="margin-bottom:4px">Scope</div>
+              <div class="radio-group" style="margin:0 0 10px 0">
                 <label class="radio-option">
                   <input type="radio" name="frameRange" value="current" checked onchange="updateRangeMode()">Current
                 </label>
@@ -176,6 +241,16 @@
                 </label>
                 <label class="radio-option">
                   <input type="radio" name="frameRange" value="custom" onchange="updateRangeMode()">Range
+                </label>
+              </div>
+              <div class="field-label" style="margin-bottom:4px">Step</div>
+              <div class="radio-group" style="margin:0">
+                <label class="radio-option">
+                  <input type="radio" name="frameStep" value="every" checked onchange="updateRangeMode()">Every frame
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="frameStep" value="nth" onchange="updateRangeMode()">Every
+                  <input type="number" id="nthFrameInput" min="1" value="2" style="width:40px;padding:2px 4px" onchange="updateRangeMode()">th frame
                 </label>
               </div>
               <div id="customRangeDisplay" class="hidden" style="margin-top:8px;padding:8px;background:#1a1a2a;border-radius:4px;font-size:0.6rem">
@@ -187,15 +262,13 @@
           <div>
             <div class="panel">
               <div class="panel-title">3. ACTION</div>
-              <div class="field-label" style="margin-bottom:6px">Basic</div>
-              <div class="ctrl-row" style="margin:0 0 6px 0">
-                <button class="ctrl-btn" onclick="deleteSelection()">00</button>
-                <button class="ctrl-btn" onclick="invertSelection()">⇄</button>
-                <button class="ctrl-btn" onclick="randomizeSelection()">🎲</button>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:10px">
-                <input type="text" id="setValueInput" placeholder="Hex" maxlength="2">
-                <button class="ctrl-btn" onclick="setSelectionValue()">Set</button>
+              <div class="field-label" style="margin-bottom:6px">Hex area</div>
+              <div class="ctrl-row" style="margin:0 0 10px 0;align-items:center">
+                <button class="ctrl-btn" onclick="deleteSelection()" data-tooltip="Zero out selected bytes">00</button>
+                <button class="ctrl-btn" onclick="invertSelection()" data-tooltip="Invert byte values (255-value)">⇋</button>
+                <button class="ctrl-btn" onclick="randomizeSelection()" data-tooltip="Randomize selected bytes">🎲</button>
+                <input type="text" id="setValueInput" placeholder="Hex" maxlength="2" style="flex:1;padding:4px 6px">
+                <button class="ctrl-btn" onclick="setSelectionValue()" data-tooltip="Set selection to hex value">Set</button>
               </div>
               <div class="field-label" style="margin-bottom:6px;padding-top:8px;border-top:1px solid #222">Advanced</div>
               <div class="field-group">
@@ -203,23 +276,23 @@
                 <div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:4px">
                   <input type="text" id="gradStart" placeholder="00" maxlength="2">
                   <input type="text" id="gradEnd" placeholder="FF" maxlength="2">
-                  <button class="ctrl-btn" onclick="gradientFill('relative')">REL</button>
-                  <button class="ctrl-btn" onclick="gradientFill('absolute')">ABS</button>
+                  <button class="ctrl-btn" onclick="gradientFill('relative')" data-tooltip="Gradient within each frame">REL</button>
+                  <button class="ctrl-btn" onclick="gradientFill('absolute')" data-tooltip="Gradient across all frames">ABS</button>
                 </div>
               </div>
               <div class="field-group">
                 <label class="field-label">Pattern</label>
                 <div style="display:grid;grid-template-columns:1fr auto;gap:6px">
                   <input type="text" id="patternInput" placeholder="FF 00">
-                  <button class="ctrl-btn" onclick="patternFill()">Fill</button>
+                  <button class="ctrl-btn" onclick="patternFill()" data-tooltip="Fill with repeating pattern">Fill</button>
                 </div>
               </div>
               <div class="field-group">
                 <label class="field-label">Shift</label>
                 <div style="display:grid;grid-template-columns:1fr auto auto;gap:4px">
                   <input type="number" id="shiftAmount" value="16" min="-255" max="255">
-                  <button class="ctrl-btn" onclick="shiftSelection(-1)">−</button>
-                  <button class="ctrl-btn" onclick="shiftSelection(1)">+</button>
+                  <button class="ctrl-btn" onclick="shiftSelection(-1)" data-tooltip="Subtract value from bytes">−</button>
+                  <button class="ctrl-btn" onclick="shiftSelection(1)" data-tooltip="Add value to bytes">+</button>
                 </div>
               </div>
             </div>
@@ -288,6 +361,7 @@
           if(frames.length>0){
             customRangeStart=0;customRangeEnd=frames.length-1;
             currentFrame=0;loadFrameHex(0);
+            document.getElementById('tutorial').classList.add('hidden');
             document.getElementById('controls').classList.remove('hidden');
             document.getElementById('content').classList.remove('hidden');
             document.getElementById('frameInput').max=frames.length-1;
@@ -368,15 +442,13 @@
       if(!frequencyChart||!hexData)return;
       
       const rt=document.querySelector('input[name="frameRange"]:checked')?.value;
-      const [rs,re]=getFrameRange();
+      const frameList=getFrameList();
       const freq=new Array(256).fill(0);
       
       if(rt==='current'){
-        // Current frame only
         for(let i=0;i<hexData.length;i++){freq[hexData[i]]++;}
       }else{
-        // All or Range - sum across frames
-        for(let fi=rs;fi<=re;fi++){
+        for(const fi of frameList){
           const frame=frames[fi];
           const frameData=aviData.bytes.slice(frame.dataOffset,frame.dataOffset+frame.size);
           for(let i=0;i<frameData.length;i++){freq[frameData[i]]++;}
@@ -384,7 +456,7 @@
       }
       
       frequencyChart.data.datasets[0].data=freq;
-      frequencyChart.update('none'); // No animation for performance
+      frequencyChart.update('none');
     }
 
     function updateSelectionStats(){
@@ -398,16 +470,14 @@
         if(idx<hexData.length)selectionData.push({position:idx,value:hexData[idx]});
       });
       
-      // Count instances in current frame
       const valueFreq={};
       selectionData.forEach(s=>{valueFreq[s.value]=(valueFreq[s.value]||0)+1;});
       
-      // Count across scope
       const rt=document.querySelector('input[name="frameRange"]:checked')?.value;
-      const [rs,re]=getFrameRange();
+      const frameList=getFrameList();
       let totalMatches=0,frameMatchCounts=[];
       
-      for(let fi=rs;fi<=re;fi++){
+      for(const fi of frameList){
         const frame=frames[fi];
         const frameData=aviData.bytes.slice(frame.dataOffset,frame.dataOffset+frame.size);
         let matchCount=0;
@@ -440,13 +510,11 @@
       if(!selectedBytes.size)return alert('Select byte(s) first');
       const tolerance=parseInt(document.getElementById('proximityTolerance').value)||3;
       
-      // Get unique values from current selection
       const selectedValues=new Set();
       Array.from(selectedBytes).forEach(idx=>{
         if(idx<hexData.length)selectedValues.add(hexData[idx]);
       });
       
-      // Build value ranges
       const valueRanges=[];
       selectedValues.forEach(val=>{
         const min=Math.max(0,val-tolerance);
@@ -454,12 +522,11 @@
         valueRanges.push({min,max});
       });
       
-      const rt=document.querySelector('input[name="frameRange"]:checked')?.value;
-      const [rs,re]=getFrameRange();
+      const rt=document.querySelector('input[name="frameRange"]:checked').value;
+      const frameList=getFrameList();
       let totalAdded=0;
       
       if(rt==='current'){
-        // Select in current frame only
         const f=frames[currentFrame];
         for(let i=0;i<hexData.length;i++){
           if(f.dataOffset+i<protectedHeaderEnd)continue;
@@ -472,9 +539,8 @@
           }
         }
       }else{
-        // Count across scope but only select in current frame
         let totalInScope=0;
-        for(let fi=rs;fi<=re;fi++){
+        for(const fi of frameList){
           const frame=frames[fi];
           const frameData=aviData.bytes.slice(frame.dataOffset,frame.dataOffset+frame.size);
           for(let i=0;i<frameData.length;i++){
@@ -486,7 +552,6 @@
           }
         }
         
-        // Add to selection in current frame
         const f=frames[currentFrame];
         for(let i=0;i<hexData.length;i++){
           if(f.dataOffset+i<protectedHeaderEnd)continue;
@@ -526,83 +591,6 @@
         badge.className='badge warn';
         badge.textContent='⚠ Protected';
         badge.title='File header protected';
-      }
-    }
-
-    function updateByteStats(){
-      if(!hexData){
-        document.getElementById('byteStats').innerHTML='No data';
-        return;
-      }
-      
-      // If there's a selection, show selection-specific stats
-      if(selectedBytes.size>0){
-        const selectionData=[];
-        Array.from(selectedBytes).forEach(idx=>{
-          if(idx<hexData.length)selectionData.push({position:idx,value:hexData[idx]});
-        });
-        
-        // Count instances in current frame
-        const valueFreq={};
-        selectionData.forEach(s=>{
-          valueFreq[s.value]=(valueFreq[s.value]||0)+1;
-        });
-        
-        // Count across all frames
-        let totalMatches=0;
-        let frameMatchCounts=[];
-        for(let fi=0;fi<frames.length;fi++){
-          const frame=frames[fi];
-          const frameData=aviData.bytes.slice(frame.dataOffset,frame.dataOffset+frame.size);
-          let matchCount=0;
-          selectionData.forEach(sel=>{
-            if(sel.position<frameData.length&&frameData[sel.position]===sel.value){
-              matchCount++;
-            }
-          });
-          if(matchCount>0){
-            frameMatchCounts.push(matchCount);
-            totalMatches+=matchCount;
-          }
-        }
-        
-        const avgPerFrame=frameMatchCounts.length>0?(totalMatches/frameMatchCounts.length).toFixed(1):0;
-        
-        let html='<div style="color:#e91e8c;font-size:0.65rem;margin-bottom:4px">Selection Stats</div>';
-        html+=`<div style="color:#00bcd4">${selectedBytes.size} bytes selected</div>`;
-        
-        // Show value distribution in selection
-        const uniqueVals=Object.keys(valueFreq).length;
-        if(uniqueVals<=3){
-          Object.entries(valueFreq).forEach(([val,count])=>{
-            html+=`<div>0x${parseInt(val).toString(16).padStart(2,'0').toUpperCase()}: ${count}x in frame</div>`;
-          });
-        }
-        
-        html+=`<div style="margin-top:6px;padding-top:6px;border-top:1px solid #222">`;
-        html+=`<div style="color:#e91e8c;font-size:0.65rem;margin-bottom:2px">Across Video</div>`;
-        html+=`<div>${totalMatches} total matches</div>`;
-        html+=`<div>${frameMatchCounts.length} frames affected</div>`;
-        html+=`<div>Avg: ${avgPerFrame}/frame</div>`;
-        html+='</div>';
-        
-        document.getElementById('byteStats').innerHTML=html;
-      }else{
-        // No selection - show general frame stats
-        const freq=new Array(256).fill(0);
-        for(let i=0;i<hexData.length;i++){freq[hexData[i]]++;}
-        const pairs=[];
-        for(let i=0;i<256;i++){if(freq[i]>0)pairs.push({byte:i,count:freq[i]});}
-        pairs.sort((a,b)=>b.count-a.count);
-        const top5=pairs.slice(0,5);
-        const total=hexData.length;
-        
-        let html='<div style="color:#e91e8c;font-size:0.65rem;margin-bottom:4px">Most Common</div>';
-        top5.forEach(p=>{
-          const pct=((p.count/total)*100).toFixed(1);
-          html+=`<div><span style="color:#00bcd4">0x${p.byte.toString(16).padStart(2,'0').toUpperCase()}</span> • ${pct}%</div>`;
-        });
-        document.getElementById('byteStats').innerHTML=html;
       }
     }
 
@@ -704,7 +692,6 @@
       ctx.fillStyle='#000';
       ctx.fillRect(0,0,w,h);
       
-      // Draw current frame playhead FIRST (behind everything)
       const cx=(currentFrame/Math.max(frames.length-1,1))*w;
       ctx.strokeStyle='#00bcd4';
       ctx.lineWidth=2;
@@ -722,14 +709,11 @@
       
       const rt=document.querySelector('input[name="frameRange"]:checked')?.value;
       
-      // Draw occurrence visualization based on scope
       if(selectedBytes.size>0&&hexData){
         if(rt==='current'){
-          // Single line indicator for current frame only
           ctx.fillStyle='rgba(233,30,140,0.3)';
           ctx.fillRect(cx-1,0,3,h-15);
         }else{
-          // Timeline bars for All or Range scope
           const selectionData=[];
           Array.from(selectedBytes).sort((a,b)=>a-b).forEach(idx=>{
             if(idx<hexData.length){
@@ -778,7 +762,6 @@
         }
       }
       
-      // Draw custom range selection ON TOP
       if(rt==='custom'){
         const sx=(customRangeStart/frames.length)*w;
         const ex=((customRangeEnd+1)/frames.length)*w;
@@ -796,7 +779,18 @@
         ctx.stroke();
       }
       
-      // Timecode labels
+      const step=document.querySelector('input[name="frameStep"]:checked')?.value;
+      if(step==='nth'&&rt!=='current'){
+        const nth=parseInt(document.getElementById('nthFrameInput').value)||2;
+        const frameList=getFrameList();
+        ctx.fillStyle='rgba(233,30,140,0.2)';
+        for(const fi of frameList){
+          const x=(fi/frames.length)*w;
+          const barWidth=Math.max(2,w/frames.length);
+          ctx.fillRect(x,0,barWidth,h);
+        }
+      }
+      
       const fps=30;
       const startTime=0;
       const endTime=(frames.length-1)/fps;
@@ -1029,65 +1023,81 @@
     }
 
     function findAndSelect(){
-      const ft=document.getElementById('findInput').value.replace(/\s/g,'');
-      if(!ft||!hexData)return alert('Enter hex');
-      const fb=ft.match(/.{1,2}/g)?.map(b=>parseInt(b,16))||[];
-      if(fb.some(isNaN))return alert('Invalid hex');
+      const ft=document.getElementById('findInput').value.trim();
+      if(!ft||!hexData)return alert('Enter hex patterns');
+      
+      const patterns=ft.split(',').map(p=>p.trim()).filter(p=>p.length>0);
+      if(patterns.length===0)return alert('Enter at least one pattern');
       
       const rt=document.querySelector('input[name="frameRange"]:checked').value;
-      const [rs,re]=getFrameRange();
+      const frameList=getFrameList();
       
       selectedBytes.clear();
       let totalFound=0;
       let framesWithMatches=0;
       
       if(rt==='current'){
-        // Find only in current frame
         const f=frames[currentFrame];
-        for(let i=0;i<=hexData.length-fb.length;i++){
-          if(f.dataOffset+i<protectedHeaderEnd)continue;
-          if(frameProtectionEnabled&&i<currentFrameProtectionEnd)continue;
-          let m=true;
-          for(let j=0;j<fb.length;j++)if(hexData[i+j]!==fb[j]){m=false;break;}
-          if(m){
-            for(let j=0;j<fb.length;j++)selectedBytes.add(i+j);
-            totalFound++;
+        patterns.forEach(pattern=>{
+          const cleanPattern=pattern.replace(/\s/g,'');
+          const fb=cleanPattern.match(/.{1,2}/g)?.map(b=>parseInt(b,16))||[];
+          if(fb.some(isNaN))return;
+          
+          for(let i=0;i<=hexData.length-fb.length;i++){
+            if(f.dataOffset+i<protectedHeaderEnd)continue;
+            if(frameProtectionEnabled&&i<currentFrameProtectionEnd)continue;
+            let m=true;
+            for(let j=0;j<fb.length;j++)if(hexData[i+j]!==fb[j]){m=false;break;}
+            if(m){
+              for(let j=0;j<fb.length;j++)selectedBytes.add(i+j);
+              totalFound++;
+            }
           }
-        }
+        });
         if(!selectedBytes.size)alert('Not found in current frame');
       }else{
-        // Find across scope (all or range)
-        for(let fi=rs;fi<=re;fi++){
+        for(const fi of frameList){
           const frame=frames[fi];
           const frameData=aviData.bytes.slice(frame.dataOffset,frame.dataOffset+frame.size);
           let frameMatches=0;
           
-          for(let i=0;i<=frameData.length-fb.length;i++){
-            const ao=frame.dataOffset+i;
-            if(ao<protectedHeaderEnd)continue;
+          patterns.forEach(pattern=>{
+            const cleanPattern=pattern.replace(/\s/g,'');
+            const fb=cleanPattern.match(/.{1,2}/g)?.map(b=>parseInt(b,16))||[];
+            if(fb.some(isNaN))return;
             
-            let m=true;
-            for(let j=0;j<fb.length;j++){
-              if(frameData[i+j]!==fb[j]){m=false;break;}
+            for(let i=0;i<=frameData.length-fb.length;i++){
+              const ao=frame.dataOffset+i;
+              if(ao<protectedHeaderEnd)continue;
+              
+              let m=true;
+              for(let j=0;j<fb.length;j++){
+                if(frameData[i+j]!==fb[j]){m=false;break;}
+              }
+              if(m){
+                frameMatches++;
+                totalFound++;
+              }
             }
-            if(m){
-              frameMatches++;
-              totalFound++;
-            }
-          }
+          });
           
           if(frameMatches>0)framesWithMatches++;
         }
         
-        // Select pattern in current frame only (for editing), but show stats about all frames
         const f=frames[currentFrame];
-        for(let i=0;i<=hexData.length-fb.length;i++){
-          if(f.dataOffset+i<protectedHeaderEnd)continue;
-          if(frameProtectionEnabled&&i<currentFrameProtectionEnd)continue;
-          let m=true;
-          for(let j=0;j<fb.length;j++)if(hexData[i+j]!==fb[j]){m=false;break;}
-          if(m)for(let j=0;j<fb.length;j++)selectedBytes.add(i+j);
-        }
+        patterns.forEach(pattern=>{
+          const cleanPattern=pattern.replace(/\s/g,'');
+          const fb=cleanPattern.match(/.{1,2}/g)?.map(b=>parseInt(b,16))||[];
+          if(fb.some(isNaN))return;
+          
+          for(let i=0;i<=hexData.length-fb.length;i++){
+            if(f.dataOffset+i<protectedHeaderEnd)continue;
+            if(frameProtectionEnabled&&i<currentFrameProtectionEnd)continue;
+            let m=true;
+            for(let j=0;j<fb.length;j++)if(hexData[i+j]!==fb[j]){m=false;break;}
+            if(m)for(let j=0;j<fb.length;j++)selectedBytes.add(i+j);
+          }
+        });
         
         if(totalFound===0)alert('Not found in selected scope');
         else alert(`Found ${totalFound} instances across ${framesWithMatches} frames`);
@@ -1097,13 +1107,31 @@
       renderHex();
     }
 
+    function getFrameList(){
+      const rt=document.querySelector('input[name="frameRange"]:checked').value;
+      const step=document.querySelector('input[name="frameStep"]:checked').value;
+      const nth=step==='nth'?parseInt(document.getElementById('nthFrameInput').value)||2:1;
+      
+      if(rt==='current')return[currentFrame];
+      else if(rt==='all'){
+        const list=[];
+        for(let i=0;i<frames.length;i+=nth)list.push(i);
+        return list;
+      }else if(rt==='custom'){
+        const list=[];
+        for(let i=customRangeStart;i<=customRangeEnd;i+=nth)list.push(i);
+        return list;
+      }
+      return[currentFrame];
+    }
+
     function applyAction(fn,name){
       if(!selectedBytes.size)return alert('Select bytes');
-      const rs=getFrameRange()[0],re=getFrameRange()[1];
+      const frameList=getFrameList();
       const rt=document.querySelector('input[name="frameRange"]:checked').value;
       let msg=name+' '+selectedBytes.size+' bytes';
       if(rt==='current')msg+=' in current frame?';
-      else msg+=' across '+(re-rs+1)+' frames?';
+      else msg+=' across '+frameList.length+' frames?';
       if(!confirm(msg))return;
       saveState();
       let mod=0,skip=0;
@@ -1118,7 +1146,7 @@
         });
       }else{
         const sp=Array.from(selectedBytes).sort((a,b)=>a-b);
-        for(let fi=rs;fi<=re;fi++){
+        for(const fi of frameList){
           const f=frames[fi];
           let frameProtEnd=0;
           if(frameProtectionEnabled&&f.isVideo){
@@ -1171,17 +1199,20 @@
       const sv=parseInt(si,16);
       const ev=parseInt(ei,16);
       if(isNaN(sv)||isNaN(ev))return alert('Invalid');
-      const rs=getFrameRange()[0],re=getFrameRange()[1];
+      
+      const frameList=getFrameList();
       const rt=document.querySelector('input[name="frameRange"]:checked').value;
+      
       if(mode==='absolute'){
         if(rt==='current')return alert('Absolute gradient requires multiple frames');
-        if(!confirm('Gradient '+si+'→'+ei+' across '+(re-rs+1)+' frames?'))return;
+        if(!confirm('Gradient '+si+'→'+ei+' across '+frameList.length+' frames?'))return;
         saveState();
         let mod=0,skip=0;
-        const totalFrames=re-rs+1;
-        for(let fi=rs;fi<=re;fi++){
+        
+        for(let idx=0;idx<frameList.length;idx++){
+          const fi=frameList[idx];
           const f=frames[fi];
-          const frameProgress=(fi-rs)/(totalFrames-1);
+          const frameProgress=idx/(frameList.length-1);
           const frameValue=Math.round(sv+(ev-sv)*frameProgress);
           let frameProtEnd=0;
           if(frameProtectionEnabled&&f.isVideo){
@@ -1228,7 +1259,7 @@
         }else{
           const sp=Array.from(selectedBytes).sort((a,b)=>a-b);
           let mod=0,skip=0;
-          for(let fi=rs;fi<=re;fi++){
+          for(const fi of frameList){
             const f=frames[fi];
             let frameProtEnd=0;
             if(frameProtectionEnabled&&f.isVideo){
@@ -1262,11 +1293,12 @@
       if(!pi)return alert('Enter pattern');
       const pat=pi.split(/\s+/).map(v=>parseInt(v,16));
       if(pat.some(isNaN))return alert('Invalid');
-      const rs=getFrameRange()[0],re=getFrameRange()[1];
+      
+      const frameList=getFrameList();
       const rt=document.querySelector('input[name="frameRange"]:checked').value;
       let msg='Pattern ['+pi+'] for '+selectedBytes.size+' bytes';
       if(rt==='current')msg+=' in current frame?';
-      else msg+=' across '+(re-rs+1)+' frames?';
+      else msg+=' across '+frameList.length+' frames?';
       if(!confirm(msg))return;
       saveState();
       let mod=0,skip=0;
@@ -1284,7 +1316,7 @@
         });
       }else{
         const sp=Array.from(selectedBytes).sort((a,b)=>a-b);
-        for(let fi=rs;fi<=re;fi++){
+        for(const fi of frameList){
           const f=frames[fi];
           let frameProtEnd=0;
           if(frameProtectionEnabled&&f.isVideo){
