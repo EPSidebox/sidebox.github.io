@@ -115,7 +115,7 @@
 <body>
   <header>
     <h1>AVI Hex Frame Editor</h1>
-    <p class="subtitle">Frame-by-frame hex editing • Multi-byte selection • Datamosh operations • Frame conversion • Use with VLC for preview</p>
+    <p class="subtitle">Frame-by-frame hex editing • Multi-byte selection • Datamosh operations • Use with VLC for preview</p>
   </header>
 
   <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
@@ -139,7 +139,7 @@
       <p style="margin-bottom:8px;color:#e91e8c;font-weight:bold">Key Features:</p>
       <ul style="margin-left:20px;margin-bottom:12px">
         <li style="margin-bottom:4px"><strong>Frame Type Detection:</strong> Automatically classifies frames as I-frames (large) or P-frames (small)</li>
-        <li style="margin-bottom:4px"><strong>Datamosh Operations:</strong> Delete/duplicate I/P frames, or convert I-frames to P-frames with scope control</li>
+        <li style="margin-bottom:4px"><strong>Datamosh Operations:</strong> Delete/duplicate I/P frames with precise scope control</li>
         <li style="margin-bottom:4px"><strong>Frame Type Scopes:</strong> Apply operations to only I-frames or only P-frames across entire video</li>
         <li style="margin-bottom:4px"><strong>Protected Headers:</strong> File and frame headers are protected by default (click badge to toggle)</li>
         <li style="margin-bottom:4px"><strong>Multi-byte Search:</strong> Find multiple patterns at once: "FB00, F3, DB0033"</li>
@@ -300,7 +300,6 @@
                 <button class="ctrl-btn" id="deleteIFramesBtn" disabled data-tooltip="Remove I-frames in scope for pixel drag">✖ I-F</button>
                 <button class="ctrl-btn" id="duplicatePFramesBtn" disabled data-tooltip="Duplicate P-frames in scope for bloom">2× P-F</button>
                 <button class="ctrl-btn" id="deleteCurrentBtn" disabled data-tooltip="Remove current frame">✖ Current</button>
-                <button class="ctrl-btn" id="convertIFramesBtn" disabled data-tooltip="Convert I-frames to P-frames (experimental)">I→P</button>
               </div>
               <div class="datamosh-warning hidden" id="datamoshWarning" style="margin-bottom:10px"></div>
               <div class="field-label" style="margin-bottom:6px;padding-top:8px;border-top:1px solid #222">Advanced</div>
@@ -446,7 +445,6 @@
       document.getElementById('deleteIFramesBtn').disabled=false;
       document.getElementById('duplicatePFramesBtn').disabled=false;
       document.getElementById('deleteCurrentBtn').disabled=false;
-      document.getElementById('convertIFramesBtn').disabled=false;
     }
 
     function loadFrameHex(fi){
@@ -1589,29 +1587,6 @@
       showDatamoshWarning(`Deleted frame ${currentFrame}.`);
     };
     
-    document.getElementById('convertIFramesBtn').onclick=function(){
-      const frameList=getFrameList();
-      const rt=document.querySelector('input[name="frameRange"]:checked').value;
-      const step=document.querySelector('input[name="frameStep"]:checked').value;
-      const nth=step==='nth'?parseInt(document.getElementById('nthFrameInput').value)||2:1;
-      
-      const iFramesInScope=frameList.filter(fi=>frames[fi]&&frames[fi].frameType==='I');
-      
-      if(iFramesInScope.length===0)return alert('No I-frames in selected scope');
-      
-      let scopeDesc='';
-      if(rt==='current')scopeDesc='current frame';
-      else if(rt==='all')scopeDesc=step==='nth'?`all frames (every ${nth}${nth===2?'nd':nth===3?'rd':'th'})`:'all frames';
-      else if(rt==='custom')scopeDesc=`frames ${customRangeStart}-${customRangeEnd}`+(step==='nth'?` (every ${nth}${nth===2?'nd':nth===3?'rd':'th'})`:``);
-      else if(rt==='iframes')scopeDesc=step==='nth'?`all I-frames (every ${nth}${nth===2?'nd':nth===3?'rd':'th'})`:'all I-frames';
-      else if(rt==='pframes')scopeDesc=step==='nth'?`I-frames within P-frame scope (every ${nth}${nth===2?'nd':nth===3?'rd':'th'})`:'I-frames within P-frame scope';
-      
-      if(!confirm(`Convert ${iFramesInScope.length} I-frame(s) to P-frames in ${scopeDesc}?\n\nThis is experimental and will reduce frame size/quality.`))return;
-      saveState();
-      convertIFramesToP(iFramesInScope);
-      showDatamoshWarning(`Converted ${iFramesInScope.length} I-frame(s) to P-frames.`);
-    };
-    
     function deleteFrames(indices){
       if(indices.length===0)return;
       
@@ -1698,104 +1673,6 @@
       aviData.bytes=trimmed;
       videoBlob=null;
       
-      reparseFrames();
-      loadFrameHex(currentFrame);
-      updateFrameInfo();
-    }
-    
-    function convertIFramesToP(indices){
-      if(indices.length===0)return;
-      
-      // Target size: average P-frame size or 40% of original I-frame size
-      const pFrames=frames.filter(f=>f.frameType==='P');
-      const avgPSize=pFrames.length>0?pFrames.reduce((sum,f)=>sum+f.size,0)/pFrames.length:5000;
-      
-      indices.forEach(fi=>{
-        const frame=frames[fi];
-        if(!frame||!frame.isVideo)return;
-        
-        const frameData=aviData.bytes.slice(frame.dataOffset,frame.dataOffset+frame.size);
-        
-        // Find JPEG markers to preserve structure
-        let sosMarker=-1; // Start of Scan
-        for(let i=0;i<frameData.length-1;i++){
-          if(frameData[i]===0xFF&&frameData[i+1]===0xDA){
-            sosMarker=i;
-            break;
-          }
-        }
-        
-        if(sosMarker===-1)return; // Not a valid JPEG, skip
-        
-        // Calculate target size (smaller than original)
-        const targetSize=Math.min(Math.floor(frame.size*0.4),Math.floor(avgPSize));
-        
-        if(targetSize>=frame.size)return; // Already small enough
-        
-        // Keep header + SOS marker + minimal scan data
-        const headerSize=sosMarker+10; // Header + SOS + a bit of scan
-        const scanDataToKeep=Math.max(100,targetSize-headerSize-2); // Leave room for EOI
-        
-        const newFrameData=new Uint8Array(headerSize+scanDataToKeep+2);
-        
-        // Copy header and start of scan
-        for(let i=0;i<headerSize;i++){
-          newFrameData[i]=frameData[i];
-        }
-        
-        // Copy reduced scan data (take from middle/end for glitch effect)
-        const scanStart=sosMarker+10;
-        const scanEnd=frame.size-2;
-        const skipRatio=Math.max(1,(scanEnd-scanStart)/scanDataToKeep);
-        
-        for(let i=0;i<scanDataToKeep;i++){
-          const sourceIndex=Math.min(scanEnd-2,Math.floor(scanStart+i*skipRatio));
-          newFrameData[headerSize+i]=frameData[sourceIndex];
-        }
-        
-        // Add EOI marker
-        newFrameData[newFrameData.length-2]=0xFF;
-        newFrameData[newFrameData.length-1]=0xD9;
-        
-        // Update the frame data in aviData
-        const newSize=newFrameData.length;
-        const oldSize=frame.size;
-        const sizeDiff=oldSize-newSize;
-        
-        // Rebuild AVI with new frame size
-        const view=new DataView(aviData.bytes.buffer);
-        view.setUint32(frame.offset+4,newSize,true); // Update chunk size
-        
-        // Replace frame data
-        for(let i=0;i<newSize;i++){
-          aviData.bytes[frame.dataOffset+i]=newFrameData[i];
-        }
-        
-        // Shift remaining data
-        const nextFrameStart=frame.dataOffset+oldSize+(oldSize%2);
-        const newNextStart=frame.dataOffset+newSize+(newSize%2);
-        const shiftAmount=nextFrameStart-newNextStart;
-        
-        if(shiftAmount>0){
-          for(let i=nextFrameStart;i<aviData.bytes.length;i++){
-            aviData.bytes[i-shiftAmount]=aviData.bytes[i];
-          }
-          
-          // Trim the array
-          const newBytes=new Uint8Array(aviData.bytes.length-shiftAmount);
-          for(let i=0;i<newBytes.length;i++){
-            newBytes[i]=aviData.bytes[i];
-          }
-          aviData.bytes=newBytes;
-          
-          // Update RIFF size
-          const newView=new DataView(aviData.bytes.buffer);
-          const currentRiffSize=newView.getUint32(4,true);
-          newView.setUint32(4,currentRiffSize-shiftAmount,true);
-        }
-      });
-      
-      videoBlob=null;
       reparseFrames();
       loadFrameHex(currentFrame);
       updateFrameInfo();
