@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zalgo Text Generator - Unicode Combining Character Glitch Tool</title>
+    
+    <!-- Zotero Citation Metadata -->
+    <meta name="author" content="Ernesto Peña">
+    <meta name="description" content="Educational tool for generating Zalgo text using Unicode combining characters - demonstrates text glitch art at the character encoding level.">
+    <meta name="citation_author" content="Peña, Ernesto">
+    <meta name="citation_title" content="Zalgo Text Generator: A Unicode Combining Character Glitch Tool">
+    <meta name="citation_date" content="2025">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8XQLL5N022"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-8XQLL5N022');
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #ff00ff;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .info-box {
+            background-color: #252525;
+            border: 1px solid #ff00ff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box h3 {
+            color: #ff00ff;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .info-box p {
+            font-size: 0.85em;
+            line-height: 1.5;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background-color: #252525;
+            border: 2px solid #333;
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        .panel h2 {
+            color: #ff00ff;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            border: 1px solid #444;
+            padding: 10px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.9em;
+            resize: vertical;
+            border-radius: 4px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #ff00ff;
+        }
+
+        .output-box {
+            width: 100%;
+            min-height: 200px;
+            background-color: #1a1a1a;
+            border: 2px solid #ff00ff;
+            padding: 10px;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.2em;
+            overflow-wrap: break-word;
+            border-radius: 4px;
+            line-height: 2;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ff00ff;
+            font-size: 0.9em;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            color: #e0e0e0;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"],
+        .checkbox-group input[type="radio"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: #ff00ff;
+            color: #1a1a1a;
+            border: none;
+            padding: 12px 24px;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #cc00cc;
+        }
+
+        button:active {
+            background-color: #990099;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .reference-section {
+            background-color: #252525;
+            border: 2px solid #333;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .reference-section.show {
+            display: block;
+        }
+
+        .reference-section h2 {
+            color: #ff00ff;
+            margin-bottom: 15px;
+        }
+
+        .char-table {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 5px;
+            margin: 15px 0;
+        }
+
+        .char-cell {
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            padding: 10px;
+            text-align: center;
+            font-size: 1.5em;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stats {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        .category-label {
+            color: #ff00ff;
+            font-weight: 700;
+            margin: 20px 0 10px 0;
+            font-size: 1em;
+        }
+
+        footer {
+            margin-top: 24px;
+            padding-top: 14px;
+            border-top: 1px solid #222;
+            font-size: 0.65rem;
+            color: #666;
+            text-align: center;
+        }
+
+        footer a {
+            color: #ff00ff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Zalgo Text Generator</h1>
+        <div class="subtitle">Heavily inspired by Tchouky's work (2009, www.eeemo.net).</div>
+        <div class="subtitle">Unicode Combining Character Glitch Tool - Educational Edition</div>
+
+        <div class="info-box">
+            <h3>How It Works</h3>
+            <p>
+                This tool exploits Unicode combining characters - diacritical marks designed to stack on base letters. 
+                By randomly appending multiple combining marks to each character, we overwhelm text rendering engines 
+                that expect only 1-2 marks per letter. The result is "corrupted" text achieved through completely 
+                valid, standards-compliant Unicode - a form of text glitch art at the character encoding level.
+            </p>
+        </div>
+
+        <div class="main-grid">
+            <div class="panel">
+                <h2>Input Text</h2>
+                <textarea id="input-text" placeholder="Enter your text here...">To invoke the hive-mind representing chaos.
+Invoking the feeling of chaos.
+Without order.
+The Nezperdian hive-mind of chaos. Zalgo.
+He who Waits Behind The Wall.
+ZALGO!</textarea>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Direction Controls:</label>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="opt-up" checked>
+                                Marks Above
+                            </label>
+                            <label>
+                                <input type="checkbox" id="opt-mid" checked>
+                                Marks Middle
+                            </label>
+                            <label>
+                                <input type="checkbox" id="opt-down" checked>
+                                Marks Below
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Intensity Level:</label>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="radio" name="intensity" id="opt-mini" value="mini" checked>
+                                Mini (0-8 marks)
+                            </label>
+                            <label>
+                                <input type="radio" name="intensity" id="opt-normal" value="normal">
+                                Normal (1-9 marks)
+                            </label>
+                            <label>
+                                <input type="radio" name="intensity" id="opt-maxi" value="maxi">
+                                Maxi (3-19 marks)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="generateZalgo()">Generate Zalgo Text</button>
+                    <button onclick="copyToClipboard()">Copy Output</button>
+                    <button onclick="clearAll()">Clear</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Output</h2>
+                <div id="output" class="output-box"></div>
+                <div class="stats" id="stats"></div>
+            </div>
+        </div>
+
+        <button onclick="toggleReference()">Toggle Unicode Character Reference</button>
+
+        <div id="reference" class="reference-section">
+            <h2>Unicode Combining Characters Reference</h2>
+            
+            <div class="category-label">Combining Characters - Above (Class 230)</div>
+            <div id="ref-up" class="char-table"></div>
+            
+            <div class="category-label">Combining Characters - Middle (Class 1)</div>
+            <div id="ref-mid" class="char-table"></div>
+            
+            <div class="category-label">Combining Characters - Below (Class 220)</div>
+            <div id="ref-down" class="char-table"></div>
+        </div>
+
+        <footer>
+            Zalgo Text Generator — A Glitch Pedagogy Tool<br>
+            Created by Ernesto Peña | <a href="https://ernestopena.com" target="_blank">ernestopena.com</a>
+        </footer>
+    </div>
+
+    <script>
+        // Unicode combining character arrays
+        const zalgo_up = [
+            '\u030d', '\u030e', '\u0304', '\u0305', '\u033f', '\u0311', '\u0306', '\u0310',
+            '\u0352', '\u0357', '\u0351', '\u0307', '\u0308', '\u030a', '\u0342', '\u0343',
+            '\u0344', '\u034a', '\u034b', '\u034c', '\u0303', '\u0302', '\u030c', '\u0350',
+            '\u0300', '\u0301', '\u030b', '\u030f', '\u0312', '\u0313', '\u0314', '\u033d',
+            '\u0309', '\u0363', '\u0364', '\u0365', '\u0366', '\u0367', '\u0368', '\u0369',
+            '\u036a', '\u036b', '\u036c', '\u036d', '\u036e', '\u036f', '\u033e', '\u035b',
+            '\u0346', '\u031a'
+        ];
+
+        const zalgo_down = [
+            '\u0316', '\u0317', '\u0318', '\u0319', '\u031c', '\u031d', '\u031e', '\u031f',
+            '\u0320', '\u0324', '\u0325', '\u0326', '\u0329', '\u032a', '\u032b', '\u032c',
+            '\u032d', '\u032e', '\u032f', '\u0330', '\u0331', '\u0332', '\u0333', '\u0339',
+            '\u033a', '\u033b', '\u033c', '\u0345', '\u0347', '\u0348', '\u0349', '\u034d',
+            '\u034e', '\u0353', '\u0354', '\u0355', '\u0356', '\u0359', '\u035a', '\u0323'
+        ];
+
+        const zalgo_mid = [
+            '\u0315', '\u031b', '\u0340', '\u0341', '\u0358', '\u0321', '\u0322', '\u0327',
+            '\u0328', '\u0334', '\u0335', '\u0336', '\u034f', '\u035c', '\u035d', '\u035e',
+            '\u035f', '\u0360', '\u0362', '\u0338', '\u0337', '\u0361', '\u0489'
+        ];
+
+        // Utility functions
+        function rand(max) {
+            return Math.floor(Math.random() * max);
+        }
+
+        function randZalgo(array) {
+            return array[rand(array.length)];
+        }
+
+        function isZalgoChar(c) {
+            return zalgo_up.includes(c) || zalgo_down.includes(c) || zalgo_mid.includes(c);
+        }
+
+        // Main Zalgo generation function
+        function generateZalgo() {
+            const input = document.getElementById('input-text').value;
+            const output = document.getElementById('output');
+            const optUp = document.getElementById('opt-up').checked;
+            const optMid = document.getElementById('opt-mid').checked;
+            const optDown = document.getElementById('opt-down').checked;
+            
+            // Get intensity
+            const intensity = document.querySelector('input[name="intensity"]:checked').value;
+            
+            let result = '';
+            let combiningCount = 0;
+            
+            for (let i = 0; i < input.length; i++) {
+                const char = input[i];
+                
+                // Skip if already a combining character
+                if (isZalgoChar(char)) {
+                    continue;
+                }
+                
+                // Add base character
+                result += char;
+                
+                // Determine number of marks based on intensity
+                let numUp, numMid, numDown;
+                
+                if (intensity === 'mini') {
+                    numUp = rand(8);
+                    numMid = rand(2);
+                    numDown = rand(8);
+                } else if (intensity === 'normal') {
+                    numUp = Math.floor(rand(16) / 2) + 1;
+                    numMid = Math.floor(rand(6) / 2);
+                    numDown = Math.floor(rand(16) / 2) + 1;
+                } else { // maxi
+                    numUp = Math.floor(rand(64) / 4) + 3;
+                    numMid = Math.floor(rand(16) / 4) + 1;
+                    numDown = Math.floor(rand(64) / 4) + 3;
+                }
+                
+                // Add combining characters
+                if (optUp) {
+                    for (let j = 0; j < numUp; j++) {
+                        result += randZalgo(zalgo_up);
+                        combiningCount++;
+                    }
+                }
+                
+                if (optMid) {
+                    for (let j = 0; j < numMid; j++) {
+                        result += randZalgo(zalgo_mid);
+                        combiningCount++;
+                    }
+                }
+                
+                if (optDown) {
+                    for (let j = 0; j < numDown; j++) {
+                        result += randZalgo(zalgo_down);
+                        combiningCount++;
+                    }
+                }
+            }
+            
+            output.textContent = result;
+            
+            // Update stats
+            const baseChars = input.replace(/\s/g, '').length;
+            document.getElementById('stats').textContent = 
+                `Base characters: ${baseChars} | Combining marks added: ${combiningCount} | Ratio: ${(combiningCount / baseChars).toFixed(1)}:1`;
+        }
+
+        // Copy to clipboard with formatting
+        function copyToClipboard() {
+            const output = document.getElementById('output').textContent;
+            if (!output) {
+                alert('Nothing to copy! Generate Zalgo text first.');
+                return;
+            }
+            
+            // Create HTML version with inline styles for proper line-height
+            const htmlOutput = `<div style="font-family: 'Times New Roman', serif; font-size: 14pt; line-height: 2.5; letter-spacing: 0.05em;">${output}</div>`;
+            
+            // Create a ClipboardItem with both plain text and HTML
+            const blob = new Blob([htmlOutput], { type: 'text/html' });
+            const textBlob = new Blob([output], { type: 'text/plain' });
+            
+            const clipboardItem = new ClipboardItem({
+                'text/html': blob,
+                'text/plain': textBlob
+            });
+            
+            navigator.clipboard.write([clipboardItem]).then(() => {
+                alert('Zalgo text copied with formatting! In most applications, the combining marks should be visible.');
+            }).catch(err => {
+                // Fallback to plain text if ClipboardItem fails
+                navigator.clipboard.writeText(output).then(() => {
+                    alert('Zalgo text copied as plain text. You may need to increase line spacing in the destination application.');
+                }).catch(err2 => {
+                    alert('Failed to copy: ' + err2);
+                });
+            });
+        }
+
+        // Clear function
+        function clearAll() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('output').textContent = '';
+            document.getElementById('stats').textContent = '';
+        }
+
+        // Toggle reference section
+        function toggleReference() {
+            document.getElementById('reference').classList.toggle('show');
+        }
+
+        // Build reference tables
+        function buildReferenceTables() {
+            const refUp = document.getElementById('ref-up');
+            const refMid = document.getElementById('ref-mid');
+            const refDown = document.getElementById('ref-down');
+            
+            zalgo_up.forEach(char => {
+                const cell = document.createElement('div');
+                cell.className = 'char-cell';
+                cell.textContent = 'a' + char;
+                cell.title = 'U+' + char.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0');
+                refUp.appendChild(cell);
+            });
+            
+            zalgo_mid.forEach(char => {
+                const cell = document.createElement('div');
+                cell.className = 'char-cell';
+                cell.textContent = 'a' + char;
+                cell.title = 'U+' + char.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0');
+                refMid.appendChild(cell);
+            });
+            
+            zalgo_down.forEach(char => {
+                const cell = document.createElement('div');
+                cell.className = 'char-cell';
+                cell.textContent = 'a' + char;
+                cell.title = 'U+' + char.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0');
+                refDown.appendChild(cell);
+            });
+        }
+
+        // Initialize
+        buildReferenceTables();
+        generateZalgo(); // Generate on load
+    </script>
+</body>
+</html>
