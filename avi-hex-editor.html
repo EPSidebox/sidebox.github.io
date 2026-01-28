@@ -19,80 +19,488 @@
     gtag('config', 'G-8XQLL5N022');
   </script>
   <style>
+    /* === BASE RESET === */
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #0a0a0a; color: #e0e0e0; font-family: 'Roboto Mono', monospace; padding: 16px; line-height: 1.5; }
-    header { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #222; }
-    h1 { color: #e91e8c; font-size: 1.3rem; margin-bottom: 2px; }
-    .subtitle { color: #666; font-size: 0.72rem; }
-    .upload-area { text-align: center; padding: 28px; border: 2px dashed #333; border-radius: 8px; margin-bottom: 16px; }
-    .upload-btn { display: inline-block; padding: 11px 22px; background: #1a1a1a; border: 2px solid #e91e8c; border-radius: 4px; color: #e91e8c; cursor: pointer; font-family: inherit; font-size: 0.8rem; }
-    .upload-btn:hover { background: #e91e8c; color: #0a0a0a; }
-    .panel { background: #111; border: 1px solid #222; border-radius: 6px; padding: 12px; margin-bottom: 14px; }
-    .panel-title { color: #e91e8c; font-size: 0.78rem; margin-bottom: 8px; font-weight: bold; }
-    .ctrl-row { display: flex; gap: 5px; flex-wrap: wrap; }
-    .ctrl-btn { padding: 5px 9px; background: #1a1a1a; border: 1px solid #444; border-radius: 3px; color: #e0e0e0; cursor: pointer; font-family: inherit; font-size: 0.68rem; transition: all 0.15s; }
-    .ctrl-btn:hover:not(:disabled) { border-color: #e91e8c; color: #e91e8c; }
-    .ctrl-btn.active { background: #e91e8c; border-color: #e91e8c; color: #0a0a0a; }
-    .ctrl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .info-box { padding: 8px; background: #1a1a2a; border-radius: 4px; font-size: 0.65rem; border-left: 2px solid #e91e8c; }
-    .timeline { height: 70px; background: #1a1a1a; border-radius: 4px; cursor: pointer; width: 100%; display: block; }
-    .hex-container { background: #000; color: #e0e0e0; padding: 12px; border-radius: 4px; font-family: 'Roboto Mono', monospace; font-size: 0.68rem; overflow: auto; max-height: calc(100vh - 340px); }
-    .hex-row { display: flex; gap: 12px; margin-bottom: 3px; padding: 2px 0; }
-    .hex-row:hover { background: #1a1a1a; }
-    .hex-offset { color: #666; width: 70px; }
-    .hex-bytes { display: flex; gap: 3px; }
-    .hex-byte { width: 20px; text-align: center; background: transparent; border: none; color: #e0e0e0; font-family: inherit; font-size: 0.68rem; cursor: pointer; padding: 0; }
-    .hex-byte:hover { background: #333; }
-    .hex-byte.selected { background: #e91e8c; color: #0a0a0a; font-weight: bold; }
-    .hex-byte-protected { background: #1a1a2a !important; color: #666 !important; cursor: not-allowed !important; opacity: 0.6; }
-    .hex-ascii { color: #666; margin-left: 8px; }
-    input[type="text"], input[type="number"], select { width: 100%; padding: 6px 8px; background: #1a1a1a; border: 1px solid #444; border-radius: 3px; color: #e0e0e0; font-family: inherit; font-size: 0.68rem; }
-    input[type="text"]:focus, input[type="number"]:focus, select:focus { outline: none; border-color: #e91e8c; }
-    .field-group { margin-bottom: 10px; }
-    .field-label { display: block; font-size: 0.68rem; color: #888; margin-bottom: 4px; }
-    .radio-group { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
-    .radio-option { display: flex; align-items: center; gap: 4px; font-size: 0.68rem; }
-    .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.65rem; }
-    .stat-item { background: #1a1a1a; padding: 6px 8px; border-radius: 3px; }
-    .stat-item strong { color: #e91e8c; }
-    .badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; background: #333; color: #888; }
-    .badge.warn { background: rgba(255,152,0,0.2); color: #ff9800; border: 1px solid #ff9800; }
-    .badge.safe { background: rgba(76,175,80,0.2); color: #4caf50; border: 1px solid #4caf50; }
-    .badge.i-frame { background: rgba(233,30,140,0.2); color: #e91e8c; border: 1px solid #e91e8c; }
-    .badge.p-frame { background: rgba(0,188,212,0.2); color: #00bcd4; border: 1px solid #00bcd4; }
-    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 1150px) { .main-grid, .tools-grid { grid-template-columns: 1fr; } }
-    .legend { display: flex; gap: 12px; font-size: 0.65rem; margin-top: 6px; flex-wrap: wrap; }
-    .legend-item { display: flex; align-items: center; gap: 4px; }
-    .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
-    .legend-dot.i-frame { background: #e91e8c; }
-    .legend-dot.p-frame { background: #00bcd4; }
-    .datamosh-warning { background: rgba(255,152,0,0.1); border: 1px solid #ff9800; color: #ff9800; padding: 8px; border-radius: 4px; font-size: 0.65rem; margin-top: 8px; }
-    .hidden { display: none !important; }
-    footer { margin-top: 24px; padding-top: 14px; border-top: 1px solid #222; font-size: 0.65rem; color: #666; text-align: center; }
-    footer a { color: #e91e8c; text-decoration: none; }
     
-    /* Tooltips */
-    [data-tooltip] { position: relative; }
+    /* === TYPOGRAPHY & COLORS === */
+    :root {
+      --font: 'Roboto Mono', monospace;
+      --bg: #0a0a0a;
+      --text: #e0e0e0;
+      --accent: #FF00FF;
+      --accent-secondary: #00bcd4;
+      --accent-tertiary: #8bc34a;
+      --accent-warning: #ff9800;
+      --muted: #666;
+      --border: #222;
+      --panel-bg: #111;
+      --hover-bg: #1a1a1a;
+      --hover-text: #fff;
+      --input-bg: #1a1a1a;
+      --hex-bg: #000;
+      --chart-grid: #222;
+      --chart-tick: #666;
+    }
+    
+    [data-theme="light"] {
+      --bg: #ffffff;
+      --text: #000000;
+      --accent: #FF00FF;
+      --accent-secondary: #00bcd4;
+      --accent-tertiary: #8bc34a;
+      --accent-warning: #ff9800;
+      --muted: #666666;
+      --border: #e0e0e0;
+      --panel-bg: #f5f5f5;
+      --hover-bg: #e8e8e8;
+      --hover-text: #000;
+      --input-bg: #f8f8f8;
+      --hex-bg: #fafafa;
+      --chart-grid: #e0e0e0;
+      --chart-tick: #999;
+    }
+    
+    body {
+      font-family: 'Roboto Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      padding: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+      line-height: 1.6;
+      font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.288), 1rem);
+    }
+    
+    header {
+      margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .header-content { flex: 1; min-width: 200px; }
+    
+    h1 {
+      color: var(--accent);
+      font-size: clamp(1.75rem, 1.75rem + ((1vw - 0.48rem) * 0.288), 1.875rem);
+      margin-bottom: 2px;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+    
+    .subtitle {
+      color: var(--muted);
+      font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.144), 0.9375rem);
+      line-height: 1.5;
+    }
+    
+    .theme-toggle {
+      padding: 6px 12px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      background: var(--hover-bg);
+    }
+    
+    .theme-toggle:focus {
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
+    }
+    
+    .upload-btn {
+      display: inline-block;
+      padding: 11px 22px;
+      background: var(--hover-bg);
+      border: 2px solid var(--accent);
+      border-radius: 4px;
+      color: var(--accent);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: clamp(0.75rem, 0.75rem + ((1vw - 0.48rem) * 0.144), 0.8125rem);
+      transition: all 0.15s;
+    }
+    
+    .upload-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    
+    .upload-btn:focus {
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
+    }
+    
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 1.5rem;
+    }
+    
+    .panel-title {
+      color: var(--accent);
+      font-size: clamp(0.75rem, 0.75rem + ((1vw - 0.48rem) * 0.144), 0.8125rem);
+      margin-bottom: 8px;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+    
+    .ctrl-row {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    
+    .ctrl-btn {
+      padding: 5px 9px;
+      background: var(--hover-bg);
+      border: 1px solid #444;
+      border-radius: 3px;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      transition: all 0.15s;
+    }
+    
+    .ctrl-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
+    .ctrl-btn:focus {
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
+    }
+    
+    .ctrl-btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+    
+    .ctrl-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+    
+    .ctrl-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    
+    .info-box {
+      padding: 8px;
+      background: var(--panel-bg);
+      border-radius: 4px;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      border-left: 2px solid var(--accent);
+      line-height: 1.5;
+    }
+    
+    .timeline {
+      height: 70px;
+      background: var(--hover-bg);
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      display: block;
+      transition: all 0.15s;
+    }
+    
+    .timeline:hover {
+      background: var(--panel-bg);
+    }
+    
+    .hex-container {
+      background: var(--hex-bg);
+      color: var(--text);
+      padding: 12px;
+      border-radius: 4px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      overflow: auto;
+      max-height: calc(100vh - 340px);
+      border: 1px solid var(--border);
+    }
+    
+    .hex-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 3px;
+      padding: 2px 0;
+      transition: background 0.15s;
+    }
+    
+    .hex-row:hover {
+      background: var(--hover-bg);
+    }
+    
+    .hex-offset {
+      color: var(--muted);
+      width: 70px;
+    }
+    
+    .hex-bytes {
+      display: flex;
+      gap: 3px;
+    }
+    
+    .hex-byte {
+      width: 20px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.15s;
+    }
+    
+    .hex-byte:hover {
+      background: var(--hover-bg);
+    }
+    
+    .hex-byte:focus {
+      outline: 1px solid var(--accent);
+      background: var(--hover-bg);
+    }
+    
+    .hex-byte.selected {
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: bold;
+    }
+    
+    .hex-byte-protected {
+      background: var(--panel-bg) !important;
+      color: var(--muted) !important;
+      cursor: not-allowed !important;
+      opacity: 0.6;
+    }
+    
+    .hex-ascii {
+      color: var(--muted);
+      margin-left: 8px;
+    }
+    
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      transition: all 0.15s;
+    }
+    
+    input[type="text"]:hover,
+    input[type="number"]:hover,
+    select:hover {
+      border-color: var(--accent);
+    }
+    
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--hover-bg);
+    }
+    
+    .field-group {
+      margin-bottom: 10px;
+    }
+    
+    .field-label {
+      display: block;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      color: var(--muted);
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    
+    .radio-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 8px 0;
+    }
+    
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    
+    .radio-option:hover {
+      color: var(--accent);
+    }
+    
+    .radio-option input[type="radio"] {
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+    
+    .stat-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+    }
+    
+    .stat-item {
+      background: var(--hover-bg);
+      padding: 6px 8px;
+      border-radius: 3px;
+      transition: all 0.15s;
+    }
+    
+    .stat-item:hover {
+      background: var(--panel-bg);
+    }
+    
+    .stat-item strong {
+      color: var(--accent);
+    }
+    
+    .badge {
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: #333;
+      color: #888;
+      transition: all 0.15s;
+    }
+    
+    .badge.warn {
+      background: rgba(255, 152, 0, 0.2);
+      color: var(--accent-warning);
+      border: 1px solid var(--accent-warning);
+    }
+    
+    .badge.safe {
+      background: rgba(139, 195, 74, 0.2);
+      color: var(--accent-tertiary);
+      border: 1px solid var(--accent-tertiary);
+    }
+    
+    .badge.i-frame {
+      background: rgba(255, 0, 255, 0.2);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    
+    .badge.p-frame {
+      background: rgba(0, 188, 212, 0.2);
+      color: var(--accent-secondary);
+      border: 1px solid var(--accent-secondary);
+    }
+    
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    
+    .tools-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    
+    @media (max-width: 1150px) {
+      .main-grid,
+      .tools-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .legend {
+      display: flex;
+      gap: 12px;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+    
+    .legend-dot.i-frame {
+      background: var(--accent);
+    }
+    
+    .legend-dot.p-frame {
+      background: var(--accent-secondary);
+    }
+    
+    .datamosh-warning {
+      background: rgba(255, 152, 0, 0.1);
+      border: 1px solid var(--accent-warning);
+      color: var(--accent-warning);
+      padding: 8px;
+      border-radius: 4px;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+    
+    [data-tooltip] {
+      position: relative;
+    }
+    
     [data-tooltip]:hover::after {
       content: attr(data-tooltip);
       position: absolute;
       bottom: calc(100% + 8px);
       left: 50%;
       transform: translateX(-50%);
-      background: #1a1a1a;
-      color: #e0e0e0;
+      background: var(--hover-bg);
+      color: var(--text);
       padding: 6px 10px;
       border-radius: 4px;
-      font-size: 0.65rem;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
       white-space: nowrap;
-      border: 1px solid #e91e8c;
+      border: 1px solid var(--accent);
       z-index: 1000;
       pointer-events: none;
       opacity: 0;
       animation: tooltipFadeIn 0.2s ease-in-out 1.5s forwards;
     }
+    
     [data-tooltip]:hover::before {
       content: '';
       position: absolute;
@@ -100,22 +508,60 @@
       left: 50%;
       transform: translateX(-50%);
       border: 6px solid transparent;
-      border-top-color: #e91e8c;
+      border-top-color: var(--accent);
       z-index: 1001;
       pointer-events: none;
       opacity: 0;
       animation: tooltipFadeIn 0.2s ease-in-out 1.5s forwards;
     }
+    
     @keyframes tooltipFadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
+    }
+    
+    footer {
+      margin-top: clamp(1.5rem, 1.5rem + ((1vw - 0.48rem) * 1.442), 2rem);
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+    
+    footer a {
+      color: var(--accent);
+      text-decoration: underline;
+      transition: all 0.15s;
+    }
+    
+    footer a:hover {
+      text-decoration: none;
+      color: var(--hover-text);
+    }
+    
+    footer a:focus {
+      text-decoration: underline dashed;
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
+    }
+    
+    .hidden {
+      display: none !important;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>AVI Hex Frame Editor</h1>
-    <p class="subtitle">Frame-by-frame hex editing • Multi-byte selection • Datamosh operations • Use with VLC for preview</p>
+    <div class="header-content">
+      <h1>AVI Hex Frame Editor</h1>
+      <p class="subtitle">Frame-by-frame hex editing • Multi-byte selection • Datamosh operations • Use with VLC for preview</p>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <span id="themeIcon">☀️</span>
+      <span id="themeText">Light</span>
+    </button>
   </header>
 
   <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
@@ -124,10 +570,10 @@
 
   <div id="tutorial" class="panel">
     <div class="panel-title">Getting Started</div>
-    <div style="font-size:0.72rem;line-height:1.6;color:#ccc">
+    <div style="font-size:0.72rem;line-height:1.6;color:var(--text)">
       <p style="margin-bottom:12px">This tool allows you to manipulate AVI video files at the byte level while protecting critical file structures. Perfect for databending and glitch art experimentation.</p>
       
-      <p style="margin-bottom:8px;color:#e91e8c;font-weight:bold">Quick Start:</p>
+      <p style="margin-bottom:8px;color:var(--accent);font-weight:bold">Quick Start:</p>
       <ol style="margin-left:20px;margin-bottom:12px">
         <li style="margin-bottom:6px"><strong>Load:</strong> Click "Choose AVI File" to load your video</li>
         <li style="margin-bottom:6px"><strong>Select:</strong> Click bytes in the hex view, use Find, or select by column/row</li>
@@ -136,7 +582,7 @@
         <li style="margin-bottom:6px"><strong>Export:</strong> Download your glitched video and preview in VLC</li>
       </ol>
       
-      <p style="margin-bottom:8px;color:#e91e8c;font-weight:bold">Key Features:</p>
+      <p style="margin-bottom:8px;color:var(--accent);font-weight:bold">Key Features:</p>
       <ul style="margin-left:20px;margin-bottom:12px">
         <li style="margin-bottom:4px"><strong>Frame Type Detection:</strong> Automatically classifies frames as I-frames (large) or P-frames (small)</li>
         <li style="margin-bottom:4px"><strong>Datamosh Operations:</strong> Delete/duplicate I/P frames with precise scope control</li>
@@ -148,7 +594,7 @@
         <li style="margin-bottom:4px"><strong>Timeline Visualization:</strong> See frame types and selection patterns across timeline</li>
       </ul>
       
-      <p style="font-size:0.65rem;color:#666;margin-top:12px;padding-top:12px;border-top:1px solid #222">
+      <p style="font-size:0.65rem;color:var(--muted);margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
         <strong>Tip:</strong> Start with small changes on a few frames. Use Undo (↶) liberally. The frequency chart shows byte distribution changes.
       </p>
     </div>
@@ -156,13 +602,13 @@
 
   <div id="controls" class="hidden">
     <div class="ctrl-row" style="margin-bottom:8px">
-      <span id="fileName" style="color:#888;font-size:0.72rem;flex:1"></span>
+      <span id="fileName" style="color:var(--muted);font-size:0.72rem;flex:1"></span>
       <button class="ctrl-btn" id="undoBtn" disabled data-tooltip="Undo last change (Ctrl+Z)">↶</button>
       <button class="ctrl-btn" id="redoBtn" disabled data-tooltip="Redo (Ctrl+Y)">↷</button>
       <button class="ctrl-btn" id="resetBtn" data-tooltip="Reset to original file">↺</button>
       <button class="ctrl-btn active" id="downloadBtn" data-tooltip="Export modified AVI">⬇ Export</button>
     </div>
-    <div id="changeCount" style="font-size:0.65rem;color:#666;margin-bottom:14px">No changes</div>
+    <div id="changeCount" style="font-size:0.65rem;color:var(--muted);margin-bottom:14px">No changes</div>
   </div>
 
   <div id="content" class="hidden">
@@ -181,7 +627,7 @@
           <button class="ctrl-btn" id="rewindBtn" data-tooltip="Jump to frame 0">↺</button>
         </div>
         <input type="number" id="frameInput" min="0" max="0" value="0" style="width:60px;padding:4px">
-        <span style="font-size:0.65rem;color:#888" id="timeDisplay">00:00:000</span>
+        <span style="font-size:0.65rem;color:var(--muted)" id="timeDisplay">00:00:000</span>
         <div style="flex:1"></div>
         <div class="stat-row" style="gap:8px;grid-template-columns:auto auto">
           <div class="stat-item">Total: <strong id="totalFrames">0</strong></div>
@@ -198,7 +644,7 @@
             <span class="badge warn" id="protectionBadge" onclick="toggleFrameProtection()" style="cursor:pointer;user-select:none">⚠ Protected</span>
           </div>
           <div class="hex-container" id="hexView"></div>
-          <div style="font-size:0.6rem;color:#666;margin-top:8px">Click: select • Shift: add • Ctrl: toggle</div>
+          <div style="font-size:0.6rem;color:var(--muted);margin-top:8px">Click: select • Shift: add • Ctrl: toggle</div>
         </div>
       </div>
 
@@ -207,16 +653,16 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
             <div>
               <div class="panel-title" style="margin-bottom:8px">Frame Info</div>
-              <div id="frameInfo" style="font-size:0.65rem;color:#888;line-height:1.5">No frame loaded</div>
+              <div id="frameInfo" style="font-size:0.65rem;color:var(--muted);line-height:1.5">No frame loaded</div>
             </div>
             <div>
               <div class="panel-title" style="margin-bottom:8px">Selection Stats</div>
-              <div id="selectionStats" style="font-size:0.6rem;line-height:1.4;color:#888">No selection</div>
+              <div id="selectionStats" style="font-size:0.6rem;line-height:1.4;color:var(--muted)">No selection</div>
             </div>
           </div>
-          <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #222">
+          <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">
             <div class="panel-title" style="margin-bottom:8px">Frame Analysis</div>
-            <div id="frameTypeStats" style="font-size:0.65rem;color:#888;line-height:1.5">Analyzing...</div>
+            <div id="frameTypeStats" style="font-size:0.65rem;color:var(--muted);line-height:1.5">Analyzing...</div>
           </div>
           <div>
             <div class="panel-title" style="margin-bottom:8px">Byte Frequency Distribution</div>
@@ -245,7 +691,7 @@
                 <button class="ctrl-btn" onclick="selectByValueProximity()" data-tooltip="Select bytes near current values">± Range</button>
                 <button class="ctrl-btn" onclick="clearSelection()" data-tooltip="Clear all selection">✕</button>
               </div>
-              <div id="selectionInfo" style="font-size:0.6rem;color:#666;margin-top:8px;padding-top:8px;border-top:1px solid #222">No selection</div>
+              <div id="selectionInfo" style="font-size:0.6rem;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">No selection</div>
             </div>
 
             <div class="panel">
@@ -278,8 +724,8 @@
                   <input type="number" id="nthFrameInput" min="1" value="2" style="width:40px;padding:2px 4px" onchange="updateRangeMode()">th frame
                 </label>
               </div>
-              <div id="customRangeDisplay" class="hidden" style="margin-top:8px;padding:8px;background:#1a1a2a;border-radius:4px;font-size:0.6rem">
-                <span style="color:#e91e8c">Frame <span id="rangeStartDisplay">0</span>-<span id="rangeEndDisplay">0</span></span>
+              <div id="customRangeDisplay" class="hidden" style="margin-top:8px;padding:8px;background:var(--panel-bg);border-radius:4px;font-size:0.6rem">
+                <span style="color:var(--accent)">Frame <span id="rangeStartDisplay">0</span>-<span id="rangeEndDisplay">0</span></span>
               </div>
             </div>
           </div>
@@ -295,14 +741,14 @@
                 <input type="text" id="setValueInput" placeholder="Hex" maxlength="2" style="flex:1;padding:4px 6px">
                 <button class="ctrl-btn" onclick="setSelectionValue()" data-tooltip="Set selection to hex value">Set</button>
               </div>
-              <div class="field-label" style="margin-bottom:6px;padding-top:8px;border-top:1px solid #222">Datamosh</div>
+              <div class="field-label" style="margin-bottom:6px;padding-top:8px;border-top:1px solid var(--border)">Datamosh</div>
               <div class="ctrl-row" style="margin:0 0 10px 0">
                 <button class="ctrl-btn" id="deleteIFramesBtn" disabled data-tooltip="Remove I-frames in scope for pixel drag">✖ I-F</button>
                 <button class="ctrl-btn" id="duplicatePFramesBtn" disabled data-tooltip="Duplicate P-frames in scope for bloom">2× P-F</button>
                 <button class="ctrl-btn" id="deleteCurrentBtn" disabled data-tooltip="Remove current frame">✖ Current</button>
               </div>
               <div class="datamosh-warning hidden" id="datamoshWarning" style="margin-bottom:10px"></div>
-              <div class="field-label" style="margin-bottom:6px;padding-top:8px;border-top:1px solid #222">Advanced</div>
+              <div class="field-label" style="margin-bottom:6px;padding-top:8px;border-top:1px solid var(--border)">Advanced</div>
               <div class="field-group">
                 <label class="field-label">Gradient</label>
                 <div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:4px">
@@ -347,6 +793,53 @@
     let frameProtectionEnabled=true,currentFrameProtectionEnd=0;
     let frequencyChart=null;
     let frameTypeThreshold=0;
+
+    // === THEME TOGGLE ===
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+    const html = document.documentElement;
+    
+    const getPreferredTheme = () => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) return savedTheme;
+      return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    };
+    
+    const setTheme = (theme) => {
+      if (theme === 'light') {
+        html.setAttribute('data-theme', 'light');
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Dark';
+      } else {
+        html.removeAttribute('data-theme');
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Light';
+      }
+      localStorage.setItem('theme', theme);
+      if(frames.length)drawTimeline();
+      if(frequencyChart){
+        const gridColor=theme==='light'?'#e0e0e0':'#222';
+        const tickColor=theme==='light'?'#999':'#666';
+        frequencyChart.options.scales.y.grid.color=gridColor;
+        frequencyChart.options.scales.y.ticks.color=tickColor;
+        frequencyChart.update('none');
+      }
+    };
+    
+    setTheme(getPreferredTheme());
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+    });
+    
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'light' : 'dark');
+      }
+    });
 
     document.getElementById('fileInput').addEventListener('change',e=>{
       const file=e.target.files[0];
@@ -465,6 +958,7 @@
 
     function initFrequencyChart(){
       const ctx=document.getElementById('frequencyChart').getContext('2d');
+      const isDark=!html.getAttribute('data-theme');
       frequencyChart=new Chart(ctx,{
         type:'line',
         data:{
@@ -473,8 +967,8 @@
             label:'Frequency',
             data:new Array(256).fill(0),
             fill:true,
-            backgroundColor:'rgba(233,30,140,0.2)',
-            borderColor:'#e91e8c',
+            backgroundColor:'rgba(255,0,255,0.2)',
+            borderColor:'#FF00FF',
             borderWidth:1,
             pointRadius:0,
             tension:0.1
@@ -500,8 +994,8 @@
             x:{display:false},
             y:{
               display:true,
-              grid:{color:'#222'},
-              ticks:{color:'#666',font:{size:10}}
+              grid:{color:isDark?'#222':'#e0e0e0'},
+              ticks:{color:isDark?'#666':'#999',font:{size:10}}
             }
           }
         }
@@ -531,7 +1025,7 @@
 
     function updateSelectionStats(){
       if(!selectedBytes.size){
-        document.getElementById('selectionStats').innerHTML='<span style="color:#666">No selection</span>';
+        document.getElementById('selectionStats').innerHTML='<span style="color:var(--muted)">No selection</span>';
         return;
       }
       
@@ -561,14 +1055,14 @@
       }
       
       const avgPerFrame=frameMatchCounts.length>0?(totalMatches/frameMatchCounts.length).toFixed(1):0;
-      let html=`<div style="color:#00bcd4">${selectedBytes.size} bytes</div>`;
+      let html=`<div style="color:var(--accent-secondary)">${selectedBytes.size} bytes</div>`;
       const uniqueVals=Object.keys(valueFreq).length;
       if(uniqueVals<=3){
         Object.entries(valueFreq).forEach(([val,count])=>{
           html+=`<div>0x${parseInt(val).toString(16).padStart(2,'0').toUpperCase()}: ${count}x</div>`;
         });
       }
-      html+=`<div style="margin-top:4px;padding-top:4px;border-top:1px solid #222;color:#666">`;
+      html+=`<div style="margin-top:4px;padding-top:4px;border-top:1px solid var(--border);color:var(--muted)">`;
       html+=`<div>${totalMatches} matches</div>`;
       html+=`<div>${frameMatchCounts.length} frames</div>`;
       html+=`<div>Avg: ${avgPerFrame}/frame</div>`;
@@ -767,10 +1261,14 @@
       c.width=r.width;
       c.height=70;
       const w=c.width,h=c.height;
-      ctx.fillStyle='#000';
+      
+      const isDark=!html.getAttribute('data-theme');
+      const bgColor=isDark?'#000':'#fafafa';
+      const labelColor=isDark?'#666':'#999';
+      
+      ctx.fillStyle=bgColor;
       ctx.fillRect(0,0,w,h);
       
-      // Draw frame type bars
       if(frames.length>0){
         const maxSize=Math.max(...frames.filter(f=>f.isVideo).map(f=>f.size),1);
         frames.forEach((f,i)=>{
@@ -780,7 +1278,7 @@
           const barHeight=(f.size/maxSize)*(h-20);
           
           if(f.frameType==='I'){
-            ctx.fillStyle='#e91e8c';
+            ctx.fillStyle='#FF00FF';
           }else{
             ctx.fillStyle='rgba(0,188,212,0.7)';
           }
@@ -807,7 +1305,7 @@
       
       if(selectedBytes.size>0&&hexData){
         if(rt==='current'){
-          ctx.fillStyle='rgba(233,30,140,0.3)';
+          ctx.fillStyle='rgba(255,0,255,0.3)';
           ctx.fillRect(cx-1,0,3,h-15);
         }else{
           const selectionData=[];
@@ -843,15 +1341,12 @@
               const logValue=Math.log(occurrences[i]+1);
               const barHeight=(logValue/logMax)*(h-20);
               const intensity=occurrences[i]/maxOcc;
-              const rc=Math.floor(intensity*233);
-              const gc=Math.floor((1-intensity)*30);
-              const bc=Math.floor((1-intensity)*140);
-              ctx.fillStyle='rgba('+rc+','+gc+','+bc+',0.6)';
+              ctx.fillStyle=`rgba(255,0,255,${intensity*0.6})`;
               ctx.fillRect(x,h-20-barHeight,barWidth,barHeight);
             }
           }
           
-          ctx.fillStyle='#666';
+          ctx.fillStyle=labelColor;
           ctx.font='10px Roboto Mono';
           ctx.textAlign='center';
           ctx.fillText('Max: '+maxOcc+' matches/frame',w/2,12);
@@ -861,9 +1356,9 @@
       if(rt==='custom'){
         const sx=(customRangeStart/frames.length)*w;
         const ex=((customRangeEnd+1)/frames.length)*w;
-        ctx.fillStyle='rgba(233,30,140,0.15)';
+        ctx.fillStyle='rgba(255,0,255,0.15)';
         ctx.fillRect(sx,0,ex-sx,h);
-        ctx.strokeStyle='#e91e8c';
+        ctx.strokeStyle='#FF00FF';
         ctx.lineWidth=2;
         ctx.beginPath();
         ctx.moveTo(sx,0);
@@ -874,17 +1369,15 @@
         ctx.lineTo(ex,h);
         ctx.stroke();
       }else if(rt==='iframes'){
-        // Highlight all I-frames
         frames.forEach((f,i)=>{
           if(f.frameType==='I'){
             const x=(i/frames.length)*w;
             const barWidth=Math.max(2,w/frames.length);
-            ctx.fillStyle='rgba(233,30,140,0.2)';
+            ctx.fillStyle='rgba(255,0,255,0.2)';
             ctx.fillRect(x,0,barWidth,h);
           }
         });
       }else if(rt==='pframes'){
-        // Highlight all P-frames
         frames.forEach((f,i)=>{
           if(f.frameType==='P'){
             const x=(i/frames.length)*w;
@@ -899,7 +1392,7 @@
       if(step==='nth'&&rt!=='current'){
         const nth=parseInt(document.getElementById('nthFrameInput').value)||2;
         const frameList=getFrameList();
-        ctx.fillStyle='rgba(233,30,140,0.2)';
+        ctx.fillStyle='rgba(255,0,255,0.2)';
         for(const fi of frameList){
           const x=(fi/frames.length)*w;
           const barWidth=Math.max(2,w/frames.length);
@@ -916,7 +1409,7 @@
         const ms=Math.floor((t%1)*1000);
         return m.toString().padStart(2,'0')+':'+s.toString().padStart(2,'0')+':'+ms.toString().padStart(3,'0');
       };
-      ctx.fillStyle='#666';
+      ctx.fillStyle=labelColor;
       ctx.font='10px Roboto Mono';
       ctx.textAlign='left';
       ctx.fillText(formatTime(startTime),2,h-2);
@@ -1044,8 +1537,8 @@
       let c=0;
       for(let i=0;i<aviData.bytes.length;i++)if(aviData.bytes[i]!==originalBytes[i])c++;
       const el=document.getElementById('changeCount');
-      if(c===0){el.textContent='No changes';el.style.color='#666';}
-      else{el.textContent=c.toLocaleString()+' modified';el.style.color='#e91e8c';}
+      if(c===0){el.textContent='No changes';el.style.color='var(--muted)';}
+      else{el.textContent=c.toLocaleString()+' modified';el.style.color='var(--accent)';}
     }
 
     function editByte(idx,val){
@@ -1078,8 +1571,8 @@
     function updateSelectionInfo(){
       const c=selectedBytes.size;
       const el=document.getElementById('selectionInfo');
-      if(c===0){el.textContent='No selection';el.style.color='#666';}
-      else{el.textContent=c+' byte'+(c!==1?'s':'');el.style.color='#e91e8c';}
+      if(c===0){el.textContent='No selection';el.style.color='var(--muted)';}
+      else{el.textContent=c+' byte'+(c!==1?'s':'');el.style.color='var(--accent)';}
       updateSelectionStats();
       drawTimeline();
     }
