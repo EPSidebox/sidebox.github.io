@@ -6,7 +6,6 @@
   <title>Image ↔ Table Converter</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-8XQLL5N022"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -45,257 +44,534 @@
 }
 </script>
   <style>
+    /* === BASE RESET === */
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    /* === TYPOGRAPHY & COLORS === */
+    :root {
+      --font: 'Roboto Mono', monospace;
+      --bg: #ffffff;
+      --text: #000000;
+      --accent: #FF00FF;
+      --accent-secondary: #00bcd4;
+      --accent-tertiary: #8bc34a;
+      --muted: #666;
+      --border: #000;
+      --panel-bg: #fafafa;
+      --hover-bg: #f5f5f5;
+      --hover-text: #000;
+      --input-bg: #fff;
+      --warning-bg: #fff3cd;
+      --cell-border: #eee;
+    }
+    
+    [data-theme="dark"] {
+      --bg: #0a0a0a;
+      --text: #e0e0e0;
+      --accent: #FF00FF;
+      --accent-secondary: #00bcd4;
+      --accent-tertiary: #8bc34a;
+      --muted: #666;
+      --border: #222;
+      --panel-bg: #111;
+      --hover-bg: #1a1a1a;
+      --hover-text: #fff;
+      --input-bg: #1a1a1a;
+      --warning-bg: #443300;
+      --cell-border: #333;
+    }
+    
     body {
       font-family: 'Roboto Mono', monospace;
-      background: #fff;
-      color: #000;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      padding: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+      line-height: 1.6;
+      font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.288), 1rem);
     }
-    header {
-      padding: 20px;
-      border-bottom: 1px solid #000;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    header h1 {
-      font-size: 14px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    header a {
-      font-size: 12px;
-      color: #000;
-      text-decoration: none;
-    }
-    header a:hover { color: #FF00FF; }
-    main {
-      flex: 1;
-      padding: 40px 20px;
-      max-width: 900px;
+    
+    .container {
+      max-width: 1200px;
       margin: 0 auto;
     }
-    .section {
-      border: 1px solid #000;
-      padding: 24px;
-      margin-bottom: 24px;
+    
+    header {
+      margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
     }
+    
+    .header-content {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    h1 {
+      color: var(--accent);
+      font-size: clamp(1.75rem, 1.75rem + ((1vw - 0.48rem) * 0.288), 1.875rem);
+      margin-bottom: 4px;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+    
+    .subtitle {
+      color: var(--muted);
+      font-size: clamp(0.8125rem, 0.8125rem + ((1vw - 0.48rem) * 0.144), 0.875rem);
+      line-height: 1.5;
+    }
+    
+    .theme-toggle {
+      padding: 6px 12px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      background: var(--hover-bg);
+    }
+    
+    .theme-toggle:focus {
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
+    }
+    
+    .section {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin-bottom: 1.5rem;
+      border-radius: 6px;
+    }
+    
     .section h2 {
-      font-size: 12px;
+      color: var(--accent);
+      font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.144), 0.9375rem);
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 16px;
+      line-height: 1.4;
     }
+    
     .section p {
-      font-size: 12px;
+      font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
       line-height: 1.5;
-      color: #666;
+      color: var(--muted);
       margin-bottom: 16px;
     }
+    
     .row {
       display: flex;
       gap: 12px;
       align-items: center;
       margin-bottom: 12px;
+      flex-wrap: wrap;
     }
+    
     .row:last-child { margin-bottom: 0; }
+    
     label {
-      font-size: 12px;
+      font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
       font-weight: 500;
+      color: var(--text);
     }
+    
     input[type="file"] {
       font-family: 'Roboto Mono', monospace;
-      font-size: 11px;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      color: var(--text);
     }
+    
     select {
       padding: 8px;
-      background: #fff;
-      color: #000;
-      border: 1px solid #000;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
       font-family: 'Roboto Mono', monospace;
-      font-size: 12px;
+      font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+      border-radius: 3px;
+      transition: border-color 0.15s;
     }
-    select:focus { outline: 2px solid #FF00FF; outline-offset: 1px; }
+    
+    select:hover {
+      border-color: var(--accent);
+    }
+    
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
     button {
       padding: 10px 16px;
-      background: #fff;
-      color: #000;
-      border: 1px solid #000;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
       font-family: 'Roboto Mono', monospace;
-      font-size: 11px;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       cursor: pointer;
       transition: all 0.15s;
+      border-radius: 3px;
     }
-    button:hover { background: #000; color: #fff; }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
-    button:disabled:hover { background: #fff; color: #000; }
-    button.primary { background: #FF00FF; color: #fff; border-color: #FF00FF; }
-    button.primary:hover { background: #cc00cc; border-color: #cc00cc; }
-    button.primary:disabled { background: #FF00FF; opacity: 0.4; }
-    button.primary:disabled:hover { background: #FF00FF; color: #fff; }
+    
+    button:hover:not(:disabled) {
+      background: var(--text);
+      color: var(--bg);
+    }
+    
+    button:focus {
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
+    }
+    
+    button:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+    
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    
+    button:disabled:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+    
+    button.primary {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+    
+    button.primary:hover:not(:disabled) {
+      background: #cc00cc;
+      border-color: #cc00cc;
+    }
+    
+    button.primary:disabled {
+      background: var(--accent);
+      opacity: 0.4;
+    }
+    
+    button.primary:disabled:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    
     .warning {
-      background: #fff3cd;
-      border: 1px solid #000;
+      background: var(--warning-bg);
+      border: 1px solid var(--border);
       padding: 12px;
-      font-size: 12px;
+      font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
       margin: 12px 0;
       display: none;
+      border-radius: 4px;
     }
+    
     .warning.show { display: block; }
-    .warning p { color: #000; margin-bottom: 8px; }
-    .info {
-      font-size: 11px;
-      color: #666;
-      margin-top: 8px;
+    
+    .warning p {
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.5;
     }
+    
+    .info {
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+    
     .preview {
       margin-top: 16px;
       max-width: 100%;
       overflow: auto;
-      border: 1px solid #eee;
+      border: 1px solid var(--border);
       padding: 8px;
       display: none;
+      border-radius: 4px;
+      background: var(--bg);
     }
+    
     .preview.show { display: block; }
+    
     .preview img {
       max-width: 320px;
       height: auto;
       image-rendering: pixelated;
     }
+    
     .preview-info {
-      font-size: 11px;
-      color: #666;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      color: var(--muted);
       margin-top: 8px;
     }
+    
     .channel-item {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 8px 12px;
-      border: 1px solid #000;
+      border: 1px solid var(--border);
       margin-right: 8px;
       margin-bottom: 8px;
       cursor: grab;
-      background: #fff;
-      font-size: 12px;
+      background: var(--bg);
+      font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+      border-radius: 3px;
+      transition: all 0.15s;
     }
-    .channel-item:active { cursor: grabbing; }
-    .channel-item.dragging { opacity: 0.5; }
+    
+    .channel-item:hover {
+      border-color: var(--accent);
+    }
+    
+    .channel-item:active {
+      cursor: grabbing;
+    }
+    
+    .channel-item.dragging {
+      opacity: 0.5;
+    }
+    
     .channel-item input {
       width: 60px;
       padding: 4px;
-      border: 1px solid #000;
+      border: 1px solid var(--border);
       font-family: 'Roboto Mono', monospace;
-      font-size: 11px;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      background: var(--input-bg);
+      color: var(--text);
+      border-radius: 3px;
+      transition: border-color 0.15s;
     }
+    
+    .channel-item input:hover {
+      border-color: var(--accent);
+    }
+    
+    .channel-item input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
     .preview-tabs {
       display: flex;
       gap: 0;
     }
+    
     .preview-tab {
       padding: 8px 16px;
-      border: 1px solid #000;
+      border: 1px solid var(--border);
       border-bottom: none;
-      background: #fff;
-      font-size: 11px;
+      background: var(--bg);
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
       cursor: pointer;
       margin-right: -1px;
+      transition: all 0.15s;
+      border-radius: 4px 4px 0 0;
     }
+    
+    .preview-tab:hover {
+      background: var(--hover-bg);
+      color: var(--accent);
+    }
+    
+    .preview-tab:focus {
+      outline: 2px dashed var(--accent);
+      outline-offset: -2px;
+    }
+    
     .preview-tab.active {
-      background: #FF00FF;
-      color: #fff;
-      border-color: #FF00FF;
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
     }
+    
     .preview-grid {
       display: grid;
-      font-size: 10px;
-      border: 1px solid #000;
+      font-size: clamp(0.5625rem, 0.5625rem + ((1vw - 0.48rem) * 0.072), 0.5938rem);
+      border: 1px solid var(--border);
       border-top: none;
     }
+    
     .preview-cell {
       padding: 4px 6px;
-      border-right: 1px solid #eee;
-      border-bottom: 1px solid #eee;
+      border-right: 1px solid var(--cell-border);
+      border-bottom: 1px solid var(--cell-border);
       text-align: center;
       min-width: 32px;
+      background: var(--bg);
+    }
+    
+    footer {
+      margin-top: clamp(1.5rem, 1.5rem + ((1vw - 0.48rem) * 1.442), 2rem);
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: underline;
+      transition: all 0.15s;
+    }
+    
+    footer a:hover {
+      text-decoration: none;
+      color: var(--hover-text);
+    }
+    
+    footer a:focus {
+      text-decoration: underline dashed;
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Image ↔ Table Converter</h1>
-    <a href="index.html">← Back</a>
-  </header>
-  
-  <main>
-    <!-- IMAGE TO TABLE -->
-    <div class="section">
-      <h2>Image → Table (.xlsx)</h2>
-      <p>Convert an image to a spreadsheet with one byte per cell. Each channel (R, G, B, A) gets its own sheet.</p>
-      
-      <div class="row">
-        <input type="file" id="imgInput" accept="image/*">
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <h1>Image ↔ Table Converter</h1>
+        <p class="subtitle">Convert images to spreadsheets and back for databending</p>
       </div>
-      
-      <div class="warning" id="imgWarning">
-        <p>⚠ Image exceeds 640×640 pixels. It will be resized to fit within this limit.</p>
-        <button id="resizeBtn">Resize and Continue</button>
-      </div>
-      
-      <div class="preview" id="imgPreview">
-        <img id="previewImg">
-        <div class="preview-info" id="imgInfo"></div>
-      </div>
-      
-      <div class="row" style="margin-top:16px;">
-        <button class="primary" id="exportXlsxBtn" disabled>Export .xlsx</button>
-      </div>
-    </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span id="themeIcon">🌙</span>
+        <span id="themeText">Dark</span>
+      </button>
+    </header>
     
-    <!-- TABLE TO RAW -->
-    <div class="section">
-      <h2>Table → Raw</h2>
-      <p>Convert an .xlsx spreadsheet back to a headerless .raw file. Each sheet should contain one channel.</p>
-      
-      <div class="row">
-        <input type="file" id="xlsxInput" accept=".xlsx,.xls">
+    <main>
+      <!-- IMAGE TO TABLE -->
+      <div class="section">
+        <h2>Image → Table (.xlsx)</h2>
+        <p>Convert an image to a spreadsheet with one byte per cell. Each channel (R, G, B, A) gets its own sheet.</p>
+        
+        <div class="row">
+          <input type="file" id="imgInput" accept="image/*">
+        </div>
+        
+        <div class="warning" id="imgWarning">
+          <p>⚠ Image exceeds 640×640 pixels. It will be resized to fit within this limit.</p>
+          <button id="resizeBtn">Resize and Continue</button>
+        </div>
+        
+        <div class="preview" id="imgPreview">
+          <img id="previewImg">
+          <div class="preview-info" id="imgInfo"></div>
+        </div>
+        
+        <div class="row" style="margin-top:16px;">
+          <button class="primary" id="exportXlsxBtn" disabled>Export .xlsx</button>
+        </div>
       </div>
       
-      <div class="row">
-        <label>Channel Order:</label>
-        <select id="channelOrder">
-          <option value="planar">Planar (RRRR...GGGG...BBBB...)</option>
-          <option value="interleaved">Interleaved (RGBRGBRGB...)</option>
-        </select>
+      <!-- TABLE TO RAW -->
+      <div class="section">
+        <h2>Table → Raw</h2>
+        <p>Convert an .xlsx spreadsheet back to a headerless .raw file. Each sheet should contain one channel.</p>
+        
+        <div class="row">
+          <input type="file" id="xlsxInput" accept=".xlsx,.xls">
+        </div>
+        
+        <div class="row">
+          <label>Channel Order:</label>
+          <select id="channelOrder">
+            <option value="planar">Planar (RRRR...GGGG...BBBB...)</option>
+            <option value="interleaved">Interleaved (RGBRGBRGB...)</option>
+          </select>
+        </div>
+        
+        <div class="info" id="xlsxInfo"></div>
+        
+        <div id="channelConfig" style="display:none;margin-top:16px;">
+          <label style="display:block;margin-bottom:8px;">Channel order (drag to reorder):</label>
+          <div id="channelList"></div>
+        </div>
+        
+        <div id="xlsxPreview" style="display:none;margin-top:16px;">
+          <label style="display:block;margin-bottom:8px;">Preview (top-left 8×8):</label>
+          <div id="previewTabs"></div>
+          <div id="previewTable" style="overflow:auto;max-height:200px;margin-top:8px;"></div>
+        </div>
+        
+        <div class="row" style="margin-top:16px;">
+          <button class="primary" id="exportRawBtn" disabled>Export .raw</button>
+        </div>
       </div>
-      
-      <div class="info" id="xlsxInfo"></div>
-      
-      <div id="channelConfig" style="display:none;margin-top:16px;">
-        <label style="display:block;margin-bottom:8px;">Channel order (drag to reorder):</label>
-        <div id="channelList"></div>
-      </div>
-      
-      <div id="xlsxPreview" style="display:none;margin-top:16px;">
-        <label style="display:block;margin-bottom:8px;">Preview (top-left 8×8):</label>
-        <div id="previewTabs"></div>
-        <div id="previewTable" style="overflow:auto;max-height:200px;border:1px solid #eee;margin-top:8px;"></div>
-      </div>
-      
-      <div class="row" style="margin-top:16px;">
-        <button class="primary" id="exportRawBtn" disabled>Export .raw</button>
-      </div>
-    </div>
-  </main>
+    </main>
+
+    <footer>
+      Image ↔ Table Converter — A Glitch Pedagogy Tool<br>
+      Created by Ernesto Peña | <a href="https://ernestopena.com" target="_blank">ernestopena.com</a>
+    </footer>
+  </div>
 
   <script>
+    // === THEME TOGGLE ===
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+    const html = document.documentElement;
+    
+    const getPreferredTheme = () => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) return savedTheme;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    
+    const setTheme = (theme) => {
+      if (theme === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Light';
+      } else {
+        html.removeAttribute('data-theme');
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Dark';
+      }
+      localStorage.setItem('theme', theme);
+    };
+    
+    setTheme(getPreferredTheme());
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
+    });
+    
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+
     // === IMAGE TO TABLE ===
     const imgInput = document.getElementById('imgInput');
     const imgWarning = document.getElementById('imgWarning');
