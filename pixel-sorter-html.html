@@ -6,7 +6,7 @@
   <title>Pixel Sorter</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-   <script async src="https://www.googletagmanager.com/gtag/js?id=G-8XQLL5N022"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8XQLL5N022"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
@@ -14,116 +14,480 @@
     gtag('config', 'G-8XQLL5N022');
   </script>
   <meta name="citation_title" content="Pixel Sorter">
-<meta name="citation_author" content="Peña, Ernesto">
-<meta name="citation_publication_date" content="2026/01/08">
-<meta name="citation_technical_report_institution" content="Northeastern University">
-<meta name="citation_technical_report_number" content="v1.0">
-<meta name="citation_abstract" content="A browser-based pixel sorting tool for glitch art. Rearrange pixels by brightness, hue, saturation, or individual colour channels with adjustable spatial and brightness thresholds.">
-<meta name="citation_keywords" content="pixel sorting; glitch art; image processing; databending">
-<meta name="citation_public_url" content="https://epsidebox.github.io/sidebox.github.io/pixel-sorter-html.html">
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "Pixel Sorter",
-  "author": {
-    "@type": "Person",
-    "name": "Ernesto Peña",
-    "affiliation": "Northeastern University",
-    "url": "https://ernestopena.com"
-  },
-  "datePublished": "2026-01-08",
-  "version": "1.0",
-  "description": "A browser-based pixel sorting tool for glitch art. Rearrange pixels by brightness, hue, saturation, or individual colour channels with adjustable spatial and brightness thresholds.",
-  "url": "https://epsidebox.github.io/sidebox.github.io/pixel-sorter-html.html",
-  "applicationCategory": "EducationalApplication",
-  "operatingSystem": "Web browser",
-  "keywords": ["pixel sorting", "glitch art", "image processing", "databending"]
-}
-</script>
+  <meta name="citation_author" content="Peña, Ernesto">
+  <meta name="citation_publication_date" content="2026/01/08">
+  <meta name="citation_technical_report_institution" content="Northeastern University">
+  <meta name="citation_technical_report_number" content="v1.0">
+  <meta name="citation_abstract" content="A browser-based pixel sorting tool for glitch art. Rearrange pixels by brightness, hue, saturation, or individual colour channels with adjustable spatial and brightness thresholds.">
+  <meta name="citation_keywords" content="pixel sorting; glitch art; image processing; databending">
+  <meta name="citation_public_url" content="https://epsidebox.github.io/sidebox.github.io/pixel-sorter-html.html">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Pixel Sorter",
+    "author": {
+      "@type": "Person",
+      "name": "Ernesto Peña",
+      "affiliation": "Northeastern University",
+      "url": "https://ernestopena.com"
+    },
+    "datePublished": "2026-01-08",
+    "version": "1.0",
+    "description": "A browser-based pixel sorting tool for glitch art. Rearrange pixels by brightness, hue, saturation, or individual colour channels with adjustable spatial and brightness thresholds.",
+    "url": "https://epsidebox.github.io/sidebox.github.io/pixel-sorter-html.html",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web browser",
+    "keywords": ["pixel sorting", "glitch art", "image processing", "databending"]
+  }
+  </script>
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; background: #fff; display: flex; min-height: 100vh; font-family: 'Roboto Mono', monospace; }
-    #controls {
-      width: 220px; padding: 20px; background: #fff; color: #000;
-      font-size: 12px; border-right: 1px solid #000;
-      overflow-y: auto; max-height: 100vh; position: fixed; top: 0; left: 0;
-    }
-    #controls h2 { margin: 0 0 20px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-    #controls label { display: block; margin: 16px 0 4px; color: #000; font-weight: 500; }
-    #controls input[type="range"] { 
-      width: 100%; margin: 0; -webkit-appearance: none; background: #eee; height: 4px; border-radius: 2px;
-    }
-    #controls input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 14px; height: 14px; background: #FF00FF; border-radius: 50%; cursor: pointer;
-    }
-    #controls input[type="range"]::-moz-range-thumb {
-      width: 14px; height: 14px; background: #FF00FF; border-radius: 50%; cursor: pointer; border: none;
-    }
-    #controls select { 
-      width: 100%; padding: 8px; background: #fff; color: #000; 
-      border: 1px solid #000; font-family: 'Roboto Mono', monospace; font-size: 12px;
-    }
-    #controls select:focus { outline: 2px solid #FF00FF; outline-offset: 1px; }
-    #controls input[type="file"] { width: 100%; margin-bottom: 10px; font-family: 'Roboto Mono', monospace; font-size: 11px; }
-    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
-    .btn-row button {
-      flex: 1 1 45%; padding: 10px 8px; background: #fff; color: #000;
-      border: 1px solid #000; cursor: pointer; font-family: 'Roboto Mono', monospace;
-      font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.15s;
-    }
-    .btn-row button:hover { background: #000; color: #fff; }
-    .btn-row button.primary { background: #FF00FF; color: #fff; border-color: #FF00FF; }
-    .btn-row button.primary:hover { background: #cc00cc; border-color: #cc00cc; }
-    #canvas-container { margin-left: 220px; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: #f5f5f5; }
-    .value-display { color: #666; font-size: 11px; text-align: right; }
+/* === BASE RESET === */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* === CSS VARIABLES === */
+:root {
+  --font: 'Roboto Mono', monospace;
+  --bg: #0a0a0a;
+  --text: #e0e0e0;
+  --accent: #FF00FF;
+  --muted: #666;
+  --border: #222;
+  --panel-bg: #111;
+  --hover-bg: #1a1a1a;
+  --hover-text: #fff;
+  --input-bg: #1a1a1a;
+  --canvas-bg: #000;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --text: #000000;
+  --accent: #FF00FF;
+  --muted: #666666;
+  --border: #e0e0e0;
+  --panel-bg: #f5f5f5;
+  --hover-bg: #e8e8e8;
+  --hover-text: #000;
+  --input-bg: #f8f8f8;
+  --canvas-bg: #fafafa;
+}
+
+/* === TYPOGRAPHY === */
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+  font-size: clamp(0.75rem, 0.75rem + ((1vw - 0.48rem) * 0.072), 0.7813rem);
+  line-height: 1.6;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* === SIDEBAR CONTROLS === */
+#controls {
+  width: 240px;
+  padding: 20px;
+  background: var(--panel-bg);
+  color: var(--text);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transition: background-color 0.3s, border-color 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-header h1 {
+  color: var(--accent);
+  font-size: clamp(1.75rem, 1.75rem + ((1vw - 0.48rem) * 0.288), 1.875rem);
+  font-weight: 400;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.sidebar-header .subtitle {
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* === THEME TOGGLE === */
+.theme-toggle {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  font-family: var(--font);
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 3px;
+  transition: all 0.15s;
+  margin-bottom: 16px;
+}
+
+.theme-toggle:hover {
+  background: var(--hover-bg);
+  border-color: var(--accent);
+}
+
+.theme-toggle:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+.controls-section {
+  flex: 1;
+  overflow-y: auto;
+}
+
+#controls label {
+  display: block;
+  margin: 16px 0 6px;
+  color: var(--text);
+  font-weight: 500;
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.value-display {
+  color: var(--accent);
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  font-weight: 700;
+}
+
+/* === RANGE INPUTS === */
+#controls input[type="range"] {
+  width: 100%;
+  margin: 0;
+  -webkit-appearance: none;
+  background: var(--input-bg);
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  transition: background 0.15s;
+}
+
+#controls input[type="range"]:hover {
+  background: var(--hover-bg);
+}
+
+#controls input[type="range"]:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 4px;
+}
+
+#controls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+#controls input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+#controls input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(0.95);
+}
+
+#controls input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+#controls input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+#controls input[type="range"]::-moz-range-thumb:active {
+  transform: scale(0.95);
+}
+
+/* === SELECT DROPDOWNS === */
+#controls select {
+  width: 100%;
+  padding: 8px;
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-family: var(--font);
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+#controls select:hover {
+  border-color: var(--accent);
+  background: var(--hover-bg);
+}
+
+#controls select:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent);
+}
+
+/* === FILE INPUT === */
+#controls input[type="file"] {
+  width: 100%;
+  margin-bottom: 10px;
+  font-family: var(--font);
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  padding: 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+#controls input[type="file"]:hover {
+  border-color: var(--accent);
+}
+
+#controls input[type="file"]:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+/* === BUTTONS === */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.btn-row button {
+  flex: 1 1 45%;
+  padding: 10px 8px;
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.15s;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.btn-row button:hover {
+  background: var(--hover-bg);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.btn-row button:active {
+  transform: translateY(0);
+}
+
+.btn-row button:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+.btn-row button.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.btn-row button.primary:hover {
+  background: #cc00cc;
+  border-color: #cc00cc;
+  color: #fff;
+}
+
+/* === CANVAS CONTAINER === */
+#canvas-container {
+  margin-left: 240px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  padding-bottom: 60px;
+  background: var(--canvas-bg);
+  flex: 1;
+  transition: background-color 0.3s;
+}
+
+/* === FOOTER === */
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 240px;
+  right: 0;
+  padding: 14px 20px;
+  background: var(--panel-bg);
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  color: var(--muted);
+  line-height: 1.6;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+footer a {
+  color: var(--accent);
+  text-decoration: underline;
+  transition: all 0.15s;
+}
+
+footer a:hover {
+  text-decoration: none;
+  color: var(--hover-text);
+}
+
+footer a:focus {
+  text-decoration: underline dashed;
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  #controls {
+    position: relative;
+    width: 100%;
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  #canvas-container {
+    margin-left: 0;
+  }
+  
+  footer {
+    left: 0;
+  }
+}
   </style>
 </head>
 <body>
   <div id="controls">
-    <h2>Pixel Sorter</h2>
-    <input type="file" id="fileInput" accept="image/*">
+    <div class="sidebar-header">
+      <h1>Pixel<br>Sorter</h1>
+      <p class="subtitle">Brightness | Hue | Saturation | RGB</p>
+    </div>
     
-    <label>Spatial Min: <span id="spMinVal">0%</span></label>
-    <input type="range" id="spMin" min="0" max="100" value="0">
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <span id="themeIcon">🌙</span>
+      <span id="themeText">Dark</span>
+    </button>
     
-    <label>Spatial Max: <span id="spMaxVal">100%</span></label>
-    <input type="range" id="spMax" min="0" max="100" value="100">
-    
-    <label>Brightness Min: <span id="brMinVal">25</span></label>
-    <input type="range" id="brMin" min="0" max="255" value="25">
-    
-    <label>Brightness Max: <span id="brMaxVal">230</span></label>
-    <input type="range" id="brMax" min="0" max="255" value="230">
-    
-    <label>Sort By</label>
-    <select id="sortBy">
-      <option value="brightness">Brightness</option>
-      <option value="hue">Hue</option>
-      <option value="saturation">Saturation</option>
-      <option value="red">Red</option>
-      <option value="green">Green</option>
-      <option value="blue">Blue</option>
-    </select>
-    
-    <label>Direction</label>
-    <select id="direction">
-      <option value="right">Right</option>
-      <option value="left">Left</option>
-      <option value="bottom">Bottom</option>
-      <option value="top">Top</option>
-    </select>
-    
-    <div class="btn-row">
-      <button class="primary" id="sortBtn">Sort</button>
-      <button id="resetBtn">Reset</button>
-      <button id="saveBtn">Save</button>
+    <div class="controls-section">
+      <input type="file" id="fileInput" accept="image/*">
+      
+      <label>Spatial Min: <span class="value-display" id="spMinVal">0%</span></label>
+      <input type="range" id="spMin" min="0" max="100" value="0">
+      
+      <label>Spatial Max: <span class="value-display" id="spMaxVal">100%</span></label>
+      <input type="range" id="spMax" min="0" max="100" value="100">
+      
+      <label>Brightness Min: <span class="value-display" id="brMinVal">25</span></label>
+      <input type="range" id="brMin" min="0" max="255" value="25">
+      
+      <label>Brightness Max: <span class="value-display" id="brMaxVal">230</span></label>
+      <input type="range" id="brMax" min="0" max="255" value="230">
+      
+      <label>Sort By</label>
+      <select id="sortBy">
+        <option value="brightness">Brightness</option>
+        <option value="hue">Hue</option>
+        <option value="saturation">Saturation</option>
+        <option value="red">Red</option>
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
+      </select>
+      
+      <label>Direction</label>
+      <select id="direction">
+        <option value="right">Right</option>
+        <option value="left">Left</option>
+        <option value="bottom">Bottom</option>
+        <option value="top">Top</option>
+      </select>
+      
+      <div class="btn-row">
+        <button class="primary" id="sortBtn">Sort</button>
+        <button id="resetBtn">Reset</button>
+        <button id="saveBtn">Save</button>
+      </div>
     </div>
   </div>
+  
   <div id="canvas-container"></div>
+  
+  <footer>
+    Pixel Sorter — A Glitch Pedagogy Tool<br>
+    Created by Ernesto Peña | <a href="https://ernestopena.com" target="_blank">ernestopena.com</a>
+  </footer>
 
 <script>
+// === THEME HANDLING ===
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const themeText = document.getElementById('themeText');
+const html = document.documentElement;
+
+const getPreferredTheme = () => {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) return savedTheme;
+  return 'dark';
+};
+
+const setTheme = (theme) => {
+  html.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+  themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
+  themeText.textContent = theme === 'light' ? 'Dark' : 'Light';
+};
+
+setTheme(getPreferredTheme());
+
+themeToggle.addEventListener('click', () => {
+  const currentTheme = html.getAttribute('data-theme');
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  setTheme(newTheme);
+});
+
+// === PIXEL SORTING LOGIC ===
 let img, sortedImg;
 let minSpatial=0, maxSpatial=100, minBright=25, maxBright=230;
 let sortBy='brightness', sortDirection='right';
@@ -131,8 +495,9 @@ let sortBy='brightness', sortDirection='right';
 function setup() {
   let cnv = createCanvas(600, 400);
   cnv.parent('canvas-container');
-  background(255);
-  fill(150);
+  const currentTheme = html.getAttribute('data-theme');
+  background(currentTheme === 'light' ? 250 : 10);
+  fill(currentTheme === 'light' ? 100 : 150);
   noStroke();
   textAlign(CENTER, CENTER);
   textSize(14);
@@ -156,15 +521,38 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
   }
 });
 
-document.getElementById('spMin').oninput = function() { minSpatial = +this.value; document.getElementById('spMinVal').textContent = this.value + '%'; };
-document.getElementById('spMax').oninput = function() { maxSpatial = +this.value; document.getElementById('spMaxVal').textContent = this.value + '%'; };
-document.getElementById('brMin').oninput = function() { minBright = +this.value; document.getElementById('brMinVal').textContent = this.value; };
-document.getElementById('brMax').oninput = function() { maxBright = +this.value; document.getElementById('brMaxVal').textContent = this.value; };
+document.getElementById('spMin').oninput = function() { 
+  minSpatial = +this.value; 
+  document.getElementById('spMinVal').textContent = this.value + '%'; 
+};
+
+document.getElementById('spMax').oninput = function() { 
+  maxSpatial = +this.value; 
+  document.getElementById('spMaxVal').textContent = this.value + '%'; 
+};
+
+document.getElementById('brMin').oninput = function() { 
+  minBright = +this.value; 
+  document.getElementById('brMinVal').textContent = this.value; 
+};
+
+document.getElementById('brMax').oninput = function() { 
+  maxBright = +this.value; 
+  document.getElementById('brMaxVal').textContent = this.value; 
+};
+
 document.getElementById('sortBy').onchange = function() { sortBy = this.value; };
 document.getElementById('direction').onchange = function() { sortDirection = this.value; };
 document.getElementById('sortBtn').onclick = sortPixels;
-document.getElementById('resetBtn').onclick = () => { if (img) { sortedImg = img.get(); image(sortedImg, 0, 0); } };
-document.getElementById('saveBtn').onclick = () => { if (sortedImg) save(sortedImg, 'sorted.png'); };
+document.getElementById('resetBtn').onclick = () => { 
+  if (img) { 
+    sortedImg = img.get(); 
+    image(sortedImg, 0, 0); 
+  } 
+};
+document.getElementById('saveBtn').onclick = () => { 
+  if (sortedImg) save(sortedImg, 'sorted.png'); 
+};
 
 function sortPixels() {
   if (!sortedImg) return;
@@ -228,7 +616,10 @@ function sortSpans(px, rev) {
   return res;
 }
 
-function inThresh(p) { let v = (p.r + p.g + p.b) / 3; return v >= minBright && v <= maxBright; }
+function inThresh(p) { 
+  let v = (p.r + p.g + p.b) / 3; 
+  return v >= minBright && v <= maxBright; 
+}
 
 function getVal(p) {
   if (sortBy === 'brightness') return (p.r + p.g + p.b) / 3;
