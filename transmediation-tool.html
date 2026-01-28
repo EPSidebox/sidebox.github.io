@@ -44,34 +44,130 @@
 }
 </script>
   <style>
+    /* === BASE RESET === */
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    /* === TYPOGRAPHY & COLORS === */
+    :root {
+      --font: 'Roboto Mono', monospace;
+      --bg: #ffffff;
+      --text: #000000;
+      --accent: #FF00FF;
+      --accent-secondary: #00bcd4;
+      --accent-tertiary: #8bc34a;
+      --muted: #999;
+      --border: #eee;
+      --panel-bg: #fafafa;
+      --hover-bg: #f5f5f5;
+      --hover-text: #000;
+      --input-bg: #fafafa;
+      --canvas-bg: #000;
+      --waveform-bg: #fff;
+    }
+    
+    [data-theme="dark"] {
+      --bg: #0a0a0a;
+      --text: #e0e0e0;
+      --accent: #FF00FF;
+      --accent-secondary: #00bcd4;
+      --accent-tertiary: #8bc34a;
+      --muted: #666;
+      --border: #222;
+      --panel-bg: #111;
+      --hover-bg: #1a1a1a;
+      --hover-text: #fff;
+      --input-bg: #1a1a1a;
+      --canvas-bg: #000;
+      --waveform-bg: #0a0a0a;
+    }
+    
     body {
       font-family: 'Roboto Mono', monospace;
-      background: #fff;
-      color: #000;
-      padding: 1rem;
+      background: var(--bg);
+      color: var(--text);
+      padding: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
       min-height: 100vh;
+      line-height: 1.6;
+      font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.288), 1rem);
     }
-    .header {
-      text-align: left;
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid #eee;
-      max-width: 1400px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    h1 { font-size: 1.25rem; font-weight: 500; color: #FF00FF; }
-    .subtitle { font-size: 0.7rem; color: #999; margin-top: 0.25rem; }
+    
     .container {
-      display: grid;
-      grid-template-columns: 1fr 450px;
-      gap: 1.5rem;
-      max-width: 1400px;
+      max-width: 1200px;
       margin: 0 auto;
     }
-    .panel { display: flex; flex-direction: column; }
-    .panel-right { width: 450px; }
+    
+    header {
+      margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .header-content {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    h1 {
+      color: var(--accent);
+      margin-bottom: 10px;
+      font-size: clamp(1.75rem, 1.75rem + ((1vw - 0.48rem) * 0.288), 1.875rem);
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-size: clamp(0.8125rem, 0.8125rem + ((1vw - 0.48rem) * 0.144), 0.875rem);
+      line-height: 1.5;
+    }
+    
+    .theme-toggle {
+      padding: 6px 12px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      background: var(--hover-bg);
+    }
+    
+    .theme-toggle:focus {
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
+    }
+    
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+    }
+    
     .panel-header {
       display: flex;
       justify-content: space-between;
@@ -80,19 +176,54 @@
       flex-wrap: wrap;
       gap: 0.5rem;
     }
-    h2 { font-size: 0.8rem; font-weight: 500; }
-    .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
-    select, button {
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.7rem;
-      padding: 0.25rem 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #fff;
-      cursor: pointer;
+    
+    h2 {
+      font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.144), 0.9375rem);
+      font-weight: 500;
+      line-height: 1.4;
     }
-    select:hover, button:hover { border-color: #FF00FF; }
-    button.active { background: #FF00FF; color: #fff; border-color: #FF00FF; }
+    
+    .controls {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    select,
+    button {
+      font-family: 'Roboto Mono', monospace;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    select:hover,
+    button:hover {
+      border-color: var(--accent);
+    }
+    
+    select:focus,
+    button:focus {
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
+    }
+    
+    button:active {
+      transform: scale(0.98);
+    }
+    
+    button.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+    
     .input-area {
       flex: 1;
       display: flex;
@@ -100,71 +231,114 @@
       gap: 0.5rem;
       min-height: 400px;
     }
+    
     .tab-bar {
       display: flex;
       gap: 0;
-      border-bottom: 1px solid #ccc;
+      border-bottom: 1px solid var(--border);
     }
+    
     .tab {
       padding: 0.4rem 0.75rem;
-      border: 1px solid #ccc;
+      border: 1px solid var(--border);
       border-bottom: none;
       border-radius: 4px 4px 0 0;
-      background: #f5f5f5;
+      background: var(--hover-bg);
       cursor: pointer;
-      font-size: 0.7rem;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
       margin-right: -1px;
+      transition: all 0.15s;
     }
-    .tab.active { background: #fff; border-bottom: 1px solid #fff; margin-bottom: -1px; }
-    .tab:hover { color: #FF00FF; }
-    textarea, .hex-editor {
+    
+    .tab.active {
+      background: var(--bg);
+      border-bottom: 1px solid var(--bg);
+      margin-bottom: -1px;
+    }
+    
+    .tab:hover {
+      color: var(--accent);
+    }
+    
+    .tab:focus {
+      outline: 2px dashed var(--accent);
+      outline-offset: -2px;
+    }
+    
+    textarea,
+    .hex-editor {
       flex: 1;
-      background: #fafafa;
-      color: #000;
-      border: 1px solid #ccc;
+      background: var(--input-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
       border-top: none;
       border-radius: 0 0 0.5rem 0.5rem;
       padding: 0.75rem;
       font-family: 'Roboto Mono', monospace;
-      font-size: 0.75rem;
+      font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.144), 0.75rem);
       line-height: 1.6;
       resize: none;
       overflow-y: auto;
+      transition: border-color 0.15s;
     }
-    textarea:focus, .hex-editor:focus { outline: none; border-color: #FF00FF; border-top-color: #ccc; }
-    textarea::placeholder, .hex-editor::placeholder { color: #999; }
-    .hex-editor { white-space: pre-wrap; word-break: break-all; }
-    .hidden { display: none !important; }
+    
+    textarea:focus,
+    .hex-editor:focus {
+      outline: none;
+      border-color: var(--accent);
+      border-top-color: var(--border);
+    }
+    
+    textarea::placeholder,
+    .hex-editor::placeholder {
+      color: var(--muted);
+    }
+    
+    .hex-editor {
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    
     .progress-bar {
       height: 6px;
-      background: #e5e5e5;
+      background: var(--hover-bg);
       border-radius: 4px;
       margin-top: 0.5rem;
       overflow: hidden;
     }
+    
     .progress-fill {
       height: 100%;
-      background: #FF00FF;
+      background: var(--accent);
       transition: width 0.1s;
     }
+    
     .stats {
       display: flex;
       justify-content: space-between;
-      font-size: 0.7rem;
-      color: #666;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      color: var(--muted);
       margin-top: 0.25rem;
     }
-    .stats .current { color: #FF00FF; }
+    
+    .stats .current {
+      color: var(--accent);
+    }
+    
     .selection-info {
-      font-size: 0.65rem;
-      color: #FF00FF;
+      font-size: clamp(0.5938rem, 0.5938rem + ((1vw - 0.48rem) * 0.072), 0.625rem);
+      color: var(--accent);
       margin-top: 0.25rem;
       min-height: 1em;
     }
-    .preview-section { margin-bottom: 1rem; }
+    
+    .preview-section {
+      margin-bottom: 1.5rem;
+    }
+    
     .preview-label {
-      font-size: 0.7rem;
-      color: #666;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      color: var(--muted);
       margin-bottom: 0.5rem;
       display: flex;
       justify-content: space-between;
@@ -172,31 +346,48 @@
       flex-wrap: wrap;
       gap: 0.5rem;
     }
+    
     .canvas-wrapper {
-      background: #000;
+      background: var(--canvas-bg);
       border-radius: 0.5rem;
       padding: 4px;
       display: inline-block;
       overflow: auto;
-      max-width: 440px;
+      max-width: 100%;
       max-height: 320px;
+      border: 1px solid var(--border);
     }
+    
     canvas#imageCanvas {
       display: block;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
-    .zoom-controls { display: flex; gap: 0.25rem; }
-    .zoom-btn { min-width: 2.5rem; }
+    
+    .zoom-controls {
+      display: flex;
+      gap: 0.25rem;
+    }
+    
+    .zoom-btn {
+      min-width: 2.5rem;
+    }
+    
     .waveform-container {
-      background: #fff;
-      border: 1px solid #ccc;
+      background: var(--waveform-bg);
+      border: 1px solid var(--border);
       border-radius: 0.5rem;
       padding: 0.5rem;
-      width: 440px;
+      width: 100%;
       max-height: 150px;
     }
-    canvas#waveformCanvas { display: block; width: 100%; height: 100px; }
+    
+    canvas#waveformCanvas {
+      display: block;
+      width: 100%;
+      height: 100px;
+    }
+    
     .audio-controls {
       display: flex;
       gap: 0.5rem;
@@ -204,152 +395,216 @@
       align-items: center;
       flex-wrap: wrap;
     }
+    
     .play-btn {
-      background: #FF00FF;
-      color: #fff;
+      background: var(--accent);
+      color: var(--bg);
       border: none;
       padding: 0.5rem 1rem;
       font-weight: 500;
+      transition: all 0.15s;
     }
-    .play-btn:hover { background: #cc00cc; }
-    .download-btns { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; align-items: center; }
-    .download-btns .separator { color: #ccc; margin: 0 0.25rem; }
+    
+    .play-btn:hover {
+      background: #cc00cc;
+      transform: scale(1.02);
+    }
+    
+    .play-btn:focus {
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
+    }
+    
+    .play-btn:active {
+      transform: scale(0.98);
+    }
+    
+    .download-btns {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .download-btns .separator {
+      color: var(--border);
+      margin: 0 0.25rem;
+    }
+    
     .upload-warning {
-      font-size: 0.7rem;
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
       color: #cc00cc;
       margin-top: 0.5rem;
       display: none;
+      line-height: 1.4;
     }
-    .upload-warning.visible { display: block; }
+    
+    .upload-warning.visible {
+      display: block;
+    }
+    
     .mode-toggle {
       display: flex;
-      border: 1px solid #ccc;
+      border: 1px solid var(--border);
       border-radius: 4px;
       overflow: hidden;
     }
+    
     .mode-toggle button {
       border: none;
       border-radius: 0;
-      border-right: 1px solid #ccc;
+      border-right: 1px solid var(--border);
     }
-    .mode-toggle button:last-child { border-right: none; }
+    
+    .mode-toggle button:last-child {
+      border-right: none;
+    }
+    
     .encoding-info {
-      font-size: 0.6rem;
-      color: #999;
+      font-size: clamp(0.5625rem, 0.5625rem + ((1vw - 0.48rem) * 0.072), 0.5938rem);
+      color: var(--muted);
       margin-top: 0.25rem;
+      line-height: 1.4;
     }
-    .footer {
-      text-align: right;
-      margin-top: 1.5rem;
-      padding-top: 1rem;
-      border-top: 1px solid #eee;
-      max-width: 1400px;
-      margin-left: auto;
-      margin-right: auto;
+    
+    .hidden {
+      display: none !important;
     }
-    .footer a {
-      font-size: 0.7rem;
-      color: #FF00FF;
+    
+    footer {
+      margin-top: clamp(1.5rem, 1.5rem + ((1vw - 0.48rem) * 1.442), 2rem);
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: underline;
+      transition: all 0.15s;
+    }
+    
+    footer a:hover {
       text-decoration: none;
+      color: var(--hover-text);
     }
-    .footer a:hover { text-decoration: underline; }
-    @media (max-width: 900px) {
-      .container { grid-template-columns: 1fr; }
-      .panel-right { width: 100%; }
-      .canvas-wrapper, .waveform-container { max-width: 100%; width: 100%; }
+    
+    footer a:focus {
+      text-decoration: underline dashed;
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
+    }
+    
+    @media (max-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>TRANSMEDIATOR</h1>
-    <div class="subtitle">Text → Image → Audio | 44,100 bytes = 210×210 px = 1 second</div>
-  </div>
-
   <div class="container">
-    <div class="panel">
-      <div class="panel-header">
-        <h2>Data Input</h2>
-        <div class="controls">
-          <div class="mode-toggle">
-            <button id="grayBtn" class="active" onclick="setMode('gray')">Grayscale</button>
-            <button id="rgbBtn" onclick="setMode('rgb')">RGB</button>
+    <header>
+      <div class="header-content">
+        <h1>Transmediator</h1>
+        <p class="subtitle">Text → Image → Audio | 44,100 bytes = 210×210 px = 1 second</p>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span id="themeIcon">🌙</span>
+        <span id="themeText">Dark</span>
+      </button>
+    </header>
+
+    <div class="main-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Data Input</h2>
+          <div class="controls">
+            <div class="mode-toggle">
+              <button id="grayBtn" class="active" onclick="setMode('gray')">Grayscale</button>
+              <button id="rgbBtn" onclick="setMode('rgb')">RGB</button>
+            </div>
+          </div>
+        </div>
+        <div class="controls" style="margin-bottom:0.5rem;">
+          <select id="encodingSelect" onchange="updatePreview()">
+            <option value="unsigned">Unsigned (0–255)</option>
+            <option value="signed">Signed (−128–127)</option>
+          </select>
+          <select id="interleavingSelect" onchange="updatePreview()" class="hidden">
+            <option value="interleaved">Interleaved (RGBRGB...)</option>
+            <option value="planar">Non-interleaved (RRR...GGG...BBB...)</option>
+          </select>
+          <button onclick="fillRandom()">Random bytes</button>
+        </div>
+        
+        <div class="input-area">
+          <div class="tab-bar">
+            <div class="tab active" id="textTab" onclick="switchTab('text')">Text</div>
+            <div class="tab" id="hexTab" onclick="switchTab('hex')">Hex</div>
+          </div>
+          <textarea id="editor" placeholder="Start typing or paste text..."></textarea>
+          <textarea id="hexEditor" class="hex-editor hidden" placeholder="Enter hex values (e.g., 48 65 6C 6C 6F)..."></textarea>
+        </div>
+        
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="stats">
+          <span><span class="current" id="currentCount">0</span> / <span id="maxCount">44,100</span> bytes</span>
+          <span id="remainingCount">44,100 remaining</span>
+        </div>
+        <div class="selection-info" id="selectionInfo"></div>
+        <div class="download-btns">
+          <button onclick="downloadFile('txt')">.txt</button>
+          <button onclick="downloadFile('raw')">.raw</button>
+          <span class="separator">|</span>
+          <button onclick="document.getElementById('fileInput').click()">Upload file</button>
+          <input type="file" id="fileInput" accept=".txt,.raw,.wav,.aiff,.aif,.au,.mp3,.ogg,.flac,.bmp,.png,.jpg,.jpeg,.gif,.tiff,.tif,.tga,.ppm,.pgm,.pbm,.md,.csv,.json,.xml,.html" style="display:none" onchange="handleFileUpload(event)">
+        </div>
+        <div class="upload-warning" id="uploadWarning"></div>
+      </div>
+
+      <div class="panel">
+        <div class="preview-section">
+          <div class="preview-label">
+            <span>Image Preview (<span id="imageDims">210×210 @ 1×</span>)</span>
+            <div class="zoom-controls">
+              <button class="zoom-btn active" id="zoom1" onclick="setZoom(1)">1×</button>
+              <button class="zoom-btn" id="zoom2" onclick="setZoom(2)">2×</button>
+              <button class="zoom-btn" id="zoom4" onclick="setZoom(4)">4×</button>
+            </div>
+            <button onclick="downloadImage()">Download PNG</button>
+          </div>
+          <div class="canvas-wrapper">
+            <canvas id="imageCanvas" width="210" height="210"></canvas>
+          </div>
+          <div class="encoding-info" id="imageInfo">Unsigned: byte 0=black, 255=white</div>
+        </div>
+
+        <div class="preview-section">
+          <div class="preview-label">
+            <span>Audio Preview (<span id="audioDuration">1s</span> @ 44.1kHz 8-bit)</span>
+          </div>
+          <div class="waveform-container">
+            <canvas id="waveformCanvas"></canvas>
+          </div>
+          <div class="encoding-info" id="audioInfo">Unsigned: 128=silence, 0/255=peaks</div>
+          <div class="audio-controls">
+            <button class="play-btn" id="playBtn" onclick="toggleAudio()">▶ Play</button>
+            <button class="play-btn" id="playSelBtn" onclick="playSelection()" style="background:#cc00cc">▶ Selection</button>
+            <button onclick="downloadAudio()">Download WAV</button>
           </div>
         </div>
       </div>
-      <div class="controls" style="margin-bottom:0.5rem;">
-        <select id="encodingSelect" onchange="updatePreview()">
-          <option value="unsigned">Unsigned (0–255)</option>
-          <option value="signed">Signed (−128–127)</option>
-        </select>
-        <select id="interleavingSelect" onchange="updatePreview()" class="hidden">
-          <option value="interleaved">Interleaved (RGBRGB...)</option>
-          <option value="planar">Non-interleaved (RRR...GGG...BBB...)</option>
-        </select>
-        <button onclick="fillRandom()">Random bytes</button>
-      </div>
-      
-      <div class="input-area">
-        <div class="tab-bar">
-          <div class="tab active" id="textTab" onclick="switchTab('text')">Text</div>
-          <div class="tab" id="hexTab" onclick="switchTab('hex')">Hex</div>
-        </div>
-        <textarea id="editor" placeholder="Start typing or paste text..."></textarea>
-        <textarea id="hexEditor" class="hex-editor hidden" placeholder="Enter hex values (e.g., 48 65 6C 6C 6F)..."></textarea>
-      </div>
-      
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="stats">
-        <span><span class="current" id="currentCount">0</span> / <span id="maxCount">44,100</span> bytes</span>
-        <span id="remainingCount">44,100 remaining</span>
-      </div>
-      <div class="selection-info" id="selectionInfo"></div>
-      <div class="download-btns">
-        <button onclick="downloadFile('txt')">.txt</button>
-        <button onclick="downloadFile('raw')">.raw</button>
-        <span class="separator">|</span>
-        <button onclick="document.getElementById('fileInput').click()">Upload file</button>
-        <input type="file" id="fileInput" accept=".txt,.raw,.wav,.aiff,.aif,.au,.mp3,.ogg,.flac,.bmp,.png,.jpg,.jpeg,.gif,.tiff,.tif,.tga,.ppm,.pgm,.pbm,.md,.csv,.json,.xml,.html" style="display:none" onchange="handleFileUpload(event)">
-      </div>
-      <div class="upload-warning" id="uploadWarning"></div>
     </div>
 
-    <div class="panel panel-right">
-      <div class="preview-section">
-        <div class="preview-label">
-          <span>Image Preview (<span id="imageDims">210×210 @ 1×</span>)</span>
-          <div class="zoom-controls">
-            <button class="zoom-btn active" id="zoom1" onclick="setZoom(1)">1×</button>
-            <button class="zoom-btn" id="zoom2" onclick="setZoom(2)">2×</button>
-            <button class="zoom-btn" id="zoom4" onclick="setZoom(4)">4×</button>
-          </div>
-          <button onclick="downloadImage()">Download PNG</button>
-        </div>
-        <div class="canvas-wrapper">
-          <canvas id="imageCanvas" width="210" height="210"></canvas>
-        </div>
-        <div class="encoding-info" id="imageInfo">Unsigned: byte 0=black, 255=white</div>
-      </div>
-
-      <div class="preview-section">
-        <div class="preview-label">
-          <span>Audio Preview (<span id="audioDuration">1s</span> @ 44.1kHz 8-bit)</span>
-        </div>
-        <div class="waveform-container">
-          <canvas id="waveformCanvas"></canvas>
-        </div>
-        <div class="encoding-info" id="audioInfo">Unsigned: 128=silence, 0/255=peaks</div>
-        <div class="audio-controls">
-          <button class="play-btn" id="playBtn" onclick="toggleAudio()">▶ Play</button>
-          <button class="play-btn" id="playSelBtn" onclick="playSelection()" style="background:#cc00cc">▶ Selection</button>
-          <button onclick="downloadAudio()">Download WAV</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">
-    <a href="https://ernestopena.com" target="_blank">ernestopena.com</a>
+    <footer>
+      Transmediator — A Glitch Pedagogy Tool<br>
+      Created by Ernesto Peña | <a href="https://ernestopena.com" target="_blank">ernestopena.com</a>
+    </footer>
   </div>
 
   <script>
@@ -370,6 +625,46 @@
     let rawBytes = new Uint8Array(0);
     let updatingFrom = null;
     let selection = { start: 0, end: 0 };
+
+    // === THEME TOGGLE ===
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+    const html = document.documentElement;
+    
+    const getPreferredTheme = () => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) return savedTheme;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    
+    const setTheme = (theme) => {
+      if (theme === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Light';
+      } else {
+        html.removeAttribute('data-theme');
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Dark';
+      }
+      localStorage.setItem('theme', theme);
+      updatePreview();
+    };
+    
+    setTheme(getPreferredTheme());
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
+    });
+    
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    });
 
     function setMode(m) {
       mode = m;
@@ -584,7 +879,6 @@
       }
       imgCtx.putImageData(imgData, 0, 0);
 
-      // Draw selection overlay
       if (selection.start !== selection.end) {
         imgCtx.fillStyle = 'rgba(255, 0, 255, 0.4)';
         const interl = document.getElementById('interleavingSelect').value;
@@ -604,7 +898,6 @@
             imgCtx.fillRect(x, y, 1, 1);
           }
         } else {
-          // Planar: highlight R, G, B regions separately
           for (let i = selection.start; i < selection.end && i < 132300; i++) {
             let px;
             if (i < 44100) px = i;
@@ -624,11 +917,14 @@
       const w = waveformCanvas.width = waveformCanvas.offsetWidth * 2;
       const h = waveformCanvas.height = 200;
       const samples = mode === 'gray' ? 44100 : 132300;
+      
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      const waveformBg = isDark ? '#0a0a0a' : '#fff';
+      const gridColor = isDark ? '#222' : '#eee';
 
-      waveCtx.fillStyle = '#fff';
+      waveCtx.fillStyle = waveformBg;
       waveCtx.fillRect(0, 0, w, h);
 
-      // Draw selection highlight
       if (selection.start !== selection.end) {
         const startX = (selection.start / samples) * w;
         const endX = (selection.end / samples) * w;
@@ -636,7 +932,7 @@
         waveCtx.fillRect(startX, 0, endX - startX, h);
       }
 
-      waveCtx.strokeStyle = '#eee';
+      waveCtx.strokeStyle = gridColor;
       waveCtx.lineWidth = 1;
       waveCtx.beginPath();
       waveCtx.moveTo(0, h / 2);
