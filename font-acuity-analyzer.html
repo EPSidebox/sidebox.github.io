@@ -9,6 +9,7 @@
     <meta name="citation_author" content="Peña, Ernesto">
     <meta name="citation_title" content="Font Visual Acuity Analyzer: A Type Design Tool">
     <meta name="citation_date" content="2025">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-8XQLL5N022"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -18,233 +19,432 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Roboto Mono', monospace;
-            background: #0a0a0a;
-            color: #e0e0e0;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        
-        .container { max-width: 1400px; margin: 0 auto; }
-        
-        header {
-            margin-bottom: 40px;
-            border-bottom: 2px solid #ff00ff;
-            padding-bottom: 20px;
-        }
-        
-        h1 {
-            color: #ff00ff;
-            font-size: 2em;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        
-        .subtitle { color: #888; font-size: 0.9em; margin-bottom: 15px; }
-        
-        .input-section {
-            background: #1a1a1a;
-            padding: 30px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border: 1px solid #333;
-        }
-        
-        .input-group { margin-bottom: 25px; }
-        .input-group:last-child { margin-bottom: 0; }
-        
-        label {
-            display: block;
-            color: #ff00ff;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        
-        input[type="file"] {
-            width: 100%;
-            padding: 12px;
-            background: #0a0a0a;
-            border: 2px solid #333;
-            border-radius: 4px;
-            color: #e0e0e0;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 14px;
-        }
-        
-        input[type="file"]:focus { outline: none; border-color: #ff00ff; }
-        
-        button {
-            background: #ff00ff;
-            color: #0a0a0a;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Roboto Mono', monospace;
-            font-weight: bold;
-            font-size: 14px;
-            transition: all 0.3s;
-            margin-top: 20px;
-        }
-        
-        button:hover { background: #cc00cc; transform: translateY(-2px); }
-        button:disabled { background: #555; cursor: not-allowed; transform: none; }
-        
-        #loading { display: none; text-align: center; padding: 20px; color: #ff00ff; }
-        
-        .spinner {
-            border: 3px solid #333;
-            border-top: 3px solid #ff00ff;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+/* === BASE RESET === */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-        #results { display: none; }
+/* === TYPOGRAPHY & COLORS === */
+:root {
+  --font: 'Roboto Mono', monospace;
+  --bg: #0a0a0a;
+  --text: #e0e0e0;
+  --accent: #FF00FF;
+  --accent-secondary: #00bcd4;
+  --accent-tertiary: #8bc34a;
+  --muted: #666;
+  --border: #222;
+  --panel-bg: #111;
+  --hover-bg: #1a1a1a;
+  --hover-text: #fff;
+  --input-bg: #1a1a1a;
+}
 
-        .results-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
+[data-theme="light"] {
+  --bg: #ffffff;
+  --text: #000000;
+  --accent: #FF00FF;
+  --accent-secondary: #00bcd4;
+  --accent-tertiary: #8bc34a;
+  --muted: #666666;
+  --border: #e0e0e0;
+  --panel-bg: #f5f5f5;
+  --hover-bg: #e8e8e8;
+  --hover-text: #000;
+  --input-bg: #f8f8f8;
+}
 
-        @media (max-width: 1024px) {
-            .results-grid { grid-template-columns: 1fr; }
-        }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+  line-height: 1.6;
+  font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.288), 1rem);
+  transition: background-color 0.3s, color 0.3s;
+}
 
-        .left-column, .right-column {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .result-section {
-            background: #1a1a1a;
-            padding: 25px;
-            border-radius: 8px;
-            border: 1px solid #333;
-        }
-        
-        .result-section h2 {
-            color: #ff00ff;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-        }
-        
-        .metric {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #2a2a2a;
-        }
-        
-        .metric:last-child { border-bottom: none; }
-        .metric-label { color: #888; }
-        .metric-value { color: #ff00ff; font-weight: bold; }
-        
-        .highlight {
-            background: #2a1a2a;
-            padding: 20px;
-            border-radius: 4px;
-            margin-top: 20px;
-            border-left: 4px solid #ff00ff;
-        }
-        
-        .highlight-big {
-            font-size: 2em;
-            color: #ff00ff;
-            font-weight: bold;
-        }
-        
-        .glyph-display {
-            font-size: 4em;
-            color: #ff00ff;
-            text-align: center;
-            padding: 20px;
-            background: #0a0a0a;
-            border-radius: 4px;
-            margin: 15px 0;
-        }
-        
-        .calculator {
-            background: #0a0a0a;
-            padding: 20px;
-            border-radius: 4px;
-            margin-top: 15px;
-        }
-        
-        .calc-input {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            align-items: center;
-        }
-        
-        .calc-input input {
-            flex: 1;
-            padding: 8px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 4px;
-            color: #e0e0e0;
-            font-family: 'Roboto Mono', monospace;
-        }
-        
-        .calc-result {
-            color: #ff00ff;
-            padding: 10px;
-            background: #1a1a1a;
-            border-radius: 4px;
-            margin-top: 10px;
-        }
-        
-        .distribution-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .dist-item {
-            background: #0a0a0a;
-            padding: 15px;
-            border-radius: 4px;
-        }
-        
-        .dist-label { color: #888; font-size: 0.85em; margin-bottom: 5px; }
-        .dist-value { color: #e0e0e0; font-size: 1.1em; font-weight: bold; }
-        .help-text { color: #666; font-size: 0.85em; margin-top: 5px; }
-        
-        footer { 
-            margin-top: 40px; 
-            padding-top: 20px; 
-            border-top: 1px solid #222; 
-            font-size: 0.85em; 
-            color: #666; 
-            text-align: center; 
-        }
-        
-        footer a { color: #ff00ff; text-decoration: none; }
-        footer a:hover { color: #cc00cc; }
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+header {
+  margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.header-content {
+  flex: 1;
+  min-width: 200px;
+}
+
+h1 {
+  color: var(--accent);
+  font-size: clamp(1.75rem, 1.75rem + ((1vw - 0.48rem) * 0.288), 1.875rem);
+  margin-bottom: 4px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: clamp(0.8125rem, 0.8125rem + ((1vw - 0.48rem) * 0.144), 0.875rem);
+  line-height: 1.5;
+}
+
+.theme-toggle {
+  padding: 6px 12px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  background: var(--hover-bg);
+}
+
+.theme-toggle:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+/* === INPUT SECTION === */
+.input-section {
+  background: var(--panel-bg);
+  padding: clamp(1.25rem, 1.25rem + ((1vw - 0.48rem) * 0.577), 1.5rem);
+  border-radius: 6px;
+  margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.577), 1.25rem);
+  border: 1px solid var(--border);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.input-group {
+  margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+}
+
+.input-group:last-child { margin-bottom: 0; }
+
+label {
+  display: block;
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+}
+
+input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+input[type="file"]:hover {
+  border-color: var(--accent);
+}
+
+input[type="file"]:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent);
+}
+
+button {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 10px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+  transition: all 0.15s;
+  margin-top: clamp(0.75rem, 0.75rem + ((1vw - 0.48rem) * 0.288), 0.875rem);
+}
+
+button:hover:not(:disabled) {
+  background: #cc00cc;
+  transform: translateY(-1px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  background: var(--muted);
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.5;
+}
+
+.help-text {
+  color: var(--muted);
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* === LOADING === */
+#loading {
+  display: none;
+  text-align: center;
+  padding: clamp(1.25rem, 1.25rem + ((1vw - 0.48rem) * 0.577), 1.5rem);
+  color: var(--accent);
+}
+
+.spinner {
+  border: 3px solid var(--border);
+  border-top: 3px solid var(--accent);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* === RESULTS === */
+#results { display: none; }
+
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.577), 1.25rem);
+  margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.577), 1.25rem);
+}
+
+@media (max-width: 1024px) {
+  .results-grid { grid-template-columns: 1fr; }
+}
+
+.left-column, .right-column {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 0.75rem + ((1vw - 0.48rem) * 0.577), 1rem);
+}
+
+.result-section {
+  background: var(--panel-bg);
+  padding: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.577), 1.25rem);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.result-section h2 {
+  color: var(--accent);
+  margin-bottom: clamp(0.75rem, 0.75rem + ((1vw - 0.48rem) * 0.577), 1rem);
+  font-size: clamp(1.125rem, 1.125rem + ((1vw - 0.48rem) * 0.577), 1.375rem);
+  font-weight: 700;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+}
+
+.metric:last-child { border-bottom: none; }
+.metric-label { color: var(--muted); }
+.metric-value { color: var(--accent); font-weight: 700; }
+
+.highlight {
+  background: var(--hover-bg);
+  padding: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+  border-radius: 4px;
+  margin-top: clamp(0.75rem, 0.75rem + ((1vw - 0.48rem) * 0.288), 0.875rem);
+  border-left: 3px solid var(--accent);
+}
+
+.highlight-big {
+  font-size: clamp(1.75rem, 1.75rem + ((1vw - 0.48rem) * 0.866), 2.25rem);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.glyph-display {
+  font-size: clamp(2.5rem, 2.5rem + ((1vw - 0.48rem) * 1.442), 3.25rem);
+  color: var(--accent);
+  text-align: center;
+  padding: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+  background: var(--bg);
+  border-radius: 4px;
+  margin: 12px 0;
+  transition: background-color 0.3s;
+}
+
+/* === CALCULATOR === */
+.calculator {
+  background: var(--bg);
+  padding: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+  border-radius: 4px;
+  margin-top: 12px;
+  transition: background-color 0.3s;
+}
+
+.calculator h3 {
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-size: clamp(0.8125rem, 0.8125rem + ((1vw - 0.48rem) * 0.144), 0.875rem);
+}
+
+.calc-input {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.calc-input label {
+  min-width: 100px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.calc-input input {
+  flex: 1;
+  min-width: 120px;
+  padding: 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+  transition: all 0.15s;
+}
+
+.calc-input input:hover {
+  border-color: var(--accent);
+}
+
+.calc-input input:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent);
+}
+
+.calc-input button {
+  margin-top: 0;
+}
+
+.calc-result {
+  color: var(--text);
+  padding: 12px;
+  background: var(--input-bg);
+  border-radius: 4px;
+  margin-top: 10px;
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+  line-height: 1.6;
+  transition: background-color 0.3s;
+}
+
+.calc-result strong {
+  color: var(--accent);
+}
+
+/* === DISTRIBUTION === */
+.distribution-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.dist-item {
+  background: var(--bg);
+  padding: 12px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.dist-label {
+  color: var(--muted);
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  margin-bottom: 4px;
+}
+
+.dist-value {
+  color: var(--text);
+  font-size: clamp(0.8125rem, 0.8125rem + ((1vw - 0.48rem) * 0.144), 0.875rem);
+  font-weight: 700;
+}
+
+/* === FOOTER === */
+footer {
+  margin-top: clamp(1.5rem, 1.5rem + ((1vw - 0.48rem) * 1.442), 2rem);
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.6;
+}
+
+footer a {
+  color: var(--accent);
+  text-decoration: underline;
+  transition: all 0.15s;
+}
+
+footer a:hover {
+  text-decoration: none;
+  color: var(--hover-text);
+}
+
+footer a:focus {
+  text-decoration: underline dashed;
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Font Visual Acuity Analyzer</h1>
-            <div class="subtitle">Calculate minimum visible units (1μ) and relative acuity for type design</div>
+            <div class="header-content">
+                <h1>Font Visual Acuity Analyzer</h1>
+                <p class="subtitle">Calculate minimum visible units (1μ) and relative acuity for type design</p>
+            </div>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <span id="themeIcon">☀️</span>
+                <span id="themeText">Light</span>
+            </button>
         </header>
 
         <div class="input-section">
@@ -268,14 +468,14 @@
                     <div class="result-section">
                         <h2>Minimum Visible Unit (1μ)</h2>
                         <div class="highlight">
-                            <div style="color: #888; margin-bottom: 10px;">The smallest structural measurement in this font:</div>
+                            <div style="color: var(--muted); margin-bottom: 10px;">The smallest structural measurement in this font:</div>
                             <div class="highlight-big" id="oneμValue">—</div>
-                            <div style="color: #888; margin-top: 10px;">units (in font units)</div>
-                            <div id="sourceInfo" style="margin-top: 15px; color: #888;"></div>
+                            <div style="color: var(--muted); margin-top: 10px;">units (in font units)</div>
+                            <div id="sourceInfo" style="margin-top: 15px; color: var(--muted);"></div>
                             <div id="glyphInfo" style="margin-top: 15px;">
-                                <div style="color: #888; margin-bottom: 10px;">Found in character:</div>
+                                <div style="color: var(--muted); margin-bottom: 10px;">Found in character:</div>
                                 <div class="glyph-display" id="minGlyph">—</div>
-                                <div style="color: #888; text-align: center;" id="glyphName">—</div>
+                                <div style="color: var(--muted); text-align: center;" id="glyphName">—</div>
                             </div>
                         </div>
                     </div>
@@ -341,9 +541,9 @@
                     <div class="result-section">
                         <h2>Acuity Calculator</h2>
                         <div class="calculator">
-                            <h3 style="color: #ff00ff; margin-bottom: 15px;">Minimum Size at Distance</h3>
+                            <h3>Minimum Size at Distance</h3>
                             <div class="calc-input">
-                                <label style="min-width: 100px;">Distance (m):</label>
+                                <label>Distance (m):</label>
                                 <input type="number" id="calcDistance" value="50" min="0.1" step="0.1">
                                 <button onclick="calculateSize()">Calculate</button>
                             </div>
@@ -351,9 +551,9 @@
                         </div>
 
                         <div class="calculator" style="margin-top: 20px;">
-                            <h3 style="color: #ff00ff; margin-bottom: 15px;">Maximum Distance at Size</h3>
+                            <h3>Maximum Distance at Size</h3>
                             <div class="calc-input">
-                                <label style="min-width: 100px;">X-Height (cm):</label>
+                                <label>X-Height (cm):</label>
                                 <input type="number" id="calcXHeight" value="25" min="0.1" step="0.1">
                                 <button onclick="calculateDistance()">Calculate</button>
                             </div>
@@ -371,355 +571,395 @@
     </footer>
 
     <script>
-        let currentFont = null;
-        let analysisResult = null;
+// === THEME TOGGLE ===
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const themeText = document.getElementById('themeText');
+const html = document.documentElement;
 
-        async function analyzeFont() {
-            const fileInput = document.getElementById('fontFile');
-            
-            if (!fileInput.files || fileInput.files.length === 0) {
-                alert('Please upload a font file');
-                return;
-            }
+const getPreferredTheme = () => {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) return savedTheme;
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+};
 
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('results').style.display = 'none';
+const setTheme = (theme) => {
+  if (theme === 'light') {
+    html.setAttribute('data-theme', 'light');
+    themeIcon.textContent = '🌙';
+    themeText.textContent = 'Dark';
+  } else {
+    html.removeAttribute('data-theme');
+    themeIcon.textContent = '☀️';
+    themeText.textContent = 'Light';
+  }
+  localStorage.setItem('theme', theme);
+};
+
+setTheme(getPreferredTheme());
+
+themeToggle.addEventListener('click', () => {
+  const currentTheme = html.getAttribute('data-theme');
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  setTheme(newTheme);
+});
+
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+  if (!localStorage.getItem('theme')) {
+    setTheme(e.matches ? 'light' : 'dark');
+  }
+});
+
+// === FONT ANALYSIS ===
+let currentFont = null;
+let analysisResult = null;
+
+async function analyzeFont() {
+    const fileInput = document.getElementById('fontFile');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Please upload a font file');
+        return;
+    }
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+
+    try {
+        const file = fileInput.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        const font = opentype.parse(arrayBuffer);
+        
+        processFont(font);
+        
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+    } catch (error) {
+        document.getElementById('loading').style.display = 'none';
+        alert('Error: ' + error.message);
+        console.error(error);
+    }
+}
+
+function processFont(font) {
+    currentFont = font;
+    const analyzer = new MinimumVisibleUnitAnalyzer(font);
+    analysisResult = analyzer.findMinimumVisibleUnit();
+    displayResults(analysisResult, font);
+}
+
+function displayResults(result, font) {
+    document.getElementById('oneμValue').textContent = result.oneμ.toFixed(2);
+    document.getElementById('sourceInfo').textContent = 'Source: ' + result.source;
+    
+    if (result.minCharacter) {
+        document.getElementById('minGlyph').textContent = result.minCharacter;
+        const unicode = result.minCharacter.charCodeAt(0);
+        document.getElementById('glyphName').textContent = 
+            'Character "' + result.minCharacter + '" (Unicode: U+' + unicode.toString(16).toUpperCase().padStart(4, '0') + ')';
+    }
+    
+    const xHeight = (font.tables && font.tables.os2 && font.tables.os2.sxHeight) ? font.tables.os2.sxHeight : estimateXHeight(font);
+    const relativeAcuity = xHeight / result.oneμ;
+    const xHeightPercent = (xHeight / font.unitsPerEm) * 100;
+    
+    document.getElementById('xHeightValue').textContent = xHeight.toFixed(2);
+    document.getElementById('xHeightPercentValue').textContent = xHeightPercent.toFixed(1) + '%';
+    document.getElementById('relativeAcuityValue').textContent = relativeAcuity.toFixed(2) + 'μ';
+    document.getElementById('mu60Value').textContent = (relativeAcuity / 60).toFixed(4);
+    
+    const dist = result.distribution;
+    document.getElementById('distMin').textContent = dist.min.toFixed(2);
+    document.getElementById('distP10').textContent = dist.percentiles.p10.toFixed(2);
+    document.getElementById('distMedian').textContent = dist.median.toFixed(2);
+    document.getElementById('distMean').textContent = dist.mean.toFixed(2);
+    document.getElementById('distP90').textContent = dist.percentiles.p90.toFixed(2);
+    document.getElementById('distMax').textContent = dist.max.toFixed(2);
+    document.getElementById('measurementCount').textContent = dist.count;
+}
+
+function estimateXHeight(font) {
+    const xGlyph = font.charToGlyph('x');
+    const bbox = xGlyph.getBoundingBox();
+    return bbox.y2 - bbox.y1;
+}
+
+function calculateSize() {
+    if (!analysisResult || !currentFont) return;
+    
+    const distance = parseFloat(document.getElementById('calcDistance').value);
+    const xHeight = (currentFont.tables && currentFont.tables.os2 && currentFont.tables.os2.sxHeight) ? currentFont.tables.os2.sxHeight : estimateXHeight(currentFont);
+    const relativeAcuity = xHeight / analysisResult.oneμ;
+    
+    const angleRadians = (relativeAcuity / 60) * (Math.PI / 180);
+    const minXHeightMeters = distance * Math.tan(angleRadians);
+    const minXHeightCm = minXHeightMeters * 100;
+    
+    const minXHeightPoints = minXHeightCm / 0.035277778;
+    const minXHeightPicas = minXHeightPoints / 12;
+    
+    const xHeightRatio = xHeight / currentFont.unitsPerEm;
+    const minBodySizeCm = minXHeightCm / xHeightRatio;
+    const minBodySizePoints = minBodySizeCm / 0.035277778;
+    const minBodySizePicas = minBodySizePoints / 12;
+    
+    document.getElementById('sizeResult').innerHTML = 
+        '<strong>Minimum x-height:</strong><br>' +
+        minXHeightCm.toFixed(2) + ' cm | ' + minXHeightPoints.toFixed(2) + ' pt | ' + minXHeightPicas.toFixed(2) + ' picas<br><br>' +
+        '<strong>Approximate body size:</strong><br>' +
+        minBodySizeCm.toFixed(2) + ' cm | ' + minBodySizePoints.toFixed(2) + ' pt | ' + minBodySizePicas.toFixed(2) + ' picas';
+}
+
+function calculateDistance() {
+    if (!analysisResult || !currentFont) return;
+    
+    const xHeightCm = parseFloat(document.getElementById('calcXHeight').value);
+    const xHeightMeters = xHeightCm / 100;
+    const xHeight = (currentFont.tables && currentFont.tables.os2 && currentFont.tables.os2.sxHeight) ? currentFont.tables.os2.sxHeight : estimateXHeight(currentFont);
+    const relativeAcuity = xHeight / analysisResult.oneμ;
+    
+    const angleRadians = (relativeAcuity / 60) * (Math.PI / 180);
+    const maxDistance = xHeightMeters / Math.tan(angleRadians);
+    
+    document.getElementById('distanceResult').innerHTML = 
+        'Maximum viewing distance: <strong>' + maxDistance.toFixed(2) + ' meters</strong>';
+}
+
+class MinimumVisibleUnitAnalyzer {
+    constructor(font) {
+        this.font = font;
+        this.unitsPerEm = font.unitsPerEm;
+        this.characters = 
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' +
+            'ÀÁÂÃÄÅĀĂĄàáâãäåāăąÆǼæǽÇĆĈĊČçćĉċčÐĎĐðďđÈÉÊËĒĔĖĘĚèéêëēĕėęěĜĞĠĢĝğġģ' +
+            'ĤĦĥħÌÍÎÏĨĪĬĮİìíîïĩīĭįıĴĵĶķĸĹĻĽĿŁĺļľŀłÑŃŅŇŊñńņňŉŋÒÓÔÕÖØŌŎŐòóôõöøōŏő' +
+            'ŒœÞþŔŖŘŕŗřŚŜŞŠśŝşšŢŤŦţťŧÙÚÛÜŨŪŬŮŰŲùúûüũūŭůűųŴŵÝŸŶýÿŷŹŻŽźżž';
+    }
+
+    findMinimumVisibleUnit() {
+        const measurements = [];
+
+        for (const char of this.characters) {
+            const glyph = this.font.charToGlyph(char);
+            if (!glyph || glyph.index === 0) continue;
 
             try {
-                const file = fileInput.files[0];
-                const arrayBuffer = await file.arrayBuffer();
-                const font = opentype.parse(arrayBuffer);
-                
-                processFont(font);
-                
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('results').style.display = 'block';
+                const path = glyph.getPath(0, 0, this.unitsPerEm);
+                if (path.commands.length > 0) {
+                    const analysis = this.analyzeGlyphGeometry(path, char);
+                    measurements.push(...analysis);
+                }
             } catch (error) {
-                document.getElementById('loading').style.display = 'none';
-                alert('Error: ' + error.message);
-                console.error(error);
+                continue;
             }
         }
 
-        function processFont(font) {
-            currentFont = font;
-            const analyzer = new MinimumVisibleUnitAnalyzer(font);
-            analysisResult = analyzer.findMinimumVisibleUnit();
-            displayResults(analysisResult, font);
+        const validMeasurements = measurements.filter(m => m.value > 0 && m.value < this.unitsPerEm);
+        if (validMeasurements.length === 0) throw new Error('No valid measurements found');
+
+        validMeasurements.sort((a, b) => a.value - b.value);
+        const minMeasurement = validMeasurements[0];
+        const allValues = validMeasurements.map(m => m.value);
+
+        return {
+            oneμ: minMeasurement.value,
+            minCharacter: minMeasurement.char,
+            source: minMeasurement.type,
+            distribution: this.analyzeDistribution(allValues)
+        };
+    }
+
+    analyzeGlyphGeometry(path, char) {
+        const measurements = [];
+        const contours = this.extractContours(path);
+        
+        const strokeWidths = this.measureStrokeWidths(contours);
+        for (const value of strokeWidths) {
+            measurements.push({ value: value, type: 'stroke width', char: char });
         }
 
-        function displayResults(result, font) {
-            document.getElementById('oneμValue').textContent = result.oneμ.toFixed(2);
-            document.getElementById('sourceInfo').textContent = 'Source: ' + result.source;
-            
-            if (result.minCharacter) {
-                document.getElementById('minGlyph').textContent = result.minCharacter;
-                const unicode = result.minCharacter.charCodeAt(0);
-                document.getElementById('glyphName').textContent = 
-                    'Character "' + result.minCharacter + '" (Unicode: U+' + unicode.toString(16).toUpperCase().padStart(4, '0') + ')';
-            }
-            
-            const xHeight = (font.tables && font.tables.os2 && font.tables.os2.sxHeight) ? font.tables.os2.sxHeight : estimateXHeight(font);
-            const relativeAcuity = xHeight / result.oneμ;
-            const xHeightPercent = (xHeight / font.unitsPerEm) * 100;
-            
-            document.getElementById('xHeightValue').textContent = xHeight.toFixed(2);
-            document.getElementById('xHeightPercentValue').textContent = xHeightPercent.toFixed(1) + '%';
-            document.getElementById('relativeAcuityValue').textContent = relativeAcuity.toFixed(2) + 'μ';
-            document.getElementById('mu60Value').textContent = (relativeAcuity / 60).toFixed(4);
-            
-            const dist = result.distribution;
-            document.getElementById('distMin').textContent = dist.min.toFixed(2);
-            document.getElementById('distP10').textContent = dist.percentiles.p10.toFixed(2);
-            document.getElementById('distMedian').textContent = dist.median.toFixed(2);
-            document.getElementById('distMean').textContent = dist.mean.toFixed(2);
-            document.getElementById('distP90').textContent = dist.percentiles.p90.toFixed(2);
-            document.getElementById('distMax').textContent = dist.max.toFixed(2);
-            document.getElementById('measurementCount').textContent = dist.count;
+        const counterSizes = this.measureCounterSizes(contours);
+        for (const value of counterSizes) {
+            measurements.push({ value: value, type: 'counter size', char: char });
         }
 
-        function estimateXHeight(font) {
-            const xGlyph = font.charToGlyph('x');
-            const bbox = xGlyph.getBoundingBox();
-            return bbox.y2 - bbox.y1;
-        }
+        return measurements;
+    }
 
-        function calculateSize() {
-            if (!analysisResult || !currentFont) return;
-            
-            const distance = parseFloat(document.getElementById('calcDistance').value);
-            const xHeight = (currentFont.tables && currentFont.tables.os2 && currentFont.tables.os2.sxHeight) ? currentFont.tables.os2.sxHeight : estimateXHeight(currentFont);
-            const relativeAcuity = xHeight / analysisResult.oneμ;
-            
-            const angleRadians = (relativeAcuity / 60) * (Math.PI / 180);
-            const minXHeightMeters = distance * Math.tan(angleRadians);
-            const minXHeightCm = minXHeightMeters * 100;
-            
-            const minXHeightPoints = minXHeightCm / 0.035277778;
-            const minXHeightPicas = minXHeightPoints / 12;
-            
-            const xHeightRatio = xHeight / currentFont.unitsPerEm;
-            const minBodySizeCm = minXHeightCm / xHeightRatio;
-            const minBodySizePoints = minBodySizeCm / 0.035277778;
-            const minBodySizePicas = minBodySizePoints / 12;
-            
-            document.getElementById('sizeResult').innerHTML = 
-                '<strong>Minimum x-height:</strong><br>' +
-                minXHeightCm.toFixed(2) + ' cm | ' + minXHeightPoints.toFixed(2) + ' pt | ' + minXHeightPicas.toFixed(2) + ' picas<br><br>' +
-                '<strong>Approximate body size:</strong><br>' +
-                minBodySizeCm.toFixed(2) + ' cm | ' + minBodySizePoints.toFixed(2) + ' pt | ' + minBodySizePicas.toFixed(2) + ' picas';
-        }
+    extractContours(path) {
+        const contours = [];
+        let currentContour = [];
 
-        function calculateDistance() {
-            if (!analysisResult || !currentFont) return;
-            
-            const xHeightCm = parseFloat(document.getElementById('calcXHeight').value);
-            const xHeightMeters = xHeightCm / 100;
-            const xHeight = (currentFont.tables && currentFont.tables.os2 && currentFont.tables.os2.sxHeight) ? currentFont.tables.os2.sxHeight : estimateXHeight(currentFont);
-            const relativeAcuity = xHeight / analysisResult.oneμ;
-            
-            const angleRadians = (relativeAcuity / 60) * (Math.PI / 180);
-            const maxDistance = xHeightMeters / Math.tan(angleRadians);
-            
-            document.getElementById('distanceResult').innerHTML = 
-                'Maximum viewing distance: <strong>' + maxDistance.toFixed(2) + ' meters</strong>';
-        }
-
-        class MinimumVisibleUnitAnalyzer {
-            constructor(font) {
-                this.font = font;
-                this.unitsPerEm = font.unitsPerEm;
-                this.characters = 
-                    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' +
-                    'ÀÁÂÃÄÅĀĂĄàáâãäåāăąÆǼæǽÇĆĈĊČçćĉċčÐĎĐðďđÈÉÊËĒĔĖĘĚèéêëēĕėęěĜĞĠĢĝğġģ' +
-                    'ĤĦĥħÌÍÎÏĨĪĬĮİìíîïĩīĭįıĴĵĶķĸĹĻĽĿŁĺļľŀłÑŃŅŇŊñńņňŉŋÒÓÔÕÖØŌŎŐòóôõöøōŏő' +
-                    'ŒœÞþŔŖŘŕŗřŚŜŞŠśŝşšŢŤŦţťŧÙÚÛÜŨŪŬŮŰŲùúûüũūŭůűųŴŵÝŸŶýÿŷŹŻŽźżž';
-            }
-
-            findMinimumVisibleUnit() {
-                const measurements = [];
-
-                for (const char of this.characters) {
-                    const glyph = this.font.charToGlyph(char);
-                    if (!glyph || glyph.index === 0) continue;
-
-                    try {
-                        const path = glyph.getPath(0, 0, this.unitsPerEm);
-                        if (path.commands.length > 0) {
-                            const analysis = this.analyzeGlyphGeometry(path, char);
-                            measurements.push(...analysis);
-                        }
-                    } catch (error) {
-                        continue;
-                    }
-                }
-
-                const validMeasurements = measurements.filter(m => m.value > 0 && m.value < this.unitsPerEm);
-                if (validMeasurements.length === 0) throw new Error('No valid measurements found');
-
-                validMeasurements.sort((a, b) => a.value - b.value);
-                const minMeasurement = validMeasurements[0];
-                const allValues = validMeasurements.map(m => m.value);
-
-                return {
-                    oneμ: minMeasurement.value,
-                    minCharacter: minMeasurement.char,
-                    source: minMeasurement.type,
-                    distribution: this.analyzeDistribution(allValues)
-                };
-            }
-
-            analyzeGlyphGeometry(path, char) {
-                const measurements = [];
-                const contours = this.extractContours(path);
-                
-                const strokeWidths = this.measureStrokeWidths(contours);
-                for (const value of strokeWidths) {
-                    measurements.push({ value: value, type: 'stroke width', char: char });
-                }
-
-                const counterSizes = this.measureCounterSizes(contours);
-                for (const value of counterSizes) {
-                    measurements.push({ value: value, type: 'counter size', char: char });
-                }
-
-                return measurements;
-            }
-
-            extractContours(path) {
-                const contours = [];
-                let currentContour = [];
-
-                for (const cmd of path.commands) {
-                    if (cmd.type === 'M') {
-                        if (currentContour.length > 0) contours.push(currentContour);
-                        currentContour = [{x: cmd.x, y: cmd.y}];
-                    } else if (cmd.type === 'Z') {
-                        if (currentContour.length > 0) {
-                            contours.push(currentContour);
-                            currentContour = [];
-                        }
-                    } else if (cmd.x !== undefined && cmd.y !== undefined) {
-                        currentContour.push({x: cmd.x, y: cmd.y});
-                    }
-                }
-
+        for (const cmd of path.commands) {
+            if (cmd.type === 'M') {
                 if (currentContour.length > 0) contours.push(currentContour);
-                return contours;
+                currentContour = [{x: cmd.x, y: cmd.y}];
+            } else if (cmd.type === 'Z') {
+                if (currentContour.length > 0) {
+                    contours.push(currentContour);
+                    currentContour = [];
+                }
+            } else if (cmd.x !== undefined && cmd.y !== undefined) {
+                currentContour.push({x: cmd.x, y: cmd.y});
             }
+        }
 
-            measureStrokeWidths(contours) {
-                const widths = [];
+        if (currentContour.length > 0) contours.push(currentContour);
+        return contours;
+    }
+
+    measureStrokeWidths(contours) {
+        const widths = [];
+        
+        for (let c = 0; c < contours.length; c++) {
+            const contour = contours[c];
+            const sampleRate = Math.max(1, Math.floor(contour.length / 5));
+            
+            for (let i = 0; i < contour.length; i += sampleRate) {
+                const point = contour[i];
+                const normal = this.computeNormal(contour, i);
+                const width = this.findOpposingEdge(point, normal, contours, c);
+                
+                if (width > 5 && width < this.unitsPerEm * 0.5) {
+                    widths.push(width);
+                }
+            }
+        }
+        
+        return widths;
+    }
+
+    computeNormal(contour, index) {
+        const prevIdx = (index - 1 + contour.length) % contour.length;
+        const nextIdx = (index + 1) % contour.length;
+        const prev = contour[prevIdx];
+        const next = contour[nextIdx];
+        
+        const dx = next.x - prev.x;
+        const dy = next.y - prev.y;
+        const len = Math.sqrt(dx*dx + dy*dy);
+        
+        if (len === 0) return {x: 0, y: 1};
+        
+        return { x: -dy / len, y: dx / len };
+    }
+
+    findOpposingEdge(startPoint, normal, contours, skipContourIndex) {
+        let minDistance = Infinity;
+        const maxSearchDistance = this.unitsPerEm;
+        
+        for (const direction of [-1, 1]) {
+            const nx = normal.x * direction;
+            const ny = normal.y * direction;
+            
+            for (let dist = 5; dist < maxSearchDistance; dist += 3) {
+                const testPoint = {
+                    x: startPoint.x + nx * dist,
+                    y: startPoint.y + ny * dist
+                };
                 
                 for (let c = 0; c < contours.length; c++) {
-                    const contour = contours[c];
-                    const sampleRate = Math.max(1, Math.floor(contour.length / 5));
+                    if (c === skipContourIndex) continue;
                     
-                    for (let i = 0; i < contour.length; i += sampleRate) {
-                        const point = contour[i];
-                        const normal = this.computeNormal(contour, i);
-                        const width = this.findOpposingEdge(point, normal, contours, c);
-                        
-                        if (width > 5 && width < this.unitsPerEm * 0.5) {
-                            widths.push(width);
-                        }
+                    if (this.isPointNearContour(testPoint, contours[c], 4)) {
+                        minDistance = Math.min(minDistance, dist);
+                        break;
                     }
                 }
                 
-                return widths;
+                if (minDistance < Infinity) break;
             }
+            
+            if (minDistance < Infinity) break;
+        }
+        
+        return minDistance === Infinity ? 0 : minDistance;
+    }
 
-            computeNormal(contour, index) {
-                const prevIdx = (index - 1 + contour.length) % contour.length;
-                const nextIdx = (index + 1) % contour.length;
-                const prev = contour[prevIdx];
-                const next = contour[nextIdx];
-                
-                const dx = next.x - prev.x;
-                const dy = next.y - prev.y;
-                const len = Math.sqrt(dx*dx + dy*dy);
-                
-                if (len === 0) return {x: 0, y: 1};
-                
-                return { x: -dy / len, y: dx / len };
-            }
+    isPointNearContour(testPoint, contour, threshold) {
+        for (const p of contour) {
+            const dx = testPoint.x - p.x;
+            const dy = testPoint.y - p.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < threshold) return true;
+        }
+        return false;
+    }
 
-            findOpposingEdge(startPoint, normal, contours, skipContourIndex) {
-                let minDistance = Infinity;
-                const maxSearchDistance = this.unitsPerEm;
+    measureCounterSizes(contours) {
+        const counterSizes = [];
+        
+        for (let i = 0; i < contours.length; i++) {
+            for (let j = 0; j < contours.length; j++) {
+                if (i === j) continue;
                 
-                for (const direction of [-1, 1]) {
-                    const nx = normal.x * direction;
-                    const ny = normal.y * direction;
-                    
-                    for (let dist = 5; dist < maxSearchDistance; dist += 3) {
-                        const testPoint = {
-                            x: startPoint.x + nx * dist,
-                            y: startPoint.y + ny * dist
-                        };
-                        
-                        for (let c = 0; c < contours.length; c++) {
-                            if (c === skipContourIndex) continue;
-                            
-                            if (this.isPointNearContour(testPoint, contours[c], 4)) {
-                                minDistance = Math.min(minDistance, dist);
-                                break;
-                            }
-                        }
-                        
-                        if (minDistance < Infinity) break;
-                    }
-                    
-                    if (minDistance < Infinity) break;
-                }
-                
-                return minDistance === Infinity ? 0 : minDistance;
-            }
-
-            isPointNearContour(testPoint, contour, threshold) {
-                for (const p of contour) {
-                    const dx = testPoint.x - p.x;
-                    const dy = testPoint.y - p.y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < threshold) return true;
-                }
-                return false;
-            }
-
-            measureCounterSizes(contours) {
-                const counterSizes = [];
-                
-                for (let i = 0; i < contours.length; i++) {
-                    for (let j = 0; j < contours.length; j++) {
-                        if (i === j) continue;
-                        
-                        if (this.isContourInside(contours[j], contours[i])) {
-                            const minDim = this.measureMinimumDimension(contours[j]);
-                            if (minDim > 5) {
-                                counterSizes.push(minDim);
-                            }
-                        }
+                if (this.isContourInside(contours[j], contours[i])) {
+                    const minDim = this.measureMinimumDimension(contours[j]);
+                    if (minDim > 5) {
+                        counterSizes.push(minDim);
                     }
                 }
-                
-                return counterSizes;
-            }
-
-            isContourInside(inner, outer) {
-                if (inner.length === 0 || outer.length === 0) return false;
-                const testPoint = inner[0];
-                return this.isPointInPolygon(testPoint, outer);
-            }
-
-            isPointInPolygon(point, polygon) {
-                let inside = false;
-                for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-                    const xi = polygon[i].x, yi = polygon[i].y;
-                    const xj = polygon[j].x, yj = polygon[j].y;
-                    
-                    const intersect = ((yi > point.y) !== (yj > point.y))
-                        && (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi);
-                    if (intersect) inside = !inside;
-                }
-                return inside;
-            }
-
-            measureMinimumDimension(contour) {
-                const bbox = this.getContourBBox(contour);
-                const width = bbox.x2 - bbox.x1;
-                const height = bbox.y2 - bbox.y1;
-                return Math.min(width, height);
-            }
-
-            getContourBBox(contour) {
-                let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
-                for (const point of contour) {
-                    x1 = Math.min(x1, point.x);
-                    y1 = Math.min(y1, point.y);
-                    x2 = Math.max(x2, point.x);
-                    y2 = Math.max(y2, point.y);
-                }
-                return {x1, y1, x2, y2};
-            }
-
-            analyzeDistribution(measurements) {
-                if (measurements.length === 0) return null;
-                const sorted = measurements.slice().sort((a, b) => a - b);
-                return {
-                    min: sorted[0],
-                    max: sorted[sorted.length - 1],
-                    median: sorted[Math.floor(sorted.length / 2)],
-                    mean: measurements.reduce((a, b) => a + b) / measurements.length,
-                    percentiles: {
-                        p10: sorted[Math.floor(sorted.length * 0.10)],
-                        p25: sorted[Math.floor(sorted.length * 0.25)],
-                        p75: sorted[Math.floor(sorted.length * 0.75)],
-                        p90: sorted[Math.floor(sorted.length * 0.90)]
-                    },
-                    count: measurements.length
-                };
             }
         }
+        
+        return counterSizes;
+    }
+
+    isContourInside(inner, outer) {
+        if (inner.length === 0 || outer.length === 0) return false;
+        const testPoint = inner[0];
+        return this.isPointInPolygon(testPoint, outer);
+    }
+
+    isPointInPolygon(point, polygon) {
+        let inside = false;
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+            const xi = polygon[i].x, yi = polygon[i].y;
+            const xj = polygon[j].x, yj = polygon[j].y;
+            
+            const intersect = ((yi > point.y) !== (yj > point.y))
+                && (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
+    }
+
+    measureMinimumDimension(contour) {
+        const bbox = this.getContourBBox(contour);
+        const width = bbox.x2 - bbox.x1;
+        const height = bbox.y2 - bbox.y1;
+        return Math.min(width, height);
+    }
+
+    getContourBBox(contour) {
+        let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+        for (const point of contour) {
+            x1 = Math.min(x1, point.x);
+            y1 = Math.min(y1, point.y);
+            x2 = Math.max(x2, point.x);
+            y2 = Math.max(y2, point.y);
+        }
+        return {x1, y1, x2, y2};
+    }
+
+    analyzeDistribution(measurements) {
+        if (measurements.length === 0) return null;
+        const sorted = measurements.slice().sort((a, b) => a - b);
+        return {
+            min: sorted[0],
+            max: sorted[sorted.length - 1],
+            median: sorted[Math.floor(sorted.length / 2)],
+            mean: measurements.reduce((a, b) => a + b) / measurements.length,
+            percentiles: {
+                p10: sorted[Math.floor(sorted.length * 0.10)],
+                p25: sorted[Math.floor(sorted.length * 0.25)],
+                p75: sorted[Math.floor(sorted.length * 0.75)],
+                p90: sorted[Math.floor(sorted.length * 0.90)]
+            },
+            count: measurements.length
+        };
+    }
+}
     </script>
 </body>
 </html>
