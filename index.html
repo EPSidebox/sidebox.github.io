@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-8XQLL5N022"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -12,7 +13,7 @@
     gtag('config', 'G-8XQLL5N022');
   </script>
   <title>Sidebox</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     /* === BASE RESET === */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,7 +24,6 @@
       --bg: #fff;
       --text: #000;
       --accent: #FF00FF;
-      --secondary: #345C00;
       --muted: #666;
       --border: #000;
       --hover-bg: #000;
@@ -37,13 +37,11 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      font-size: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
-      line-height: 1.6;
     }
     
     /* === HEADER === */
     header {
-      padding: clamp(1.8rem, 1.8rem + ((1vw - 0.48rem) * 2.885), 3rem) clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+      padding: 40px 20px;
       border-bottom: 0px solid var(--border);
     }
     
@@ -51,81 +49,59 @@
       font-size: 36px;
       font-weight: 400;
       letter-spacing: 0.00em;
-      line-height: 1.2;
     }
     
     /* === MAIN CONTENT === */
     main {
       flex: 1;
-      padding: clamp(1.8rem, 1.8rem + ((1vw - 0.48rem) * 2.885), 3rem) clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+      padding: 40px 20px;
     }
     
     .container {
-      max-width: 650px;
-      margin: 0 auto;
-    }
+    max-width: 690px;
+    margin: 0 auto;
+  }
     
     .intro {
-      margin-bottom: clamp(1.8rem, 1.8rem + ((1vw - 0.48rem) * 2.885), 3rem);
+      margin-bottom: 40px;
       line-height: 1.6;
-      font-size: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+      font-size: 18px;
     }
     
     /* === CARD GRID === */
     .card-grid {
       display: grid;
-      gap: clamp(1.25rem, 1.25rem + ((1vw - 0.48rem) * 0.577), 1.5rem);
+      gap: 20px;
     }
     
     .card {
       border: 1px solid var(--border);
-      padding: clamp(1.25rem, 1.25rem + ((1vw - 0.48rem) * 0.577), 1.5rem);
+      padding: 24px;
       text-decoration: none;
       color: var(--text);
       transition: all 0.15s;
       display: block;
     }
-    
     .card:hover {
       background: var(--hover-bg);
       color: var(--hover-text);
-      text-decoration: none;
-      transform: translateY(-1px);
     }
-    
-    .card:active {
-      transform: translateY(0);
-      color: var(--secondary);
-      text-decoration: none;
-      background: var(--bg);
-    }
-    
-    .card:focus {
-      text-decoration: underline dashed;
-      outline: none;
-    }
-    
-    .card:hover .card-arrow { 
-      color: var(--accent); 
-    }
+    .card:hover .card-arrow { color: var(--accent); }
     
     .card h2 {
-      font-size: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
+      font-size: 18px;
       font-weight: 700;
       margin-bottom: 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      line-height: 1.4;
     }
-    
     .card-arrow {
       font-weight: 400;
       transition: color 0.15s;
     }
-    
     .card p {
-      font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.288), 1rem);
+      font-size: 12px;
       line-height: 1.5;
       opacity: 0.7;
     }
@@ -136,45 +112,36 @@
       gap: 6px;
       margin-bottom: 12px;
     }
-    
     .tag {
-      font-size: clamp(0.5625rem, 0.5625rem + ((1vw - 0.48rem) * 0.072), 0.5938rem);
+      font-size: 10px;
       font-weight: 700;
       padding: 3px 8px;
       border: 1px solid var(--border);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      border-radius: 0;
-      transition: all 0.15s;
     }
-    
     .tag-glitch { 
       background: var(--bg);
       color: var(--text);
     }
-    
     .tag-type { 
       background: var(--accent);
       color: var(--bg);
       border-color: var(--accent);
     }
-    
     .tag-dh { 
       background: var(--text);
       color: var(--bg);
     }
-    
     .card:hover .tag-glitch {
       background: var(--hover-text);
       color: var(--hover-bg);
     }
-    
     .card:hover .tag-type {
       background: var(--hover-text);
       color: var(--accent);
       border-color: var(--hover-text);
     }
-    
     .card:hover .tag-dh {
       background: var(--hover-text);
       color: var(--hover-bg);
@@ -183,7 +150,16 @@
     
     /* === FOOTER === */
     footer {
-      display: none;
+      padding: 40px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 14px;
+    }
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -197,55 +173,49 @@
     <p class="intro">This is a repository of tools and resources for glitch-related teaching and experimentation</p>
     
     <div class="card-grid">
-      <a href="zalgo.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-        <h2>Zalgo Text Generator<span class="card-arrow">→</span></h2>
-        <p>Generate corrupted text using Unicode combining characters. Educational tool demonstrating text glitch art at the character encoding level.</p>
-      </a>
-
-      <a href="transmediator.html" class="card" target="_blank">
+      <a href="transmediation-tool.html" class="card" target="_blank">
         <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
         <h2>Transmediator<span class="card-arrow">→</span></h2>
         <p>A relatively simple data dictionary between text, image and audio data. Based on my work with Dr Kedrick James.</p>
       </a>
 
-      <a href="hex.html" class="card" target="_blank">
+      <a href="hex-databend-html.html" class="card" target="_blank">
         <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-        <h2>Protected Hex Editor<span class="card-arrow">→</span></h2>
+        <h2>Hex Editor<span class="card-arrow">→</span></h2>
         <p>A web-based hex editor that identifies and locks header data from compressed image files.</p>
       </a>
 
-      <a href="image2table.html" class="card" target="_blank">
+      <a href="image-table-converter.html" class="card" target="_blank">
         <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
         <h2>Image ↔︎ Table Converter<span class="card-arrow">→</span></h2>
         <p>Image-to-table, table-to-image converter limited to 640^2 pixels.</p>
       </a>
       
-      <a href="pixelsorter.html" class="card" target="_blank">
+      <a href="pixel-sorter-html.html" class="card" target="_blank">
         <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
         <h2>Pixel Sorter<span class="card-arrow">→</span></h2>
         <p>Basic HTML-based pixel sorter based on Kim Asendorf's work.</p>
       </a>
 
-      <a href="datamoshlab.html" class="card" target="_blank">
+      <a href="datafoldsynth.html" class="card" target="_blank">
+        <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
+        <h2>Datafoldsynth v.2<span class="card-arrow">→</span></h2>
+        <p>Harmonic grid sorting with adaptive 2D zone detection, waveshape distribution, and per-channel processing. Advanced datafolding synthesizer.</p>
+      </a>
+
+      <a href="datamosh-lab.html" class="card" target="_blank">
         <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
         <h2>Datamosh Lab<span class="card-arrow">→</span></h2>
         <p>Frame structure analysis + motion vector visualization + Datamosh simulation</p>
       </a>
 
-      <a href="avihex.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-        <h2>AVI Hex Frame Editor<span class="card-arrow">→</span></h2>
-        <p>Frame-by-frame hex editor for AVI video files with motion vector visualization and datamoshing capabilities.</p>
-      </a>
-
-      <a href="acuity.html" class="card" target="_blank">
+      <a href="font-acuity-analyzer.html" class="card" target="_blank">
         <div class="card-tags"><span class="tag tag-type">Typography</span></div>
         <h2>Font Visual Acuity Analyzer<span class="card-arrow">→</span></h2>
         <p>Calculate minimum visible units (1μ) and relative acuity for typefaces based on visual acuity protocol.</p>
       </a>
 
-      <a href="linecalculator.html" class="card" target="_blank">
+      <a href="line-length-calculator.html" class="card" target="_blank">
         <div class="card-tags"><span class="tag tag-type">Typography</span></div>
         <h2>Line Length Calculator<span class="card-arrow">→</span></h2>
         <p>Calculate optimal line length based on typeface metrics and character density. Upload any font to measure LCA' and determine ideal line lengths for novice and expert readers.</p>
