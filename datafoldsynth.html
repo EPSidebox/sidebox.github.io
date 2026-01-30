@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datafoldsynth v.2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8XQLL5N022"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-8XQLL5N022');
+  </script>
+  <meta name="citation_title" content="Datafoldsynth v.2">
+  <meta name="citation_author" content="Peña, Ernesto">
+  <meta name="citation_publication_date" content="2026/01/29">
+  <meta name="citation_technical_report_institution" content="Northeastern University">
+  <meta name="citation_technical_report_number" content="v2.0">
+  <meta name="citation_abstract" content="A harmonic grid sorting tool for glitch art and datafolding. Features adaptive 2D zone detection, waveshape distribution, per-channel processing, and audio synthesis based on transmediatic research principles.">
+  <meta name="citation_keywords" content="datafolding; glitch art; image processing; databending; harmonic analysis; audio synthesis; transmediation">
+  <meta name="citation_public_url" content="https://epsidebox.github.io/sidebox.github.io/datafoldsynth-v2.html">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Datafoldsynth v.2",
+    "author": {
+      "@type": "Person",
+      "name": "Ernesto Peña",
+      "affiliation": "Northeastern University",
+      "url": "https://ernestopena.com"
+    },
+    "datePublished": "2026-01-29",
+    "version": "2.0",
+    "description": "A harmonic grid sorting tool for glitch art and datafolding. Features adaptive 2D zone detection, waveshape distribution, per-channel processing, and audio synthesis based on transmediatic research principles.",
+    "url": "https://epsidebox.github.io/sidebox.github.io/datafoldsynth-v2.html",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web browser",
+    "keywords": ["datafolding", "glitch art", "image processing", "databending", "harmonic analysis", "audio synthesis", "transmediation"]
+  }
+  </script>
+  <style>
+/* BASE RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* CSS VARIABLES - DARK THEME (DEFAULT) */
+:root {
+  --font: 'Roboto Mono', monospace;
+  --bg: #0a0a0a;
+  --text: #e0e0e0;
+  --muted: #666;
+  --border: #222;
+  --accent: #FF00FF;
+  --accent-secondary: #00bcd4;
+  --panel-bg: #111;
+  --hover-bg: #1a1a1a;
+  --hover-text: #fff;
+  --input-bg: #1a1a1a;
+  --canvas-bg: #000;
+}
+
+/* CSS VARIABLES - LIGHT THEME */
+[data-theme="light"] {
+  --bg: #ffffff;
+  --text: #000000;
+  --muted: #666666;
+  --border: #e0e0e0;
+  --panel-bg: #f5f5f5;
+  --hover-bg: #e8e8e8;
+  --hover-text: #000;
+  --input-bg: #f8f8f8;
+  --canvas-bg: #fafafa;
+}
+
+/* TYPOGRAPHY */
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.288), 1rem);
+  line-height: 1.6;
+  transition: background-color 0.3s, color 0.3s;
+  display: flex;
+  min-height: 100vh;
+}
+
+h1 {
+  color: var(--accent);
+  font-size: clamp(1.5rem, 1.5rem + ((1vw - 0.48rem) * 0.288), 1.75rem);
+  margin-bottom: 6px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+  line-height: 1.4;
+}
+
+/* SIDEBAR LAYOUT */
+#controls {
+  width: 280px;
+  padding: 20px;
+  background: var(--panel-bg);
+  color: var(--text);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  height: 100vh;
+  max-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transition: background-color 0.3s, border-color 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.controls-section {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* THEME TOGGLE */
+.theme-toggle {
+  padding: 6px 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  background: var(--hover-bg);
+}
+
+.theme-toggle:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+/* FORM ELEMENTS */
+label {
+  display: block;
+  color: var(--text);
+  margin: 16px 0 6px;
+  font-weight: 500;
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+}
+
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label-value {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+input[type="file"] {
+  width: 100%;
+  padding: 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  color: var(--text);
+  transition: all 0.15s;
+}
+
+input[type="file"]:hover {
+  border-color: var(--accent);
+}
+
+input[type="file"]:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+input[type="range"] {
+  width: 100%;
+  margin: 0;
+  -webkit-appearance: none;
+  background: var(--input-bg);
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+input[type="range"]:hover {
+  background: var(--hover-bg);
+}
+
+input[type="range"]:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 4px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(0.95);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+input[type="range"]::-moz-range-thumb:active {
+  transform: scale(0.95);
+}
+
+select {
+  width: 100%;
+  padding: 8px;
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-family: var(--font);
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+select:hover {
+  border-color: var(--accent);
+  background: var(--hover-bg);
+}
+
+select:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent);
+}
+
+/* BUTTONS */
+button {
+  font-family: var(--font);
+  padding: 8px 16px;
+  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+button:hover:not(:disabled) {
+  background: var(--hover-bg);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+button:focus {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+button.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+button.primary:hover:not(:disabled) {
+  background: #cc00cc;
+  border-color: #cc00cc;
+}
+
+.btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* INFO BOX */
+.info-box {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--canvas-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: clamp(0.5625rem, 0.5625rem + ((1vw - 0.48rem) * 0.072), 0.5938rem);
+  line-height: 1.5;
+  transition: background-color 0.3s;
+}
+
+.info-title {
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-row {
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.zone-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3px;
+  font-size: clamp(0.5625rem, 0.5625rem + ((1vw - 0.48rem) * 0.072), 0.5938rem);
+}
+
+.zone-label {
+  color: var(--accent-secondary);
+}
+
+/* CHANNEL CONTROLS */
+.channel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.channel-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  cursor: pointer;
+}
+
+.channel-r { color: #ff4444; }
+.channel-g { color: #44ff44; }
+.channel-b { color: #4488ff; }
+.channel-a { color: #ffffff; }
+
+/* MAIN AREA */
+.main-area {
+  margin-left: 280px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.channel-tabs {
+  padding: 12px 20px;
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.channel-tab {
+  padding: 6px 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: var(--font);
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.channel-tab:hover {
+  border-color: var(--accent);
+}
+
+.channel-tab.active {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 700;
+  border-color: var(--accent);
+}
+
+.canvas-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--canvas-bg);
+  border: 1px solid var(--border);
+  padding: 20px;
+  padding-bottom: 60px;
+  position: relative;
+  transition: background-color 0.3s;
+}
+
+canvas {
+  max-width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.zone-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.zone-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--accent-secondary);
+  opacity: 0.6;
+}
+
+.zone-line-label {
+  position: absolute;
+  right: 4px;
+  top: -10px;
+  font-size: 9px;
+  color: var(--accent-secondary);
+  background: rgba(0, 0, 0, 0.8);
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+/* FOOTER */
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 280px;
+  right: 0;
+  margin: 0;
+  padding: 14px 20px;
+  background: var(--panel-bg);
+  border-top: 1px solid var(--border);
+  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.6;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+footer a {
+  color: var(--accent);
+  text-decoration: underline;
+  transition: all 0.15s;
+}
+
+footer a:hover {
+  text-decoration: none;
+  color: var(--hover-text);
+}
+
+footer a:focus {
+  text-decoration: underline dashed;
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+.help-text {
+  font-size: clamp(0.5625rem, 0.5625rem + ((1vw - 0.48rem) * 0.072), 0.5938rem);
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+  
+  #controls {
+    position: relative;
+    width: 100%;
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .main-area {
+    margin-left: 0;
+  }
+  
+  footer {
+    position: relative;
+    left: 0;
+  }
+}
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <div class="sidebar-header">
+      <h1>DATAFOLD<br>SYNTH v.2</h1>
+      <p class="subtitle">Harmonic Grid Sorting</p>
+    </div>
+    
+    <button class="theme-toggle" id="themeToggle">
+      <span id="themeIcon">☀️</span>
+      <span id="themeText">Light</span>
+    </button>
+    
+    <div class="controls-section">
+      <label>1. UPLOAD IMAGE</label>
+      <input type="file" id="fileInput" accept="image/*">
+      
+      <div id="widthSection" style="display: none;">
+        <label>2. SELECT WIDTH</label>
+        <div class="help-text" id="widthHelp"></div>
+        <select id="widthSelect"></select>
+      </div>
+      
+      <div id="directionSection" style="display: none;">
+        <label>3. SORT DIRECTION</label>
+        <select id="directionSelect">
+          <option value="row">ROW (Horizontal)</option>
+          <option value="column">COLUMN (Vertical)</option>
+        </select>
+      </div>
+      
+      <div id="verticalSection" style="display: none;">
+        <label class="label-row">
+          <span>4. VERTICAL THRESHOLD</span>
+          <span class="label-value" id="verticalValue">50%</span>
+        </label>
+        <input type="range" id="verticalThreshold" min="1" max="100" value="50">
+        <div class="help-text">Controls zone sensitivity (higher = more zones)</div>
+      </div>
+      
+      <div id="horizontalSection" style="display: none;">
+        <label class="label-row">
+          <span>5. DETAIL THRESHOLD</span>
+          <span class="label-value" id="horizontalValue">50%</span>
+        </label>
+        <input type="range" id="horizontalThreshold" min="1" max="100" value="50">
+        <div class="help-text">Controls grid fineness per zone</div>
+      </div>
+      
+      <div id="sortBySection" style="display: none;">
+        <label>6. SORT BY</label>
+        <select id="sortBySelect">
+          <option value="brightness">BRIGHTNESS (AVG)</option>
+          <option value="luminance">LUMINANCE (WEIGHTED)</option>
+          <option value="red">RED CHANNEL</option>
+          <option value="green">GREEN CHANNEL</option>
+          <option value="blue">BLUE CHANNEL</option>
+          <option value="alpha">ALPHA CHANNEL</option>
+          <option value="hue">HUE</option>
+          <option value="saturation">SATURATION</option>
+        </select>
+      </div>
+      
+      <div id="waveshapeSection" style="display: none;">
+        <label>7. WAVESHAPE</label>
+        <select id="waveshapeSelect">
+          <option value="sine">SINE</option>
+          <option value="square">SQUARE</option>
+          <option value="triangle">TRIANGLE</option>
+          <option value="sawtooth">SAWTOOTH</option>
+          <option value="invsaw">INVERSE SAWTOOTH</option>
+        </select>
+      </div>
+      
+      <div id="envelopeSection" style="display: none;">
+        <label>8. ENVELOPE</label>
+        <select id="envelopeSelect">
+          <option value="none">NONE</option>
+          <option value="fadeIn">FADE IN</option>
+          <option value="fadeOut">FADE OUT</option>
+          <option value="fadeInOut">IN/OUT</option>
+          <option value="expIn">EXP IN</option>
+          <option value="expOut">EXP OUT</option>
+        </select>
+      </div>
+      
+      <div id="channelSection" style="display: none;">
+        <label>9. CHANNELS</label>
+        <div class="channel-grid">
+          <label class="channel-item">
+            <input type="checkbox" id="channelR" checked>
+            <span class="channel-r">R (RED)</span>
+          </label>
+          <label class="channel-item">
+            <input type="checkbox" id="channelG" checked>
+            <span class="channel-g">G (GREEN)</span>
+          </label>
+          <label class="channel-item">
+            <input type="checkbox" id="channelB" checked>
+            <span class="channel-b">B (BLUE)</span>
+          </label>
+          <label class="channel-item">
+            <input type="checkbox" id="channelA">
+            <span class="channel-a">A (ALPHA)</span>
+          </label>
+        </div>
+      </div>
+      
+      <div id="actionSection" style="display: none;">
+        <button class="primary" id="processBtn" style="width: 100%; margin-top: 20px;">→ PROCESS</button>
+        <button id="resetBtn" style="width: 100%; margin-top: 12px;">RESET</button>
+        <button id="undoBtn" style="width: 100%; margin-top: 8px;" disabled>← UNDO (0/10)</button>
+        <button id="playBtn" style="width: 100%; margin-top: 12px;">▶ PLAY</button>
+        
+        <div class="btn-grid" style="margin-top: 8px;">
+          <button id="exportPngBtn">↓ PNG</button>
+          <button id="exportRawBtn">↓ RAW</button>
+        </div>
+      </div>
+      
+      <div id="analysisBox" class="info-box" style="display: none;">
+        <div class="info-title">ANALYSIS</div>
+        <div id="analysisContent"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="main-area">
+    <div id="channelTabs" class="channel-tabs" style="display: none;">
+      <span style="font-size: 10px; color: var(--muted); margin-right: 8px;">VIEW:</span>
+      <button class="channel-tab active" data-channel="composite">COMPOSITE</button>
+      <button class="channel-tab" data-channel="r" style="color: #ff4444;">R</button>
+      <button class="channel-tab" data-channel="g" style="color: #44ff44;">G</button>
+      <button class="channel-tab" data-channel="b" style="color: #4488ff;">B</button>
+      <button class="channel-tab" data-channel="a" style="color: #ffffff;">A</button>
+    </div>
+    
+    <div class="canvas-container">
+      <div style="position: relative; display: inline-block;">
+        <div id="zoneOverlay" class="zone-overlay"></div>
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    Datafoldsynth v.2 — Harmonic Pixel Sequencer<br>
+    Created by Ernesto Peña | <a href="https://ernestopena.com" target="_blank">ernestopena.com</a>
+  </footer>
+
+  <script>
+// Theme toggle
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const themeText = document.getElementById('themeText');
+const html = document.documentElement;
+
+function setTheme(theme) {
+  html.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+  themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
+  themeText.textContent = theme === 'light' ? 'Dark' : 'Light';
+}
+
+const savedTheme = localStorage.getItem('theme') || 'dark';
+setTheme(savedTheme);
+
+themeToggle.addEventListener('click', function() {
+  const currentTheme = html.getAttribute('data-theme');
+  setTheme(currentTheme === 'light' ? 'dark' : 'light');
+});
+
+// Constants
+const SAMPLE_RATE = 44100;
+const MAX_FREQ = 20000;
+const MIN_WAVELENGTH = Math.ceil(SAMPLE_RATE / MAX_FREQ);
+const MAX_HISTORY = 10;
+const VALID_WIDTHS = [105, 110, 126, 140, 147, 180, 196, 210, 220, 245, 252, 315, 360, 420, 441, 490, 630, 735, 882, 1260, 1470, 2205, 4410];
+
+// Waveshapes
+const WAVESHAPES = {
+  sine: function(t) { return Math.sin(t * Math.PI * 2); },
+  square: function(t) { return t < 0.5 ? -1 : 1; },
+  triangle: function(t) { return t < 0.5 ? (t * 4 - 1) : (3 - t * 4); },
+  sawtooth: function(t) { return (t * 2 - 1); },
+  invsaw: function(t) { return (1 - t * 2); }
+};
+
+// Envelopes
+const ENVELOPES = {
+  none: function(t) { return 1; },
+  fadeIn: function(t) { return t; },
+  fadeOut: function(t) { return 1 - t; },
+  fadeInOut: function(t) { return t < 0.5 ? t * 2 : (1 - t) * 2; },
+  expIn: function(t) { return t * t; },
+  expOut: function(t) { return 1 - (1 - t) * (1 - t); }
+};
+
+// State
+let originalImage = null;
+let currentImage = null;
+let history = [];
+let historyIndex = -1;
+let audioContext = null;
+let sourceNode = null;
+let isPlaying = false;
+let zoneData = null;
+let viewChannel = 'composite';
+
+// UI Elements
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const fileInput = document.getElementById('fileInput');
+const widthSelect = document.getElementById('widthSelect');
+const directionSelect = document.getElementById('directionSelect');
+const verticalThreshold = document.getElementById('verticalThreshold');
+const horizontalThreshold = document.getElementById('horizontalThreshold');
+const sortBySelect = document.getElementById('sortBySelect');
+const waveshapeSelect = document.getElementById('waveshapeSelect');
+const envelopeSelect = document.getElementById('envelopeSelect');
+const processBtn = document.getElementById('processBtn');
+const resetBtn = document.getElementById('resetBtn');
+const undoBtn = document.getElementById('undoBtn');
+const playBtn = document.getElementById('playBtn');
+const exportPngBtn = document.getElementById('exportPngBtn');
+const exportRawBtn = document.getElementById('exportRawBtn');
+const channelTabs = document.querySelectorAll('.channel-tab');
+
+// Initialize audio context
+audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+// Draw initial canvas
+canvas.width = 600;
+canvas.height = 400;
+ctx.fillStyle = '#0a0a0a';
+ctx.fillRect(0, 0, 600, 400);
+ctx.fillStyle = '#666';
+ctx.font = '12px "Roboto Mono"';
+ctx.textAlign = 'center';
+ctx.fillText('Upload an image to begin', 300, 200);
+
+// Channel view tabs
+channelTabs.forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    channelTabs.forEach(function(t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+    viewChannel = tab.getAttribute('data-channel');
+    drawCanvas();
+  });
+});
+
+// File upload
+fileInput.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const img = new Image();
+    img.onload = function() {
+      originalImage = img;
+      currentImage = img;
+      history = [];
+      historyIndex = -1;
+      
+      const closest = VALID_WIDTHS.reduce(function(prev, curr) {
+        return Math.abs(curr - img.width) < Math.abs(prev - img.width) ? curr : prev;
+      });
+      
+      widthSelect.innerHTML = '';
+      VALID_WIDTHS.forEach(function(w) {
+        const option = document.createElement('option');
+        option.value = w;
+        option.textContent = w + 'px' + (w === closest ? ' (recommended)' : '');
+        if (w === closest) option.selected = true;
+        widthSelect.appendChild(option);
+      });
+      
+      document.getElementById('widthHelp').textContent = 'Original: ' + img.width + 'px → Recommended: ' + closest + 'px';
+      
+      document.getElementById('widthSection').style.display = 'block';
+      document.getElementById('directionSection').style.display = 'block';
+      document.getElementById('verticalSection').style.display = 'block';
+      document.getElementById('horizontalSection').style.display = 'block';
+      document.getElementById('sortBySection').style.display = 'block';
+      document.getElementById('waveshapeSection').style.display = 'block';
+      document.getElementById('envelopeSection').style.display = 'block';
+      document.getElementById('channelSection').style.display = 'block';
+      document.getElementById('actionSection').style.display = 'block';
+      document.getElementById('channelTabs').style.display = 'flex';
+      
+      drawCanvas();
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// Update labels
+verticalThreshold.addEventListener('input', function(e) {
+  document.getElementById('verticalValue').textContent = e.target.value + '%';
+});
+
+horizontalThreshold.addEventListener('input', function(e) {
+  document.getElementById('horizontalValue').textContent = e.target.value + '%';
+});
+
+// Draw canvas
+function drawCanvas() {
+  if (currentImage) {
+    canvas.width = currentImage.width;
+    canvas.height = currentImage.height;
+    
+    if (viewChannel === 'composite') {
+      ctx.drawImage(currentImage, 0, 0);
+    } else {
+      ctx.drawImage(currentImage, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      
+      const channelIndex = { r: 0, g: 1, b: 2, a: 3 }[viewChannel];
+      
+      for (let i = 0; i < data.length; i += 4) {
+        const value = data[i + channelIndex];
+        if (viewChannel === 'a') {
+          data[i] = value;
+          data[i + 1] = value;
+          data[i + 2] = value;
+          data[i + 3] = 255;
+        } else {
+          data[i] = viewChannel === 'r' ? value : 0;
+          data[i + 1] = viewChannel === 'g' ? value : 0;
+          data[i + 2] = viewChannel === 'b' ? value : 0;
+        }
+      }
+      
+      ctx.putImageData(imageData, 0, 0);
+    }
+    
+    // Draw zone overlays - use actual displayed dimensions
+    if (zoneData && zoneData.length > 1) {
+      const overlay = document.getElementById('zoneOverlay');
+      overlay.innerHTML = '';
+      
+      // Get the actual displayed size of the canvas
+      const rect = canvas.getBoundingClientRect();
+      overlay.style.width = rect.width + 'px';
+      overlay.style.height = rect.height + 'px';
+      
+      const scaleY = rect.height / currentImage.height;
+      
+      zoneData.forEach(function(zone, i) {
+        if (i === 0) return;
+        const line = document.createElement('div');
+        line.className = 'zone-line';
+        line.style.top = (zone.start * scaleY) + 'px';
+        line.style.width = '100%';
+        const label = document.createElement('span');
+        label.className = 'zone-line-label';
+        label.textContent = 'Z' + i;
+        line.appendChild(label);
+        overlay.appendChild(line);
+      });
+    }
+  }
+}
+
+// Analyze image detail
+function analyzeImageDetail(imageData, channel) {
+  const data = imageData.data;
+  const width = imageData.width;
+  const height = imageData.height;
+  let totalVariance = 0;
+  let samples = 0;
+  
+  for (let y = 0; y < height - 1; y++) {
+    for (let x = 0; x < width - 1; x++) {
+      const i = (y * width + x) * 4;
+      const iRight = (y * width + x + 1) * 4;
+      const iDown = ((y + 1) * width + x) * 4;
+      
+      const val = data[i + channel];
+      const valRight = data[iRight + channel];
+      const valDown = data[iDown + channel];
+      
+      totalVariance += Math.abs(val - valRight) + Math.abs(val - valDown);
+      samples++;
+    }
+  }
+  
+  return totalVariance / samples;
+}
+
+// Detect vertical zones
+function detectVerticalZones(imageData, threshold) {
+  const data = imageData.data;
+  const width = imageData.width;
+  const height = imageData.height;
+  const rowVariances = [];
+  
+  for (let y = 0; y < height; y++) {
+    let rowVariance = 0;
+    for (let x = 0; x < width - 1; x++) {
+      const i = (y * width + x) * 4;
+      const iNext = (y * width + x + 1) * 4;
+      
+      for (let c = 0; c < 3; c++) {
+        rowVariance += Math.abs(data[i + c] - data[iNext + c]);
+      }
+    }
+    rowVariances.push(rowVariance / (width - 1) / 3);
+  }
+  
+  const smoothed = [];
+  const windowSize = Math.max(2, Math.floor(height * 0.015));
+  for (let i = 0; i < rowVariances.length; i++) {
+    let sum = 0;
+    let count = 0;
+    for (let j = Math.max(0, i - windowSize); j < Math.min(rowVariances.length, i + windowSize); j++) {
+      sum += rowVariances[j];
+      count++;
+    }
+    smoothed.push(sum / count);
+  }
+  
+  const zones = [];
+  const sensitivity = threshold / 100;
+  
+  const avgVariance = smoothed.reduce(function(a, b) { return a + b; }, 0) / smoothed.length;
+  const maxVariance = Math.max.apply(null, smoothed);
+  const minVariance = Math.min.apply(null, smoothed);
+  const varianceRange = maxVariance - minVariance;
+  
+  const baseThreshold = varianceRange * 0.15;
+  const scaledThreshold = baseThreshold * Math.pow(1 - sensitivity, 3);
+  
+  let lastBoundary = 0;
+  const minZoneHeight = Math.max(5, Math.floor(height * 0.02));
+  
+  for (let i = minZoneHeight; i < smoothed.length - minZoneHeight; i++) {
+    if (i - lastBoundary < minZoneHeight) continue;
+    
+    const windowCheck = 3;
+    const before = smoothed.slice(Math.max(0, i - windowCheck), i).reduce(function(a, b) { return a + b; }, 0) / windowCheck;
+    const after = smoothed.slice(i, Math.min(smoothed.length, i + windowCheck)).reduce(function(a, b) { return a + b; }, 0) / windowCheck;
+    const change = Math.abs(after - before);
+    
+    if (change > scaledThreshold) {
+      zones.push({ start: lastBoundary, end: i });
+      lastBoundary = i;
+    }
+  }
+  
+  zones.push({ start: lastBoundary, end: height });
+  
+  console.log('Zone Detection:', {
+    avgVariance: avgVariance.toFixed(2),
+    varianceRange: varianceRange.toFixed(2),
+    scaledThreshold: scaledThreshold.toFixed(2),
+    sensitivity: threshold,
+    zonesDetected: zones.length
+  });
+  
+  return zones.length > 0 ? zones : [{ start: 0, end: height }];
+}
+
+// Calculate grid factor
+function calculateGridFactor(width, detailScore, threshold) {
+  const factors = [];
+  for (let i = 1; i <= width; i++) {
+    if (width % i === 0) factors.push(i);
+  }
+  
+  const normalizedDetail = detailScore / 100;
+  const desiredSegments = Math.max(1, Math.floor(normalizedDetail * threshold * 0.5));
+  
+  const maxSegments = Math.floor(width / MIN_WAVELENGTH);
+  const targetSegments = Math.min(desiredSegments, maxSegments);
+  
+  const targetWidth = width / Math.max(1, targetSegments);
+  return factors.reduce(function(prev, curr) {
+    return Math.abs(curr - targetWidth) < Math.abs(prev - targetWidth) ? curr : prev;
+  });
+}
+
+// Waveshape sort
+function waveshapeSort(pixels, shapeFn, envFn, sortCriterion) {
+  const withValues = pixels.map(function(p) {
+    let value;
+    
+    switch (sortCriterion) {
+      case 'brightness':
+        value = (p.r + p.g + p.b) / 3;
+        break;
+      case 'luminance':
+        value = 0.299 * p.r + 0.587 * p.g + 0.114 * p.b;
+        break;
+      case 'red':
+        value = p.r;
+        break;
+      case 'green':
+        value = p.g;
+        break;
+      case 'blue':
+        value = p.b;
+        break;
+      case 'alpha':
+        value = p.a;
+        break;
+      case 'hue':
+        const r = p.r / 255, g = p.g / 255, b = p.b / 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h = 0;
+        if (max !== min) {
+          const d = max - min;
+          if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+          else if (max === g) h = ((b - r) / d + 2) / 6;
+          else h = ((r - g) / d + 4) / 6;
+        }
+        value = h * 255;
+        break;
+      case 'saturation':
+        const r2 = p.r / 255, g2 = p.g / 255, b2 = p.b / 255;
+        const max2 = Math.max(r2, g2, b2), min2 = Math.min(r2, g2, b2);
+        value = max2 === 0 ? 0 : ((max2 - min2) / max2) * 255;
+        break;
+      default:
+        value = (p.r + p.g + p.b) / 3;
+    }
+    
+    return { p: p, value: value };
+  });
+  
+  const sorted = withValues.sort(function(a, b) { return a.value - b.value; }).map(function(x) { return x.p; });
+  
+  const curve = [];
+  for (let i = 0; i < pixels.length; i++) {
+    const t = i / Math.max(1, pixels.length - 1);
+    const waveVal = shapeFn(t);
+    curve.push((waveVal + 1) / 2);
+  }
+  
+  const curveIndices = curve.map(function(v, i) { return { v: v, i: i }; })
+                            .sort(function(a, b) { return a.v - b.v; });
+  
+  const result = new Array(pixels.length);
+  for (let i = 0; i < pixels.length; i++) {
+    const targetIdx = curveIndices[i].i;
+    const envValue = envFn(targetIdx / Math.max(1, pixels.length - 1));
+    
+    const p = sorted[i];
+    result[targetIdx] = {
+      r: Math.round(127 + (p.r - 127) * envValue),
+      g: Math.round(127 + (p.g - 127) * envValue),
+      b: Math.round(127 + (p.b - 127) * envValue),
+      a: p.a
+    };
+  }
+  
+  return result;
+}
+
+// Process image
+function processImage() {
+  if (!currentImage) return;
+  
+  processBtn.disabled = true;
+  processBtn.textContent = 'PROCESSING...';
+  
+  setTimeout(function() {
+    const selectedWidth = parseInt(widthSelect.value);
+    const direction = directionSelect.value;
+    const vertThreshold = parseInt(verticalThreshold.value);
+    const horizThreshold = parseInt(horizontalThreshold.value);
+    const sortBy = sortBySelect.value;
+    const shapeFn = WAVESHAPES[waveshapeSelect.value];
+    const envFn = ENVELOPES[envelopeSelect.value];
+    
+    const channels = {
+      r: document.getElementById('channelR').checked,
+      g: document.getElementById('channelG').checked,
+      b: document.getElementById('channelB').checked,
+      a: document.getElementById('channelA').checked
+    };
+    
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    const scale = selectedWidth / currentImage.width;
+    const newHeight = Math.round(currentImage.height * scale);
+    
+    tempCanvas.width = selectedWidth;
+    tempCanvas.height = newHeight;
+    tempCtx.drawImage(currentImage, 0, 0, selectedWidth, newHeight);
+    
+    const imageData = tempCtx.getImageData(0, 0, selectedWidth, newHeight);
+    const data = imageData.data;
+    const width = imageData.width;
+    const height = imageData.height;
+    
+    const zones = detectVerticalZones(imageData, vertThreshold);
+    zoneData = zones;
+    
+    const zoneAnalysis = zones.map(function(zone) {
+      const zoneHeight = zone.end - zone.start;
+      const zoneImageData = tempCtx.getImageData(0, zone.start, width, zoneHeight);
+      
+      const detailScores = {
+        r: channels.r ? analyzeImageDetail(zoneImageData, 0) : 0,
+        g: channels.g ? analyzeImageDetail(zoneImageData, 1) : 0,
+        b: channels.b ? analyzeImageDetail(zoneImageData, 2) : 0,
+        a: channels.a ? analyzeImageDetail(zoneImageData, 3) : 0
+      };
+      
+      const enabledScores = Object.keys(detailScores).filter(function(ch) {
+        return channels[ch];
+      }).map(function(ch) {
+        return detailScores[ch];
+      });
+      
+      const avgDetail = enabledScores.reduce(function(a, b) { return a + b; }, 0) / enabledScores.length;
+      const segmentWidth = calculateGridFactor(width, avgDetail, horizThreshold);
+      
+      return {
+        start: zone.start,
+        end: zone.end,
+        avgDetail: avgDetail,
+        segmentWidth: segmentWidth,
+        segments: width / segmentWidth,
+        frequency: (SAMPLE_RATE / segmentWidth).toFixed(2)
+      };
+    });
+    
+    const channelList = ['r', 'g', 'b', 'a'];
+    
+    zoneAnalysis.forEach(function(zoneInfo) {
+      const start = zoneInfo.start;
+      const end = zoneInfo.end;
+      const segmentWidth = zoneInfo.segmentWidth;
+      
+      if (direction === 'row') {
+        channelList.forEach(function(ch, chIdx) {
+          if (!channels[ch]) return;
+          
+          for (let y = start; y < end; y++) {
+            const numSegments = Math.floor(width / segmentWidth);
+            
+            for (let seg = 0; seg < numSegments; seg++) {
+              const startX = seg * segmentWidth;
+              const endX = Math.min(startX + segmentWidth, width);
+              
+              const segmentPixels = [];
+              for (let x = startX; x < endX; x++) {
+                const i = (y * width + x) * 4;
+                segmentPixels.push({
+                  r: data[i],
+                  g: data[i + 1],
+                  b: data[i + 2],
+                  a: data[i + 3],
+                  x: x,
+                  y: y
+                });
+              }
+              
+              const sorted = waveshapeSort(segmentPixels, shapeFn, envFn, sortBy);
+              
+              sorted.forEach(function(p, idx) {
+                const pixel = segmentPixels[idx];
+                const i = (pixel.y * width + pixel.x) * 4;
+                data[i + chIdx] = p[ch];
+              });
+            }
+          }
+        });
+      } else {
+        channelList.forEach(function(ch, chIdx) {
+          if (!channels[ch]) return;
+          
+          const numColumns = Math.floor(width / segmentWidth);
+          
+          for (let col = 0; col < numColumns; col++) {
+            const startX = col * segmentWidth;
+            const endX = Math.min(startX + segmentWidth, width);
+            
+            const columnPixels = [];
+            for (let x = startX; x < endX; x++) {
+              for (let y = start; y < end; y++) {
+                const i = (y * width + x) * 4;
+                columnPixels.push({
+                  r: data[i],
+                  g: data[i + 1],
+                  b: data[i + 2],
+                  a: data[i + 3],
+                  x: x,
+                  y: y
+                });
+              }
+            }
+            
+            const sorted = waveshapeSort(columnPixels, shapeFn, envFn, sortBy);
+            
+            sorted.forEach(function(p, idx) {
+              const pixel = columnPixels[idx];
+              const i = (pixel.y * width + pixel.x) * 4;
+              data[i + chIdx] = p[ch];
+            });
+          }
+        });
+      }
+    });
+    
+    tempCtx.putImageData(imageData, 0, 0);
+    
+    const resultImg = new Image();
+    resultImg.onload = function() {
+      history.push(imageData);
+      if (history.length > MAX_HISTORY) history.shift();
+      historyIndex = history.length - 1;
+      undoBtn.disabled = historyIndex <= 0;
+      undoBtn.textContent = '← UNDO (' + historyIndex + '/' + MAX_HISTORY + ')';
+      
+      currentImage = resultImg;
+      drawCanvas();
+      updateAnalysis(width, height, zones.length, zoneAnalysis);
+      
+      processBtn.disabled = false;
+      processBtn.textContent = '→ PROCESS';
+    };
+    resultImg.src = tempCanvas.toDataURL();
+  }, 10);
+}
+
+// Update analysis display
+function updateAnalysis(width, height, numZones, zoneAnalysis) {
+  const content = document.getElementById('analysisContent');
+  
+  // Calculate total duration
+  const totalSamples = width * height;
+  const totalSeconds = totalSamples / SAMPLE_RATE;
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = Math.floor(totalSeconds % 60);
+  const ms = Math.round((totalSeconds % 1) * 1000);
+  const duration = hours.toString().padStart(2, '0') + ':' + 
+                   minutes.toString().padStart(2, '0') + ':' + 
+                   seconds.toString().padStart(2, '0') + '.' + 
+                   ms.toString().padStart(3, '0');
+  
+  let html = '<div class="info-row">Dimensions: ' + width + '×' + height + '</div>';
+  html += '<div class="info-row">Duration: ' + duration + '</div>';
+  html += '<div class="info-row">Zones Detected: ' + numZones + '</div>';
+  html += '<div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border);">';
+  
+  zoneAnalysis.forEach(function(z, i) {
+    html += '<div class="zone-item">';
+    html += '<span class="zone-label">Zone ' + (i + 1) + ' (' + z.start + '-' + z.end + '):</span>';
+    html += '<span>' + z.segmentWidth + 'px / ' + z.frequency + 'Hz</span>';
+    html += '</div>';
+  });
+  
+  html += '</div>';
+  content.innerHTML = html;
+  document.getElementById('analysisBox').style.display = 'block';
+}
+
+// Reset button
+resetBtn.addEventListener('click', function() {
+  if (originalImage) {
+    currentImage = originalImage;
+    history = [];
+    historyIndex = -1;
+    undoBtn.disabled = true;
+    undoBtn.textContent = '← UNDO (0/10)';
+    zoneData = null;
+    document.getElementById('analysisBox').style.display = 'none';
+    drawCanvas();
+  }
+});
+
+// Undo button
+undoBtn.addEventListener('click', function() {
+  if (historyIndex <= 0) return;
+  
+  historyIndex--;
+  const tempCanvas = document.createElement('canvas');
+  const tempCtx = tempCanvas.getContext('2d');
+  const imgData = history[historyIndex];
+  
+  tempCanvas.width = imgData.width;
+  tempCanvas.height = imgData.height;
+  tempCtx.putImageData(imgData, 0, 0);
+  
+  const img = new Image();
+  img.onload = function() {
+    currentImage = img;
+    drawCanvas();
+    undoBtn.disabled = historyIndex <= 0;
+    undoBtn.textContent = '← UNDO (' + historyIndex + '/' + MAX_HISTORY + ')';
+  };
+  img.src = tempCanvas.toDataURL();
+});
+
+// Process button
+processBtn.addEventListener('click', processImage);
+
+// Play button
+playBtn.addEventListener('click', function() {
+  if (isPlaying) {
+    if (sourceNode) sourceNode.stop();
+    isPlaying = false;
+    playBtn.textContent = '▶ PLAY';
+    return;
+  }
+  
+  if (!currentImage) return;
+  
+  const tempCanvas = document.createElement('canvas');
+  const tempCtx = tempCanvas.getContext('2d');
+  tempCanvas.width = currentImage.width;
+  tempCanvas.height = currentImage.height;
+  tempCtx.drawImage(currentImage, 0, 0);
+  
+  const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+  const data = imageData.data;
+  const numSamples = data.length / 4;
+  
+  const audioBuffer = audioContext.createBuffer(2, numSamples, SAMPLE_RATE);
+  const left = audioBuffer.getChannelData(0);
+  const right = audioBuffer.getChannelData(1);
+  
+  for (let i = 0; i < numSamples; i++) {
+    left[i] = (data[i * 4] - 127) / 128;
+    right[i] = (data[i * 4 + 1] - 127) / 128;
+  }
+  
+  sourceNode = audioContext.createBufferSource();
+  sourceNode.buffer = audioBuffer;
+  sourceNode.connect(audioContext.destination);
+  sourceNode.onended = function() {
+    isPlaying = false;
+    playBtn.textContent = '▶ PLAY';
+  };
+  sourceNode.start();
+  
+  isPlaying = true;
+  playBtn.textContent = '⏸ STOP';
+});
+
+// Export PNG
+exportPngBtn.addEventListener('click', function() {
+  if (!currentImage) return;
+  const link = document.createElement('a');
+  link.download = 'datafoldsynth-v2.png';
+  link.href = currentImage.src;
+  link.click();
+});
+
+// Export RAW
+exportRawBtn.addEventListener('click', function() {
+  if (!currentImage) return;
+  
+  const tempCanvas = document.createElement('canvas');
+  const tempCtx = tempCanvas.getContext('2d');
+  tempCanvas.width = currentImage.width;
+  tempCanvas.height = currentImage.height;
+  tempCtx.drawImage(currentImage, 0, 0);
+  
+  const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+  const audioData = new Uint8Array(imageData.data.length / 2);
+  
+  for (let i = 0; i < imageData.data.length; i += 4) {
+    audioData[i / 2] = imageData.data[i];
+    audioData[i / 2 + 1] = imageData.data[i + 1];
+  }
+  
+  const blob = new Blob([audioData], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = 'datafoldsynth-v2.raw';
+  link.href = url;
+  link.click();
+  URL.revokeObjectURL(url);
+});
+  </script>
+</body>
+</html>
