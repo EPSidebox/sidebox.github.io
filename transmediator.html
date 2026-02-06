@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,13 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8XQLL5N022"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-8XQLL5N022');
-  </script>
 <meta name="citation_title" content="Transmediator">
 <meta name="citation_author" content="Peña, Ernesto">
 <meta name="citation_publication_date" content="2026/01/10">
@@ -21,7 +15,7 @@
 <meta name="citation_technical_report_number" content="v1.0">
 <meta name="citation_abstract" content="A browser-based tool for exploring sensory, semiotic, and signal transmediation. Load audio, image, or text files and view raw data rendered simultaneously as text, pixels, and sound.">
 <meta name="citation_keywords" content="transmediation; databending; glitch pedagogy; digital media; raw data">
-<meta name="citation_public_url" content="https://epsidebox.github.io/sidebox.github.io/transmediation-tool.html">
+<meta name="citation_public_url" content="https://epsidebox.github.io/sidebox.github.io/transmediator.html">
 
 <script type="application/ld+json">
 {
@@ -353,8 +347,8 @@
       padding: 4px;
       display: inline-block;
       overflow: auto;
-      max-width: 100%;
-      max-height: 320px;
+      width: 218px;
+      height: 218px;
       border: 1px solid var(--border);
     }
     
@@ -633,8 +627,6 @@
     const html = document.documentElement;
     
     const getPreferredTheme = () => {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) return savedTheme;
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     };
     
@@ -648,22 +640,15 @@
         themeIcon.textContent = '🌙';
         themeText.textContent = 'Dark';
       }
-      localStorage.setItem('theme', theme);
       updatePreview();
     };
     
     setTheme(getPreferredTheme());
     
+    let currentThemeState = getPreferredTheme();
     themeToggle.addEventListener('click', () => {
-      const currentTheme = html.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      setTheme(newTheme);
-    });
-    
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (!localStorage.getItem('theme')) {
-        setTheme(e.matches ? 'dark' : 'light');
-      }
+      currentThemeState = currentThemeState === 'dark' ? 'light' : 'dark';
+      setTheme(currentThemeState);
     });
 
     function setMode(m) {
