@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,721 +5,136 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Protected Hex Editor</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-8XQLL5N022"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-8XQLL5N022');
-</script>
 <style>
-/* === BASE RESET === */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
-/* === TYPOGRAPHY & COLORS === */
 :root {
-  --font: 'Roboto Mono', monospace;
-  --bg: #0a0a0a;
-  --text: #e0e0e0;
-  --accent: #FF00FF;
-  --accent-secondary: #00bcd4;
-  --accent-tertiary: #8bc34a;
-  --muted: #666;
-  --border: #222;
-  --panel-bg: #111;
-  --hover-bg: #1a1a1a;
-  --hover-text: #fff;
-  --input-bg: #1a1a1a;
-  --hex-bg: #000;
-  --protected: #ff6b9d;
-  --editable: #9dff6b;
-  --cursor: #ffff00;
+  --font: 'Roboto Mono', monospace; --bg: #0a0a0a; --text: #e0e0e0; --accent: #FF00FF;
+  --accent-secondary: #00bcd4; --accent-tertiary: #8bc34a;
+  --muted: #666; --border: #222; --panel-bg: #111;
+  --hover-bg: #1a1a1a; --hover-text: #fff; --input-bg: #1a1a1a;
+  --hex-bg: #000; --protected: #ff6b9d; --editable: #9dff6b; --cursor: #ffff00;
 }
-
 [data-theme="light"] {
-  --bg: #ffffff;
-  --text: #000000;
-  --accent: #FF00FF;
-  --accent-secondary: #00bcd4;
-  --accent-tertiary: #8bc34a;
-  --muted: #666666;
-  --border: #e0e0e0;
-  --panel-bg: #f5f5f5;
-  --hover-bg: #e8e8e8;
-  --hover-text: #000;
-  --input-bg: #f8f8f8;
-  --hex-bg: #fafafa;
-  --protected: #ff6b9d;
-  --editable: #33aa33;
-  --cursor: #cc9900;
-}
-
-body {
-  font-family: 'Roboto Mono', monospace;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  padding: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
-  line-height: 1.6;
-  font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.288), 1rem);
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-header {
-  margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.header-content {
-  flex: 1;
-  min-width: 200px;
-}
-
-h1 {
-  color: var(--accent);
-  font-size: clamp(1.75rem, 1.75rem + ((1vw - 0.48rem) * 0.288), 1.875rem);
-  margin-bottom: 4px;
-  font-weight: 400;
-  line-height: 1.2;
-}
-
-.subtitle {
-  color: var(--muted);
-  font-size: clamp(0.8125rem, 0.8125rem + ((1vw - 0.48rem) * 0.144), 0.875rem);
-  line-height: 1.5;
-}
-
-.theme-toggle {
-  padding: 6px 12px;
-  background: var(--panel-bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
-  transition: all 0.15s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.theme-toggle:hover {
-  border-color: var(--accent);
-  background: var(--hover-bg);
-}
-
-.theme-toggle:focus {
-  outline: 2px dashed var(--accent);
-  outline-offset: 2px;
-}
-
-.controls {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-  margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
-}
-
-.btn {
-  font-family: 'Roboto Mono', monospace;
-  padding: 8px 16px;
-  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
-  border: 1px solid var(--accent);
-  background: transparent;
-  color: var(--accent);
-  cursor: pointer;
-  transition: all 0.15s;
-  border-radius: 3px;
-}
-
-.btn:hover:not(:disabled) {
-  background: var(--accent);
-  color: var(--bg);
-}
-
-.btn:focus {
-  outline: 2px dashed var(--accent);
-  outline-offset: 2px;
-}
-
-.btn:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.btn:disabled:hover {
-  background: transparent;
-  color: var(--accent);
-}
-
-.btn-secondary {
-  border-color: var(--muted);
-  color: var(--muted);
-}
-
-.btn-secondary:hover:not(:disabled) {
-  border-color: var(--text);
-  color: var(--text);
-  background: transparent;
-}
-
-.btn-action {
-  border-color: var(--editable);
-  color: var(--editable);
-}
-
-.btn-action:hover:not(:disabled) {
-  background: var(--editable);
-  color: var(--bg);
-}
-
-.btn-small {
-  padding: 4px 8px;
-  font-size: clamp(0.5625rem, 0.5625rem + ((1vw - 0.48rem) * 0.072), 0.5938rem);
-}
-
-.btn-toggle {
-  min-width: 50px;
-}
-
-.btn-toggle.active {
-  background: var(--accent);
-  color: var(--bg);
-}
-
-.file-info {
-  margin-left: auto;
-  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
-  color: var(--muted);
-}
-
-.file-info .format {
-  color: var(--accent);
-}
-
-.file-info .editable {
-  color: var(--editable);
-}
-
-.panel {
-  background: var(--panel-bg);
-  border: 1px solid var(--border);
-  padding: 16px;
-  border-radius: 6px;
-}
-
-.label {
-  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  line-height: 1.4;
-}
-
-.label-accent {
-  color: var(--accent);
-}
-
-.main-layout {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.structure-panel {
-  width: 220px;
-  max-height: 540px;
-  overflow-y: auto;
-  flex-shrink: 0;
-}
-
-.structure-item {
-  padding: 8px;
-  border-left: 2px solid var(--protected);
-  margin-top: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.structure-item:hover {
-  background: var(--hover-bg);
-}
-
-.structure-item.editable {
-  border-color: var(--editable);
-}
-
-.structure-item .desc {
-  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
-  line-height: 1.4;
-}
-
-.structure-item .offset {
-  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
-  color: var(--muted);
-  margin-top: 2px;
-}
-
-.hex-panel {
-  flex: 1;
-  min-width: 500px;
-}
-
-.hex-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.legend {
-  display: flex;
-  gap: 16px;
-  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
-}
-
-.legend-protected {
-  color: var(--protected);
-}
-
-.legend-editable {
-  color: var(--editable);
-}
-
-/* === HEX EDITOR (DOM-based with Virtual Scrolling) === */
-.hex-container {
-  background: var(--hex-bg);
-  color: var(--text);
-  padding: 12px;
-  border-radius: 4px;
-  font-family: 'Roboto Mono', monospace;
-  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
-  overflow-y: auto;
-  height: 500px;
-  border: 1px solid var(--border);
-  position: relative;
-}
-
-.hex-viewport {
-  position: relative;
-  width: 100%;
-}
-
-.hex-row {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 3px;
-  padding: 2px 0;
-  transition: background 0.15s;
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 20px;
-}
-
-.hex-row:hover {
-  background: var(--hover-bg);
-}
-
-.hex-offset {
-  color: var(--muted);
-  width: 70px;
-}
-
-.hex-bytes {
-  display: flex;
-  gap: 3px;
-}
-
-.hex-byte {
-  width: 20px;
-  text-align: center;
-  background: transparent;
-  border: none;
-  font-family: inherit;
-  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.15s;
-}
-
-.hex-byte:hover {
-  background: var(--hover-bg);
-}
-
-.hex-byte:focus {
-  outline: 1px solid var(--cursor);
-  background: var(--hover-bg);
-}
-
-.hex-byte.editable {
-  color: var(--editable);
-}
-
-.hex-byte.protected {
-  color: var(--protected);
-}
-
-.hex-byte.selected {
-  background: var(--accent);
-  color: var(--bg);
-  font-weight: bold;
-}
-
-.hex-byte.cursor {
-  background: var(--cursor);
-  color: var(--bg);
-  font-weight: bold;
-}
-
-.hex-byte-protected {
-  background: var(--panel-bg) !important;
-  color: var(--muted) !important;
-  cursor: not-allowed !important;
-  opacity: 0.6;
-}
-
-.hex-ascii {
-  color: var(--muted);
-  margin-left: 8px;
-}
-
-.hex-status {
-  margin-top: 12px;
-  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
-  color: var(--muted);
-  line-height: 1.4;
-}
-
-.hex-status .pos {
-  color: var(--accent);
-}
-
-.hex-status .status-editable {
-  color: var(--editable);
-}
-
-.hex-status .status-locked {
-  color: var(--protected);
-}
-
-.preview-panel {
-  width: 256px;
-  flex-shrink: 0;
-}
-
-.preview-controls {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-  align-items: center;
-}
-
-.zoom-btn {
-  font-family: 'Roboto Mono', monospace;
-  padding: 4px 8px;
-  font-size: clamp(0.5625rem, 0.5625rem + ((1vw - 0.48rem) * 0.072), 0.5938rem);
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.15s;
-  border-radius: 3px;
-}
-
-.zoom-btn:hover,
-.zoom-btn.active {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.zoom-btn:focus {
-  outline: 2px dashed var(--accent);
-  outline-offset: 2px;
-}
-
-.preview-box {
-  margin-top: 8px;
-  height: 220px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: auto;
-  position: relative;
-  border-radius: 4px;
-}
-
-.preview-box img {
-  object-fit: contain;
-  image-rendering: pixelated;
-}
-
-.preview-box img.zoom-1x {
-  max-width: 100%;
-  max-height: 100%;
-}
-
-.preview-box img.zoom-2x {
-  max-width: none;
-  max-height: none;
-  transform: scale(2);
-  transform-origin: top left;
-}
-
-.preview-box img.zoom-4x {
-  max-width: none;
-  max-height: none;
-  transform: scale(4);
-  transform-origin: top left;
-}
-
-.preview-error {
-  text-align: center;
-  padding: 16px;
-}
-
-.preview-error .icon {
-  color: var(--protected);
-  font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.144), 0.9375rem);
-}
-
-.preview-error .msg {
-  color: var(--muted);
-  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
-  margin-top: 4px;
-}
-
-.preview-position {
-  margin-top: 8px;
-  font-size: clamp(0.5625rem, 0.5625rem + ((1vw - 0.48rem) * 0.072), 0.5938rem);
-  color: var(--muted);
-  min-height: 32px;
-  line-height: 1.4;
-}
-
-.preview-position .label {
-  color: var(--accent);
-}
-
-.preview-position .value {
-  color: var(--text);
-}
-
-.preview-position .note {
-  color: var(--muted);
-  font-style: italic;
-}
-
-.pixel-marker {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border: 2px solid var(--cursor);
-  box-shadow: 0 0 0 1px var(--bg), 0 0 8px var(--cursor);
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-}
-
-.tools-panel {
-  margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem);
-  display: none;
-}
-
-.tools-panel.show {
-  display: block;
-}
-
-.tools-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-top: 16px;
-}
-
-.tools-grid-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1.5rem;
-}
-
-.tool-section h3 {
-  color: var(--accent);
-  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 16px;
-  line-height: 1.4;
-}
-
-.tool-row {
-  margin-bottom: 12px;
-}
-
-.tool-row label {
-  display: block;
-  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
-  color: var(--muted);
-  margin-bottom: 4px;
-  line-height: 1.4;
-}
-
-.tool-row input[type="range"] {
-  width: 100%;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
-
-.tool-row select,
-.tool-row input[type="text"] {
-  width: 100%;
-  padding: 8px;
-  font-family: 'Roboto Mono', monospace;
-  font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 3px;
-  transition: border-color 0.15s;
-}
-
-.tool-row select:hover,
-.tool-row input[type="text"]:hover {
-  border-color: var(--accent);
-}
-
-.tool-row select:focus,
-.tool-row input[type="text"]:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-.tool-row input[type="text"] {
-  color: var(--accent);
-}
-
-.tool-row .range-value {
-  float: right;
-  color: var(--text);
-}
-
-footer {
-  margin-top: clamp(1.5rem, 1.5rem + ((1vw - 0.48rem) * 1.442), 2rem);
-  padding-top: 14px;
-  border-top: 1px solid var(--border);
-  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
-  color: var(--muted);
-  text-align: center;
-  line-height: 1.6;
-}
-
-footer a {
-  color: var(--accent);
-  text-decoration: underline;
-  transition: all 0.15s;
-}
-
-footer a:hover {
-  text-decoration: none;
-  color: var(--hover-text);
-}
-
-footer a:focus {
-  text-decoration: underline dashed;
-  outline: 2px dashed var(--accent);
-  outline-offset: 2px;
-}
-
-footer span {
-  color: var(--accent);
-}
-
-/* === TOOLTIPS === */
-[data-tooltip] {
-  position: relative;
-}
-
-[data-tooltip]:hover::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--hover-bg);
-  color: var(--text);
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem);
-  white-space: nowrap;
-  border: 1px solid var(--accent);
-  z-index: 1000;
-  pointer-events: none;
-  opacity: 0;
-  animation: tooltipFadeIn 0.2s ease-in-out 1.5s forwards;
-}
-
-[data-tooltip]:hover::before {
-  content: '';
-  position: absolute;
-  bottom: calc(100% + 2px);
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: var(--accent);
-  z-index: 1001;
-  pointer-events: none;
-  opacity: 0;
-  animation: tooltipFadeIn 0.2s ease-in-out 1.5s forwards;
-}
-
-@keyframes tooltipFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-#fileInput {
-  display: none;
-}
-
-@media (max-width: 1100px) {
-  .tools-grid-3 {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 900px) {
-  .main-layout {
-    flex-direction: column;
-  }
-  .structure-panel,
-  .preview-panel {
-    width: 100%;
-  }
-  .tools-grid,
-  .tools-grid-3 {
-    grid-template-columns: 1fr;
-  }
-}
+  --bg: #ffffff; --text: #000000; --accent: #FF00FF;
+  --accent-secondary: #00bcd4; --accent-tertiary: #8bc34a;
+  --muted: #666666; --border: #e0e0e0; --panel-bg: #f5f5f5;
+  --hover-bg: #e8e8e8; --hover-text: #000; --input-bg: #f8f8f8;
+  --hex-bg: #fafafa; --protected: #ff6b9d; --editable: #33aa33; --cursor: #cc9900;
+}
+body { font-family: 'Roboto Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; padding: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem); line-height: 1.6; font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.288), 1rem); }
+.container { max-width: 1200px; margin: 0 auto; }
+header { margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem); padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+.header-content { flex: 1; min-width: 200px; }
+h1 { color: var(--accent); font-size: clamp(1.75rem, 1.75rem + ((1vw - 0.48rem) * 0.288), 1.875rem); margin-bottom: 4px; font-weight: 400; line-height: 1.2; }
+.subtitle { color: var(--muted); font-size: clamp(0.8125rem, 0.8125rem + ((1vw - 0.48rem) * 0.144), 0.875rem); line-height: 1.5; }
+.theme-toggle { padding: 6px 12px; background: var(--panel-bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); cursor: pointer; font-family: inherit; font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem); transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+.theme-toggle:hover { border-color: var(--accent); background: var(--hover-bg); }
+.theme-toggle:focus { outline: 2px dashed var(--accent); outline-offset: 2px; }
+.controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem); }
+.btn { font-family: 'Roboto Mono', monospace; padding: 8px 16px; font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem); border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; transition: all 0.15s; border-radius: 3px; }
+.btn:hover:not(:disabled) { background: var(--accent); color: var(--bg); }
+.btn:focus { outline: 2px dashed var(--accent); outline-offset: 2px; }
+.btn:active:not(:disabled) { transform: scale(0.98); }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-secondary { border-color: var(--muted); color: var(--muted); }
+.btn-secondary:hover:not(:disabled) { border-color: var(--text); color: var(--text); background: transparent; }
+.btn-action { border-color: var(--editable); color: var(--editable); }
+.btn-action:hover:not(:disabled) { background: var(--editable); color: var(--bg); }
+.btn-small { padding: 4px 8px; font-size: clamp(0.5625rem, 0.5625rem + ((1vw - 0.48rem) * 0.072), 0.5938rem); }
+.btn-toggle { min-width: 40px; }
+.btn-toggle.active { background: var(--accent); color: var(--bg); }
+.file-info { margin-left: auto; font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem); color: var(--muted); }
+.file-info .format { color: var(--accent); }
+.file-info .editable { color: var(--editable); }
+.panel { background: var(--panel-bg); border: 1px solid var(--border); padding: 16px; border-radius: 6px; }
+.label { font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); line-height: 1.4; }
+.label-accent { color: var(--accent); }
+.main-layout { display: flex; gap: 16px; flex-wrap: wrap; }
+.structure-panel { width: 220px; max-height: 540px; overflow-y: auto; flex-shrink: 0; }
+.structure-item { padding: 8px; border-left: 2px solid var(--protected); margin-top: 8px; cursor: pointer; transition: background 0.15s; }
+.structure-item:hover { background: var(--hover-bg); }
+.structure-item.editable { border-color: var(--editable); }
+.structure-item .desc { font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem); line-height: 1.4; }
+.structure-item .offset { font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem); color: var(--muted); margin-top: 2px; }
+.hex-panel { flex: 1; min-width: 500px; }
+.hex-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 12px; }
+.legend { display: flex; gap: 16px; font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem); }
+.legend-protected { color: var(--protected); }
+.legend-editable { color: var(--editable); }
+.hex-container { background: var(--hex-bg); color: var(--text); padding: 12px; border-radius: 4px; font-family: 'Roboto Mono', monospace; font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem); overflow-y: auto; height: 500px; border: 1px solid var(--border); position: relative; }
+.hex-viewport { position: relative; width: 100%; }
+.hex-row { display: flex; gap: 12px; margin-bottom: 3px; padding: 2px 0; transition: background 0.15s; position: absolute; left: 0; right: 0; height: 20px; }
+.hex-row:hover { background: var(--hover-bg); }
+.hex-offset { color: var(--muted); width: 70px; }
+.hex-bytes { display: flex; gap: 3px; }
+.hex-byte { width: 20px; text-align: center; background: transparent; border: none; font-family: inherit; font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem); cursor: pointer; padding: 0; transition: all 0.15s; }
+.hex-byte:hover { background: var(--hover-bg); }
+.hex-byte:focus { outline: 1px solid var(--cursor); background: var(--hover-bg); }
+.hex-byte.editable { color: var(--editable); }
+.hex-byte.protected { color: var(--protected); }
+.hex-byte.selected { background: var(--accent); color: var(--bg); font-weight: bold; }
+.hex-byte.cursor { background: var(--cursor); color: var(--bg); font-weight: bold; }
+.hex-byte-protected { background: var(--panel-bg) !important; color: var(--muted) !important; cursor: not-allowed !important; opacity: 0.6; }
+.hex-ascii { color: var(--muted); margin-left: 8px; }
+.hex-status { margin-top: 12px; font-size: clamp(0.6875rem, 0.6875rem + ((1vw - 0.48rem) * 0.072), 0.7188rem); color: var(--muted); line-height: 1.4; }
+.hex-status .pos { color: var(--accent); }
+.hex-status .status-editable { color: var(--editable); }
+.hex-status .status-locked { color: var(--protected); }
+.preview-panel { width: 256px; flex-shrink: 0; }
+.preview-controls { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+.zoom-btn { font-family: 'Roboto Mono', monospace; padding: 4px 8px; font-size: clamp(0.5625rem, 0.5625rem + ((1vw - 0.48rem) * 0.072), 0.5938rem); border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; border-radius: 3px; }
+.zoom-btn:hover, .zoom-btn.active { border-color: var(--accent); color: var(--accent); }
+.zoom-btn:focus { outline: 2px dashed var(--accent); outline-offset: 2px; }
+.preview-box { margin-top: 8px; height: 220px; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: auto; position: relative; border-radius: 4px; }
+.preview-box img { object-fit: contain; image-rendering: pixelated; }
+.preview-box img.zoom-1x { max-width: 100%; max-height: 100%; }
+.preview-box img.zoom-2x { max-width: none; max-height: none; transform: scale(2); transform-origin: top left; }
+.preview-box img.zoom-4x { max-width: none; max-height: none; transform: scale(4); transform-origin: top left; }
+.preview-error { text-align: center; padding: 16px; }
+.preview-error .icon { color: var(--protected); font-size: clamp(0.875rem, 0.875rem + ((1vw - 0.48rem) * 0.144), 0.9375rem); }
+.preview-error .msg { color: var(--muted); font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem); margin-top: 4px; }
+.preview-position { margin-top: 8px; font-size: clamp(0.5625rem, 0.5625rem + ((1vw - 0.48rem) * 0.072), 0.5938rem); color: var(--muted); min-height: 32px; line-height: 1.4; }
+.preview-position .label { color: var(--accent); }
+.preview-position .value { color: var(--text); }
+.preview-position .note { color: var(--muted); font-style: italic; }
+.pixel-marker { position: absolute; width: 8px; height: 8px; border: 2px solid var(--cursor); box-shadow: 0 0 0 1px var(--bg), 0 0 8px var(--cursor); pointer-events: none; transform: translate(-50%, -50%); z-index: 10; }
+.tools-panel { margin-bottom: clamp(1rem, 1rem + ((1vw - 0.48rem) * 0.288), 1.125rem); display: none; }
+.tools-panel.show { display: block; }
+.tools-columns { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 1rem; }
+.tool-col-title { color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; line-height: 1.4; }
+.sel-info-box { font-size: 10px; color: var(--text); padding: 6px 8px; background: var(--bg); border-radius: 3px; min-height: 44px; margin-bottom: 8px; line-height: 1.5; border: 1px solid var(--border); }
+.sel-buttons { display: flex; gap: 3px; flex-wrap: wrap; }
+.sel-buttons .btn-small { min-width: 28px; text-align: center; }
+.scope-radios { display: flex; flex-direction: column; gap: 3px; margin-bottom: 6px; }
+.scope-radios label { display: flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; color: var(--text); }
+.scope-radios input[type="radio"] { accent-color: var(--accent); margin: 0; }
+.scope-info-text { font-size: 10px; color: var(--muted); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); min-height: 20px; line-height: 1.4; }
+.action-section { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.action-section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.action-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.dual-range { position: relative; height: 28px; margin: 6px 0 2px; }
+.dual-range .dr-track { position: absolute; top: 12px; left: 0; right: 0; height: 4px; background: var(--border); border-radius: 2px; }
+.dual-range .dr-fill { position: absolute; top: 12px; height: 4px; background: var(--accent); border-radius: 2px; pointer-events: none; }
+.dual-range input[type="range"] { position: absolute; top: 0; left: 0; width: 100%; height: 28px; margin: 0; pointer-events: none; -webkit-appearance: none; appearance: none; background: transparent; }
+.dual-range input[type="range"]::-webkit-slider-thumb { pointer-events: all; -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--bg); position: relative; z-index: 2; }
+.dual-range input[type="range"]::-moz-range-thumb { pointer-events: all; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--bg); }
+.range-labels { display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); }
+.tool-input { width: 100%; padding: 4px 6px; font-family: inherit; font-size: 11px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 3px; transition: border-color 0.15s; }
+.tool-input:hover { border-color: var(--accent); }
+.tool-input:focus { outline: none; border-color: var(--accent); }
+.tool-select { width: 100%; padding: 4px 6px; font-family: inherit; font-size: 11px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 3px; }
+[data-tooltip] { position: relative; }
+[data-tooltip]:hover::after { content: attr(data-tooltip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--hover-bg); color: var(--text); padding: 6px 10px; border-radius: 4px; font-size: 10px; white-space: nowrap; border: 1px solid var(--accent); z-index: 1000; pointer-events: none; opacity: 0; animation: tooltipIn 0.2s ease 1.5s forwards; }
+[data-tooltip]:hover::before { content: ''; position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--accent); z-index: 1001; pointer-events: none; opacity: 0; animation: tooltipIn 0.2s ease 1.5s forwards; }
+@keyframes tooltipIn { from { opacity: 0; } to { opacity: 1; } }
+.hidden { display: none !important; }
+#fileInput { display: none; }
+footer { margin-top: clamp(1.5rem, 1.5rem + ((1vw - 0.48rem) * 1.442), 2rem); padding-top: 14px; border-top: 1px solid var(--border); font-size: clamp(0.625rem, 0.625rem + ((1vw - 0.48rem) * 0.072), 0.6563rem); color: var(--muted); text-align: center; line-height: 1.6; }
+footer a { color: var(--accent); text-decoration: underline; transition: all 0.15s; }
+footer a:hover { text-decoration: none; color: var(--hover-text); }
+footer a:focus { outline: 2px dashed var(--accent); outline-offset: 2px; }
+@media (max-width: 1100px) { .tools-columns { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 900px) { .main-layout { flex-direction: column; } .structure-panel, .preview-panel { width: 100%; } .tools-columns { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -735,7 +149,7 @@ footer span {
       <span id="themeText">Light</span>
     </button>
   </header>
-  
+
   <div class="controls">
     <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.tif,.tiff">
     <button class="btn" onclick="document.getElementById('fileInput').click()">OPEN</button>
@@ -745,137 +159,116 @@ footer span {
     <button class="btn btn-action" id="toolsBtn" disabled onclick="toggleTools()">+ TOOLS</button>
     <div class="file-info" id="fileInfo"></div>
   </div>
-  
+
   <div class="panel tools-panel" id="toolsPanel">
-    <div class="tools-grid-3">
-      <div class="tool-section">
-        <h3>1. Selection</h3>
-        <div id="selectionInfo" style="font-size:11px;color:var(--text);margin-top:4px;padding:8px;background:var(--bg);border-radius:3px;min-height:60px">No selection</div>
+    <div class="tools-columns">
+      <div class="tool-col">
+        <div class="tool-col-title">1. Selection</div>
+        <div class="sel-info-box" id="selectionInfo"><span style="color:var(--muted)">Click a byte to select</span></div>
+        <div class="sel-buttons" style="margin-bottom:8px">
+          <button class="btn btn-small btn-secondary" onclick="expandSelection()" data-tooltip="Expand to neighbors">+</button>
+          <button class="btn btn-small btn-secondary" onclick="shrinkSelection()" data-tooltip="Shrink inward">−</button>
+          <button class="btn btn-small btn-secondary" onclick="selectColumn()" data-tooltip="Select column">↕</button>
+          <button class="btn btn-small btn-secondary" onclick="selectRow()" data-tooltip="Select row">↔</button>
+          <button class="btn btn-small btn-secondary" onclick="selectAllOccurrences()" data-tooltip="All same-value bytes">≡</button>
+          <button class="btn btn-small btn-secondary" onclick="clearSelectionAndRender()" data-tooltip="Clear selection">✕</button>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:6px">
+          <div style="display:flex;gap:3px;margin-bottom:4px;align-items:center">
+            <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Find</span>
+            <button class="btn btn-small btn-toggle" id="findModeHex" onclick="setFindMode('hex')">HEX</button>
+            <button class="btn btn-small btn-toggle active" id="findModeAscii" onclick="setFindMode('ascii')">TXT</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:3px">
+            <input class="tool-input" id="findInput" placeholder="Text to find...">
+            <button class="btn btn-small" onclick="findPrev()" data-tooltip="Previous match">◀</button>
+            <button class="btn btn-small" onclick="findNext()" data-tooltip="Next match">▶</button>
+            <button class="btn btn-small btn-action" onclick="findAll()" data-tooltip="Select all matches">All</button>
+          </div>
+          <div id="findStatus" style="font-size:9px;margin-top:3px;min-height:12px;color:var(--muted)"></div>
+        </div>
       </div>
-      
-      <div class="tool-section">
-        <h3>2. Scope</h3>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="display:flex;align-items:center;cursor:pointer;color:var(--text);font-size:11px">
-            <input type="radio" name="scope" value="selection" checked onchange="updateScope()" style="margin-right:8px;accent-color:var(--accent)">
-            Selection
-          </label>
-          <label style="display:flex;align-items:center;cursor:pointer;color:var(--text);font-size:11px">
-            <input type="radio" name="scope" value="all" onchange="updateScope()" style="margin-right:8px;accent-color:var(--accent)">
-            All Editable
-          </label>
-          <label style="display:flex;align-items:center;cursor:pointer;color:var(--text);font-size:11px">
-            <input type="radio" name="scope" value="region" onchange="updateScope()" style="margin-right:8px;accent-color:var(--accent)">
-            Region
-          </label>
-          <select id="regionSelect" disabled style="font-size:11px;padding:4px" onchange="updateScope()">
-            <option value="none">No regions</option>
+      <div class="tool-col">
+        <div class="tool-col-title">2. Scope</div>
+        <div class="scope-radios">
+          <label><input type="radio" name="scope" value="selection" checked onchange="updateScope()"> Selection</label>
+          <label><input type="radio" name="scope" value="all" onchange="updateScope()"> All Editable</label>
+          <label><input type="radio" name="scope" value="region" onchange="updateScope()"> Region</label>
+        </div>
+        <select class="tool-select" id="regionSelect" disabled onchange="onRegionChange()"><option value="none">No regions</option></select>
+        <div id="regionSliderWrap" class="hidden">
+          <div class="dual-range" id="dualRange">
+            <div class="dr-track"></div>
+            <div class="dr-fill" id="drFill"></div>
+            <input type="range" id="rangeMin" min="0" max="100" value="0" oninput="updateDualRange()">
+            <input type="range" id="rangeMax" min="0" max="100" value="100" oninput="updateDualRange()">
+          </div>
+          <div class="range-labels"><span id="rangeMinLabel">0%</span><span id="rangeMaxLabel">100%</span></div>
+        </div>
+        <div class="scope-info-text" id="scopeInfo">Scope: Selection</div>
+      </div>
+      <div class="tool-col">
+        <div class="tool-col-title">3. Action</div>
+        <div class="action-section">
+          <div style="display:flex;gap:3px;margin-bottom:4px;align-items:center">
+            <span class="action-label" style="margin-bottom:0">Fill</span>
+            <button class="btn btn-small btn-toggle active" id="fillModeHex" onclick="setFillMode('hex')">HEX</button>
+            <button class="btn btn-small btn-toggle" id="fillModeAscii" onclick="setFillMode('ascii')">TXT</button>
+          </div>
+          <select class="tool-select" id="fillType" onchange="updateFillUI()" style="margin-bottom:4px">
+            <option value="pattern">Pattern</option>
+            <option value="random">Randomize</option>
+            <option value="gradient">Gradient</option>
           </select>
-        </div>
-        <div id="scopeInfo" style="font-size:10px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);min-height:32px">Scope: Selection</div>
-      </div>
-      
-      <div class="tool-section">
-        <h3>3. Actions</h3>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn btn-secondary" style="flex:1" onclick="cutSelection()" data-tooltip="Cut selection to clipboard">✂</button>
-          <button class="btn btn-action" style="flex:1" onclick="pasteAtCursor()" data-tooltip="Paste from clipboard">📋</button>
-        </div>
-      </div>
-    </div>
-    
-    <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
-      <div class="tools-grid-3">
-        <div class="tool-section">
-          <h3>Randomize</h3>
-          <div class="tool-row">
-            <label style="display:flex;justify-content:space-between;align-items:center">
-              <span style="font-size:10px">Intensity</span>
-              <span class="range-value" id="intensityValue">50%</span>
-            </label>
-            <input type="range" id="randomIntensity" min="1" max="100" value="50" oninput="document.getElementById('intensityValue').textContent=this.value+'%'">
-          </div>
-          <div class="tool-row">
-            <select id="randomMode" style="padding:4px;font-size:11px">
-              <option value="xor">XOR</option>
-              <option value="add">ADD</option>
-              <option value="replace">REPLACE</option>
-              <option value="bitflip">BITFLIP</option>
-            </select>
-          </div>
-          <button class="btn btn-action" style="width:100%;margin-top:4px" onclick="applyRandomization()" data-tooltip="Apply randomization to scope">🎲</button>
-        </div>
-        
-        <div class="tool-section">
-          <h3>Pattern</h3>
-          <div class="tool-row">
-            <input type="text" id="patternInput" value="FF00FF" placeholder="FF00FF" style="padding:4px;font-size:11px">
-          </div>
-          <div class="tool-row">
-            <select id="patternMode" style="padding:4px;font-size:11px">
-              <option value="xor">XOR</option>
-              <option value="overwrite">OVERWRITE</option>
-              <option value="add">ADD</option>
-              <option value="and">AND</option>
-              <option value="or">OR</option>
-            </select>
-          </div>
-          <button class="btn btn-action" style="width:100%;margin-top:4px" onclick="applyPattern()" data-tooltip="Apply pattern to scope">✦</button>
-        </div>
-        
-        <div class="tool-section">
-          <h3>Find/Replace</h3>
-          <div style="display:flex;gap:4px;margin-bottom:6px;align-items:center">
-            <button class="btn btn-small btn-toggle" id="searchModeHex" onclick="setSearchMode('hex')" data-tooltip="Search hex bytes">HEX</button>
-            <button class="btn btn-small btn-toggle active" id="searchModeAscii" onclick="setSearchMode('ascii')" data-tooltip="Search ASCII text">TXT</button>
-          </div>
-          <div class="tool-row">
-            <div style="display:grid;grid-template-columns:1fr auto;gap:4px">
-              <input type="text" id="searchInput" placeholder="Find..." style="padding:4px;font-size:11px">
-              <button class="btn btn-small" onclick="findAll()" data-tooltip="Find all matches">🔍</button>
+          <div id="fillPattern">
+            <div style="display:grid;grid-template-columns:1fr 70px auto;gap:3px">
+              <input class="tool-input" id="patternInput" value="FF00FF" placeholder="FF00FF">
+              <select class="tool-select" id="patternMode"><option value="xor">XOR</option><option value="overwrite">WRITE</option><option value="add">ADD</option><option value="and">AND</option><option value="or">OR</option></select>
+              <button class="btn btn-small btn-action" onclick="applyPattern()" data-tooltip="Apply pattern">✦</button>
             </div>
           </div>
-          <div class="tool-row">
-            <div style="display:grid;grid-template-columns:1fr auto;gap:4px">
-              <input type="text" id="replaceInput" placeholder="Replace..." style="padding:4px;font-size:11px">
-              <button class="btn btn-small btn-action" onclick="replaceAll()" data-tooltip="Replace all in scope">↔</button>
+          <div id="fillRandom" class="hidden">
+            <div style="display:grid;grid-template-columns:1fr 28px 70px auto;gap:3px;align-items:center">
+              <input type="range" id="randomIntensity" min="1" max="100" value="50" style="width:100%" oninput="document.getElementById('intensityVal').textContent=this.value+'%'">
+              <span id="intensityVal" style="font-size:9px;color:var(--muted)">50%</span>
+              <select class="tool-select" id="randomMode"><option value="xor">XOR</option><option value="add">ADD</option><option value="replace">REPL</option><option value="bitflip">FLIP</option></select>
+              <button class="btn btn-small btn-action" onclick="applyRandomization()" data-tooltip="Randomize">🎲</button>
             </div>
           </div>
-          <div style="display:flex;gap:4px;margin-top:4px">
-            <button class="btn btn-small btn-secondary" onclick="findPrev()" data-tooltip="Previous match">◀</button>
-            <button class="btn btn-small btn-secondary" onclick="findNext()" data-tooltip="Next match">▶</button>
-            <button class="btn btn-small btn-secondary" onclick="replaceCurrent()" data-tooltip="Replace current">1</button>
-            <button class="btn btn-small btn-secondary" onclick="clearSearch()" data-tooltip="Clear search">✕</button>
+          <div id="fillGradient" class="hidden">
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:3px">
+              <input class="tool-input" id="gradStart" placeholder="00" maxlength="2">
+              <input class="tool-input" id="gradEnd" placeholder="FF" maxlength="2">
+              <button class="btn btn-small btn-action" onclick="applyGradient()" data-tooltip="Apply gradient">▤</button>
+            </div>
           </div>
-          <div id="searchStatus" style="font-size:10px;margin-top:6px;min-height:16px;color:var(--muted)"></div>
+        </div>
+        <div class="action-section" style="display:flex;gap:3px;flex-wrap:wrap">
+          <button class="btn btn-small btn-secondary" style="flex:1" onclick="copySelection()" data-tooltip="Copy to clipboard">Copy</button>
+          <button class="btn btn-small btn-secondary" style="flex:1" onclick="cutSelection()" data-tooltip="Cut (zero editable)">Cut</button>
+          <button class="btn btn-small btn-action" style="flex:1" onclick="pasteAtCursor()" data-tooltip="Paste at cursor">Paste</button>
+          <div id="actionStatus" style="width:100%;font-size:9px;margin-top:2px;min-height:12px;color:var(--muted)"></div>
         </div>
       </div>
     </div>
   </div>
-  
+
   <div class="main-layout">
     <div class="panel structure-panel">
       <div class="label label-accent">FILE STRUCTURE</div>
       <div id="structureList"><p style="color:var(--muted);font-size:12px;margin-top:16px">No file loaded</p></div>
     </div>
-    
     <div class="panel hex-panel">
       <div class="hex-header">
         <div class="label label-accent">HEX VIEW</div>
-        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-          <div style="font-size:10px;color:var(--muted)">EDIT MODE</div>
-          <button class="btn btn-small btn-toggle active" id="editModeHex" onclick="setEditMode('hex')">HEX</button>
-          <button class="btn btn-small btn-toggle" id="editModeAscii" onclick="setEditMode('ascii')">ASCII</button>
-          <div class="legend">
-            <span class="legend-protected">■ PROTECTED</span>
-            <span class="legend-editable">■ EDITABLE</span>
-          </div>
+        <div class="legend">
+          <span class="legend-protected">■ PROTECTED</span>
+          <span class="legend-editable">■ EDITABLE</span>
         </div>
       </div>
       <div class="hex-container" id="hexView"></div>
       <div class="hex-status" id="hexStatus"></div>
     </div>
-    
     <div class="panel preview-panel">
       <div class="label label-accent">PREVIEW</div>
       <div class="preview-controls">
@@ -884,1267 +277,485 @@ footer span {
         <button class="zoom-btn" onclick="setZoom(2)">2×</button>
         <button class="zoom-btn" onclick="setZoom(4)">4×</button>
       </div>
-      <div class="preview-box" id="previewBox">
-        <span style="color:var(--muted);font-size:12px">No image</span>
-      </div>
+      <div class="preview-box" id="previewBox"><span style="color:var(--muted);font-size:12px">No image</span></div>
       <div class="preview-position" id="previewPosition"></div>
     </div>
   </div>
-  
-  <footer>
-    Protected Hex Editor — A Glitch Pedagogy Tool<br>
-    Created by Ernesto Peña | <a href="https://ernestopena.com" target="_blank">ernestopena.com</a>
-  </footer>
+
+  <footer>Protected Hex Editor — A Glitch Pedagogy Tool<br>Created by Ernesto Peña | <a href="https://ernestopena.com" target="_blank">ernestopena.com</a></footer>
 </div>
 
 <script>
-const BYTES_PER_ROW = 16;
-const ROW_HEIGHT = 23;
-const VISIBLE_ROWS = 40;
-const BUFFER_ROWS = 10;
+const BYTES_PER_ROW=16, ROW_HEIGHT=23, VISIBLE_ROWS=40, BUFFER_ROWS=10, MAX_UNDO=10;
+let data=null, originalData=null, regions=[], regionMap={}, format=null, filename='';
+let cursor=0, currentZoom=1, imageWidth=0, imageHeight=0, bitsPerPixel=24;
+let undoStack=[], selectedBytes=new Set(), scrollTop=0;
 
-let data = null, originalData = null, regions = [], regionMap = {}, format = null, filename = '';
-let cursor = 0, currentZoom = 1, imageWidth = 0, imageHeight = 0, bitsPerPixel = 24;
-let undoStack = [];
-let selectionStart = null, selectionEnd = null;
-let editMode = 'hex';
-let searchMatches = [];
-let currentMatchIndex = -1;
-let scrollTop = 0;
-const MAX_UNDO = 10;
+// === THEME ===
+const themeToggle=document.getElementById('themeToggle'), themeIconEl=document.getElementById('themeIcon'), themeTextEl=document.getElementById('themeText'), html=document.documentElement;
+const getPreferredTheme=()=>window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+let currentThemeState=getPreferredTheme();
+const setTheme=t=>{if(t==='light'){html.setAttribute('data-theme','light');themeIconEl.textContent='🌙';themeTextEl.textContent='Dark';}else{html.removeAttribute('data-theme');themeIconEl.textContent='☀️';themeTextEl.textContent='Light';}};
+setTheme(currentThemeState);
+themeToggle.addEventListener('click',()=>{currentThemeState=currentThemeState==='light'?'dark':'light';setTheme(currentThemeState);});
 
-// === THEME TOGGLE ===
-const themeToggle = document.getElementById('themeToggle');
-const themeIcon = document.getElementById('themeIcon');
-const themeText = document.getElementById('themeText');
-const html = document.documentElement;
+// === PARSERS ===
+function parseJPEG(d){const r=[];let pos=0,scanStart=null;if(d.length<2||d[0]!==0xFF||d[1]!==0xD8)return null;const g=p=>(d[p]<<8)|d[p+1];while(pos<d.length-1){if(d[pos]!==0xFF){pos++;continue;}const m=d[pos+1];if(m===0xD8){r.push({start:pos,end:pos+2,type:'header',desc:'SOI'});pos+=2;}else if(m===0xD9){if(scanStart!==null)r.push({start:scanStart,end:pos,type:'content',desc:'Scan Data (EDITABLE)'});r.push({start:pos,end:pos+2,type:'header',desc:'EOI'});break;}else if(m>=0xD0&&m<=0xD7){pos+=2;}else if(m===0xDA){if(pos+4>d.length)break;const len=g(pos+2);r.push({start:pos,end:pos+2+len,type:'header',desc:'SOS'});scanStart=pos+2+len;pos=scanStart;}else if(m!==0x00&&m!==0xFF){if(pos+4>d.length)break;const len=g(pos+2);const names={0xE0:'APP0',0xE1:'APP1/EXIF',0xDB:'DQT',0xC4:'DHT',0xC0:'SOF0',0xC2:'SOF2',0xFE:'COM'};r.push({start:pos,end:pos+2+len,type:'header',desc:names[m]||`0x${m.toString(16).toUpperCase()}`});pos+=2+len;}else{pos++;}}return r.length?r:null;}
+function parsePNG(d){const r=[],sig=[0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A];if(d.length<8||!sig.every((b,i)=>d[i]===b))return null;r.push({start:0,end:8,type:'header',desc:'PNG Signature'});let pos=8;const g=p=>(d[p]<<24)|(d[p+1]<<16)|(d[p+2]<<8)|d[p+3];while(pos<d.length-8){const len=g(pos),type=String.fromCharCode(...d.slice(pos+4,pos+8)),end=pos+12+len;if(end>d.length)break;if(type==='IDAT'){r.push({start:pos,end:pos+8,type:'header',desc:'IDAT Header'});r.push({start:pos+8,end:pos+8+len,type:'content',desc:'IDAT Data (EDITABLE)'});r.push({start:pos+8+len,end:end,type:'header',desc:'IDAT CRC'});}else{r.push({start:pos,end:end,type:'header',desc:`${type} Chunk`});}pos=end;if(type==='IEND')break;}return r;}
+function parseGIF(d){const r=[];if(d.length<6||String.fromCharCode(...d.slice(0,3))!=='GIF')return null;r.push({start:0,end:6,type:'header',desc:'GIF Header'});if(d.length<13)return r;r.push({start:6,end:13,type:'header',desc:'Screen Descriptor'});const packed=d[10],hasGCT=packed&0x80,gctSize=hasGCT?3*Math.pow(2,(packed&0x07)+1):0;let pos=13;if(hasGCT){r.push({start:pos,end:pos+gctSize,type:'header',desc:'Global Color Table'});pos+=gctSize;}while(pos<d.length){if(d[pos]===0x3B){r.push({start:pos,end:pos+1,type:'header',desc:'Trailer'});break;}else if(d[pos]===0x21){const es=pos;pos+=2;while(pos<d.length&&d[pos]!==0)pos+=d[pos]+1;pos++;r.push({start:es,end:pos,type:'header',desc:'Extension'});}else if(d[pos]===0x2C){if(pos+10>d.length)break;const p=d[pos+9],hasLCT=p&0x80,lctSize=hasLCT?3*Math.pow(2,(p&0x07)+1):0;r.push({start:pos,end:pos+10,type:'header',desc:'Image Descriptor'});pos+=10;if(hasLCT){r.push({start:pos,end:pos+lctSize,type:'header',desc:'Local Color Table'});pos+=lctSize;}r.push({start:pos,end:pos+1,type:'header',desc:'LZW Min Code'});pos++;const ds=pos;while(pos<d.length&&d[pos]!==0)pos+=d[pos]+1;if(pos>ds)r.push({start:ds,end:pos,type:'content',desc:'Image Data (EDITABLE)'});pos++;}else{pos++;}}return r;}
+function parseWebP(d){const r=[];if(d.length<12||String.fromCharCode(...d.slice(0,4))!=='RIFF'||String.fromCharCode(...d.slice(8,12))!=='WEBP')return null;r.push({start:0,end:12,type:'header',desc:'RIFF/WebP Header'});let pos=12;const g=p=>d[p]|(d[p+1]<<8)|(d[p+2]<<16)|(d[p+3]<<24);while(pos<d.length-8){const id=String.fromCharCode(...d.slice(pos,pos+4)),sz=g(pos+4),end=pos+8+sz+(sz%2);if(end>d.length)break;if(id==='VP8 '||id==='VP8L'){const hdr=id==='VP8 '?10:5;r.push({start:pos,end:pos+8+Math.min(hdr,sz),type:'header',desc:`${id.trim()} Header`});if(sz>hdr)r.push({start:pos+8+hdr,end:pos+8+sz,type:'content',desc:`${id.trim()} Data (EDITABLE)`});}else{r.push({start:pos,end:end,type:'header',desc:`${id.trim()} Chunk`});}pos=end;}return r.length>1?r:null;}
+function parseBMP(d){if(d.length<54||d[0]!==0x42||d[1]!==0x4D)return null;const g=p=>d[p]|(d[p+1]<<8)|(d[p+2]<<16)|(d[p+3]<<24),g16=p=>d[p]|(d[p+1]<<8);const dataOff=g(10),hdrSize=g(14);bitsPerPixel=g16(28);const r=[{start:0,end:14,type:'header',desc:'BMP File Header'},{start:14,end:14+hdrSize,type:'header',desc:'DIB Header'}];if(dataOff>14+hdrSize)r.push({start:14+hdrSize,end:dataOff,type:'header',desc:'Color Table'});r.push({start:dataOff,end:d.length,type:'content',desc:'Pixel Data (EDITABLE)'});return r;}
+function parseTIFF(d){if(d.length<8)return null;const le=d[0]===0x49&&d[1]===0x49,be=d[0]===0x4D&&d[1]===0x4D;if(!le&&!be)return null;const g16=le?p=>d[p]|(d[p+1]<<8):p=>(d[p]<<8)|d[p+1];const g32=le?p=>d[p]|(d[p+1]<<8)|(d[p+2]<<16)|(d[p+3]<<24):p=>(d[p]<<24)|(d[p+1]<<16)|(d[p+2]<<8)|d[p+3];if(g16(2)!==42)return null;const r=[{start:0,end:8,type:'header',desc:'TIFF Header'}];let ifdOff=g32(4);const strips=[];while(ifdOff>0&&ifdOff<d.length-2){const num=g16(ifdOff),ifdEnd=ifdOff+2+num*12+4;if(ifdEnd>d.length)break;r.push({start:ifdOff,end:ifdEnd,type:'header',desc:'IFD'});for(let i=0;i<num;i++){const eOff=ifdOff+2+i*12,tag=g16(eOff),typ=g16(eOff+2),cnt=g32(eOff+4),sz={1:1,2:1,3:2,4:4,5:8}[typ]||1,tot=cnt*sz;let vals=[];if(tot<=4){for(let j=0;j<cnt;j++)vals.push(sz===2?g16(eOff+8+j*2):g32(eOff+8+j*4));}else{const vOff=g32(eOff+8);for(let j=0;j<cnt&&vOff+j*sz<d.length;j++)vals.push(sz===2?g16(vOff+j*2):g32(vOff+j*4));}if(tag===273)strips.push({offsets:vals});else if(tag===279&&strips.length)strips[strips.length-1].sizes=vals;}ifdOff=g32(ifdOff+2+num*12);}strips.forEach(s=>{if(s.offsets&&s.sizes)s.offsets.forEach((off,i)=>{if(off+(s.sizes[i]||0)<=d.length)r.push({start:off,end:off+s.sizes[i],type:'content',desc:`Strip ${i+1} (EDITABLE)`});});});r.sort((a,b)=>a.start-b.start);return r.length>1?r:null;}
+function parseFormat(d,fname){const ext=fname.toLowerCase().split('.').pop();const parsers=[{exts:['jpg','jpeg'],fn:parseJPEG,name:'JPEG'},{exts:['png'],fn:parsePNG,name:'PNG'},{exts:['gif'],fn:parseGIF,name:'GIF'},{exts:['webp'],fn:parseWebP,name:'WebP'},{exts:['bmp'],fn:parseBMP,name:'BMP'},{exts:['tif','tiff','dng'],fn:parseTIFF,name:'TIFF'}];for(const p of parsers){if(p.exts.includes(ext)){const r=p.fn(d);if(r)return{regions:r,format:p.name};}}for(const p of parsers){const r=p.fn(d);if(r)return{regions:r,format:p.name};}return{regions:null,format:null};}
+function isEditable(pos){return regionMap[pos]==='content';}
 
-const getPreferredTheme = () => {
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme) return savedTheme;
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-};
+// === UNDO ===
+function pushUndo(){if(!data)return;undoStack.push(new Uint8Array(data));if(undoStack.length>MAX_UNDO)undoStack.shift();updateUndoButton();}
+function undo(){if(!undoStack.length)return;data=undoStack.pop();updateUndoButton();renderHex();updatePreview();}
+function updateUndoButton(){const b=document.getElementById('undoBtn'),c=document.getElementById('undoCount');b.disabled=!data||!undoStack.length;c.textContent=undoStack.length>0?`(${undoStack.length})`:'';}
 
-const setTheme = (theme) => {
-  if (theme === 'light') {
-    html.setAttribute('data-theme', 'light');
-    themeIcon.textContent = '🌙';
-    themeText.textContent = 'Dark';
-  } else {
-    html.removeAttribute('data-theme');
-    themeIcon.textContent = '☀️';
-    themeText.textContent = 'Light';
-  }
-  localStorage.setItem('theme', theme);
-};
+// === SELECTION (Set-based, cumulative) ===
+function clearSelection(){selectedBytes.clear();}
+function clearSelectionAndRender(){clearSelection();renderHex();updateSelectionInfo();updateScope();}
 
-setTheme(getPreferredTheme());
-
-themeToggle.addEventListener('click', () => {
-  const currentTheme = html.getAttribute('data-theme');
-  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-  setTheme(newTheme);
-});
-
-window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
-  if (!localStorage.getItem('theme')) {
-    setTheme(e.matches ? 'light' : 'dark');
-  }
-});
-
-// === PARSING FUNCTIONS ===
-function parseJPEG(d) {
-  const r = []; let pos = 0, scanStart = null;
-  if (d.length < 2 || d[0] !== 0xFF || d[1] !== 0xD8) return null;
-  const getU16 = p => (d[p] << 8) | d[p + 1];
-  while (pos < d.length - 1) {
-    if (d[pos] !== 0xFF) { pos++; continue; }
-    const m = d[pos + 1];
-    if (m === 0xD8) { r.push({start:pos,end:pos+2,type:'header',desc:'SOI'}); pos+=2; }
-    else if (m === 0xD9) { if(scanStart!==null) r.push({start:scanStart,end:pos,type:'content',desc:'Scan Data (EDITABLE)'}); r.push({start:pos,end:pos+2,type:'header',desc:'EOI'}); break; }
-    else if (m >= 0xD0 && m <= 0xD7) { pos += 2; }
-    else if (m === 0xDA) { if(pos+4>d.length)break; const len=getU16(pos+2); r.push({start:pos,end:pos+2+len,type:'header',desc:'SOS'}); scanStart=pos+2+len; pos=scanStart; }
-    else if (m !== 0x00 && m !== 0xFF) { if(pos+4>d.length)break; const len=getU16(pos+2); const names={0xE0:'APP0',0xE1:'APP1/EXIF',0xDB:'DQT',0xC4:'DHT',0xC0:'SOF0',0xC2:'SOF2',0xFE:'COM'}; r.push({start:pos,end:pos+2+len,type:'header',desc:names[m]||`0x${m.toString(16).toUpperCase()}`}); pos+=2+len; }
-    else { pos++; }
-  }
-  return r.length ? r : null;
+function selectAllOccurrences(){
+  if(!data||!selectedBytes.size)return;
+  const vals=new Set();
+  selectedBytes.forEach(i=>{if(i<data.length)vals.add(data[i]);});
+  for(let i=0;i<data.length;i++){if(isEditable(i)&&vals.has(data[i]))selectedBytes.add(i);}
+  renderHex();updateSelectionInfo();updateScope();
 }
 
-function parsePNG(d) {
-  const r = [], sig = [0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A];
-  if (d.length < 8 || !sig.every((b,i) => d[i] === b)) return null;
-  r.push({start:0,end:8,type:'header',desc:'PNG Signature'});
-  let pos = 8;
-  const getU32 = p => (d[p]<<24)|(d[p+1]<<16)|(d[p+2]<<8)|d[p+3];
-  while (pos < d.length - 8) {
-    const len = getU32(pos), type = String.fromCharCode(...d.slice(pos+4,pos+8)), end = pos+12+len;
-    if (end > d.length) break;
-    if (type === 'IDAT') { r.push({start:pos,end:pos+8,type:'header',desc:'IDAT Header'}); r.push({start:pos+8,end:pos+8+len,type:'content',desc:'IDAT Data (EDITABLE)'}); r.push({start:pos+8+len,end:end,type:'header',desc:'IDAT CRC'}); }
-    else { r.push({start:pos,end:end,type:'header',desc:`${type} Chunk`}); }
-    pos = end; if (type === 'IEND') break;
-  }
-  return r;
+function selectColumn(){
+  if(!data||!selectedBytes.size)return;
+  const cols=new Set();selectedBytes.forEach(i=>cols.add(i%BYTES_PER_ROW));
+  for(let i=0;i<data.length;i++){if(cols.has(i%BYTES_PER_ROW)&&isEditable(i))selectedBytes.add(i);}
+  renderHex();updateSelectionInfo();updateScope();
 }
 
-function parseGIF(d) {
-  const r = [];
-  if (d.length < 6 || String.fromCharCode(...d.slice(0,3)) !== 'GIF') return null;
-  r.push({start:0,end:6,type:'header',desc:'GIF Header'});
-  if (d.length < 13) return r;
-  r.push({start:6,end:13,type:'header',desc:'Screen Descriptor'});
-  const packed = d[10], hasGCT = packed & 0x80, gctSize = hasGCT ? 3 * Math.pow(2,(packed&0x07)+1) : 0;
-  let pos = 13;
-  if (hasGCT) { r.push({start:pos,end:pos+gctSize,type:'header',desc:'Global Color Table'}); pos += gctSize; }
-  while (pos < d.length) {
-    if (d[pos] === 0x3B) { r.push({start:pos,end:pos+1,type:'header',desc:'Trailer'}); break; }
-    else if (d[pos] === 0x21) { const extStart=pos; pos+=2; while(pos<d.length&&d[pos]!==0)pos+=d[pos]+1; pos++; r.push({start:extStart,end:pos,type:'header',desc:'Extension'}); }
-    else if (d[pos] === 0x2C) { if(pos+10>d.length)break; const p=d[pos+9],hasLCT=p&0x80,lctSize=hasLCT?3*Math.pow(2,(p&0x07)+1):0; r.push({start:pos,end:pos+10,type:'header',desc:'Image Descriptor'}); pos+=10; if(hasLCT){r.push({start:pos,end:pos+lctSize,type:'header',desc:'Local Color Table'});pos+=lctSize;} r.push({start:pos,end:pos+1,type:'header',desc:'LZW Min Code'}); pos++; const dataStart=pos; while(pos<d.length&&d[pos]!==0)pos+=d[pos]+1; if(pos>dataStart)r.push({start:dataStart,end:pos,type:'content',desc:'Image Data (EDITABLE)'}); pos++; }
-    else { pos++; }
-  }
-  return r;
+function selectRow(){
+  if(!data||!selectedBytes.size)return;
+  const rows=new Set();selectedBytes.forEach(i=>rows.add(Math.floor(i/BYTES_PER_ROW)));
+  rows.forEach(row=>{const s=row*BYTES_PER_ROW;for(let i=s;i<Math.min(s+BYTES_PER_ROW,data.length);i++){if(isEditable(i))selectedBytes.add(i);}});
+  renderHex();updateSelectionInfo();updateScope();
 }
 
-function parseWebP(d) {
-  const r = [];
-  if (d.length<12 || String.fromCharCode(...d.slice(0,4))!=='RIFF' || String.fromCharCode(...d.slice(8,12))!=='WEBP') return null;
-  r.push({start:0,end:12,type:'header',desc:'RIFF/WebP Header'});
-  let pos = 12;
-  const getU32LE = p => d[p]|(d[p+1]<<8)|(d[p+2]<<16)|(d[p+3]<<24);
-  while (pos < d.length - 8) {
-    const id = String.fromCharCode(...d.slice(pos,pos+4)), size = getU32LE(pos+4), end = pos+8+size+(size%2);
-    if (end > d.length) break;
-    if (id==='VP8 '||id==='VP8L') { const hdr=id==='VP8 '?10:5; r.push({start:pos,end:pos+8+Math.min(hdr,size),type:'header',desc:`${id.trim()} Header`}); if(size>hdr)r.push({start:pos+8+hdr,end:pos+8+size,type:'content',desc:`${id.trim()} Data (EDITABLE)`}); }
-    else { r.push({start:pos,end:end,type:'header',desc:`${id.trim()} Chunk`}); }
-    pos = end;
-  }
-  return r.length > 1 ? r : null;
+function expandSelection(){
+  if(!data||!selectedBytes.size)return;
+  const add=new Set();
+  selectedBytes.forEach(i=>{
+    if(i>0&&isEditable(i-1))add.add(i-1);
+    if(i<data.length-1&&isEditable(i+1))add.add(i+1);
+    if(i>=BYTES_PER_ROW&&isEditable(i-BYTES_PER_ROW))add.add(i-BYTES_PER_ROW);
+    if(i+BYTES_PER_ROW<data.length&&isEditable(i+BYTES_PER_ROW))add.add(i+BYTES_PER_ROW);
+  });
+  add.forEach(i=>selectedBytes.add(i));
+  renderHex();updateSelectionInfo();updateScope();
 }
 
-function parseBMP(d) {
-  if (d.length<54||d[0]!==0x42||d[1]!==0x4D) return null;
-  const getU32LE = p => d[p]|(d[p+1]<<8)|(d[p+2]<<16)|(d[p+3]<<24);
-  const getU16LE = p => d[p]|(d[p+1]<<8);
-  const dataOff = getU32LE(10), hdrSize = getU32LE(14);
-  bitsPerPixel = getU16LE(28);
-  const r = [{start:0,end:14,type:'header',desc:'BMP File Header'},{start:14,end:14+hdrSize,type:'header',desc:'DIB Header'}];
-  if (dataOff > 14+hdrSize) r.push({start:14+hdrSize,end:dataOff,type:'header',desc:'Color Table'});
-  r.push({start:dataOff,end:d.length,type:'content',desc:'Pixel Data (EDITABLE)'});
-  return r;
+function shrinkSelection(){
+  if(!data||!selectedBytes.size)return;
+  const rem=new Set();
+  selectedBytes.forEach(i=>{
+    const hasEmpty=(i>0&&!selectedBytes.has(i-1))||(i<data.length-1&&!selectedBytes.has(i+1))||(i>=BYTES_PER_ROW&&!selectedBytes.has(i-BYTES_PER_ROW))||(i+BYTES_PER_ROW<data.length&&!selectedBytes.has(i+BYTES_PER_ROW));
+    if(hasEmpty)rem.add(i);
+  });
+  rem.forEach(i=>selectedBytes.delete(i));
+  renderHex();updateSelectionInfo();updateScope();
 }
 
-function parseTIFF(d) {
-  if (d.length<8) return null;
-  const le = d[0]===0x49&&d[1]===0x49, be = d[0]===0x4D&&d[1]===0x4D;
-  if (!le && !be) return null;
-  const getU16 = le ? p=>d[p]|(d[p+1]<<8) : p=>(d[p]<<8)|d[p+1];
-  const getU32 = le ? p=>d[p]|(d[p+1]<<8)|(d[p+2]<<16)|(d[p+3]<<24) : p=>(d[p]<<24)|(d[p+1]<<16)|(d[p+2]<<8)|d[p+3];
-  if (getU16(2) !== 42) return null;
-  const r = [{start:0,end:8,type:'header',desc:'TIFF Header'}];
-  let ifdOff = getU32(4); const strips = [];
-  while (ifdOff > 0 && ifdOff < d.length-2) {
-    const num = getU16(ifdOff), ifdEnd = ifdOff+2+num*12+4;
-    if (ifdEnd > d.length) break;
-    r.push({start:ifdOff,end:ifdEnd,type:'header',desc:'IFD'});
-    for (let i=0;i<num;i++) { const eOff=ifdOff+2+i*12,tag=getU16(eOff),typ=getU16(eOff+2),cnt=getU32(eOff+4),sz={1:1,2:1,3:2,4:4,5:8}[typ]||1,tot=cnt*sz; let vals=[]; if(tot<=4){for(let j=0;j<cnt;j++)vals.push(sz===2?getU16(eOff+8+j*2):getU32(eOff+8+j*4));}else{const vOff=getU32(eOff+8);for(let j=0;j<cnt&&vOff+j*sz<d.length;j++)vals.push(sz===2?getU16(vOff+j*2):getU32(vOff+j*4));} if(tag===273)strips.push({offsets:vals});else if(tag===279&&strips.length)strips[strips.length-1].sizes=vals; }
-    ifdOff = getU32(ifdOff+2+num*12);
-  }
-  strips.forEach(s => { if(s.offsets&&s.sizes) s.offsets.forEach((off,i)=>{ if(off+(s.sizes[i]||0)<=d.length) r.push({start:off,end:off+s.sizes[i],type:'content',desc:`Strip ${i+1} (EDITABLE)`}); }); });
-  r.sort((a,b)=>a.start-b.start);
-  return r.length > 1 ? r : null;
+function updateSelectionInfo(){
+  const el=document.getElementById('selectionInfo');
+  if(!data||!selectedBytes.size){el.innerHTML='<span style="color:var(--muted)">Click a byte to select</span>';return;}
+  const arr=Array.from(selectedBytes).sort((a,b)=>a-b);
+  const len=arr.length;
+  let hexPrev='',ascPrev='';const show=Math.min(len,6);
+  for(let i=0;i<show;i++){const b=data[arr[i]];hexPrev+=b.toString(16).toUpperCase().padStart(2,'0')+' ';ascPrev+=b>=32&&b<=126?String.fromCharCode(b):'.';}
+  if(len>show){hexPrev+='…';ascPrev+='…';}
+  let h=`<span style="color:var(--accent)">${len}</span> byte${len!==1?'s':''} selected`;
+  h+=`<br><span style="color:var(--muted)">HEX:</span> <span style="color:var(--editable)">${hexPrev}</span>`;
+  if(len<=20)h+=`<br><span style="color:var(--muted)">ASCII:</span> ${ascPrev}`;
+  el.innerHTML=h;
 }
 
-function parseFormat(d, fname) {
-  const ext = fname.toLowerCase().split('.').pop();
-  const parsers = [{exts:['jpg','jpeg'],fn:parseJPEG,name:'JPEG'},{exts:['png'],fn:parsePNG,name:'PNG'},{exts:['gif'],fn:parseGIF,name:'GIF'},{exts:['webp'],fn:parseWebP,name:'WebP'},{exts:['bmp'],fn:parseBMP,name:'BMP'},{exts:['tif','tiff','dng'],fn:parseTIFF,name:'TIFF'}];
-  for (const p of parsers) { if(p.exts.includes(ext)){const r=p.fn(d);if(r)return{regions:r,format:p.name};} }
-  for (const p of parsers) { const r=p.fn(d); if(r)return{regions:r,format:p.name}; }
-  return {regions:null,format:null};
-}
+// === FIND (Selection tool — comma-separated patterns) ===
+let findMode='ascii', findMatches=[], findMatchIdx=-1;
+function setFindMode(m){findMode=m;document.getElementById('findModeHex').classList.toggle('active',m==='hex');document.getElementById('findModeAscii').classList.toggle('active',m==='ascii');document.getElementById('findInput').placeholder=m==='hex'?'Hex (FF00, AB, CC33)':'Text to find...';}
 
-function isEditable(pos) { return regionMap[pos] === 'content'; }
-
-function pushUndo() {
-  if (!data) return;
-  undoStack.push(new Uint8Array(data));
-  if (undoStack.length > MAX_UNDO) undoStack.shift();
-  updateUndoButton();
-}
-
-function undo() {
-  if (undoStack.length === 0) return;
-  data = undoStack.pop();
-  updateUndoButton();
-  renderHex();
-  updatePreview();
-}
-
-function updateUndoButton() {
-  const btn = document.getElementById('undoBtn');
-  const count = document.getElementById('undoCount');
-  btn.disabled = !data || undoStack.length === 0;
-  count.textContent = undoStack.length > 0 ? `(${undoStack.length})` : '';
-}
-
-// === SCOPE FUNCTIONS ===
-function updateScope() {
-  const scope = document.querySelector('input[name="scope"]:checked').value;
-  const regionSelect = document.getElementById('regionSelect');
-  const scopeInfo = document.getElementById('scopeInfo');
-  
-  regionSelect.disabled = scope !== 'region';
-  
-  if (scope === 'selection') {
-    if (selectionStart === null) {
-      scopeInfo.innerHTML = '<span style="color:var(--protected)">⚠ No selection - make a selection first</span>';
-    } else {
-      const selMin = Math.min(selectionStart, selectionEnd);
-      const selMax = Math.max(selectionStart, selectionEnd);
-      const size = selMax - selMin + 1;
-      let editableCount = 0;
-      for (let i = selMin; i <= selMax; i++) {
-        if (isEditable(i)) editableCount++;
-      }
-      scopeInfo.innerHTML = `Scope: <span style="color:var(--accent)">${size} bytes</span> (${editableCount} editable)`;
-    }
-  } else if (scope === 'all') {
-    const editableCount = Object.values(regionMap).filter(t => t === 'content').length;
-    scopeInfo.innerHTML = `Scope: <span style="color:var(--accent)">All editable bytes</span> (${editableCount.toLocaleString()} bytes)`;
-  } else if (scope === 'region') {
-    const selectedRegion = regionSelect.value;
-    if (selectedRegion && selectedRegion !== 'none') {
-      const regionIndex = parseInt(selectedRegion);
-      const region = regions.filter(r => r.type === 'content')[regionIndex];
-      if (region) {
-        const size = region.end - region.start;
-        scopeInfo.innerHTML = `Scope: <span style="color:var(--accent)">${region.desc}</span> (${size.toLocaleString()} bytes)`;
-      }
-    } else {
-      scopeInfo.innerHTML = '<span style="color:var(--muted)">Select a region</span>';
+function parseFindPatterns(){
+  const inp=document.getElementById('findInput').value.trim();if(!inp)return[];
+  const parts=inp.split(',').map(s=>s.trim()).filter(s=>s.length>0);
+  const patterns=[];
+  for(const part of parts){
+    if(findMode==='hex'){
+      const hex=part.replace(/[^0-9a-fA-F]/g,'');if(hex.length<2)continue;
+      const bytes=[];for(let i=0;i+1<hex.length;i+=2)bytes.push(parseInt(hex.substr(i,2),16));
+      if(bytes.length)patterns.push(bytes);
+    }else{
+      if(part.length)patterns.push(Array.from(part).map(c=>c.charCodeAt(0)&0xFF));
     }
   }
+  return patterns;
 }
 
-function getScopeBytes() {
-  const scope = document.querySelector('input[name="scope"]:checked').value;
-  
-  if (scope === 'selection') {
-    if (selectionStart === null) return null;
-    const selMin = Math.min(selectionStart, selectionEnd);
-    const selMax = Math.max(selectionStart, selectionEnd);
-    const bytes = [];
-    for (let i = selMin; i <= selMax; i++) {
-      if (isEditable(i)) bytes.push(i);
+function computeFindMatches(){
+  if(!data)return[];
+  const patterns=parseFindPatterns();if(!patterns.length)return[];
+  const matches=[];
+  for(const pat of patterns){
+    for(let i=0;i<=data.length-pat.length;i++){
+      let ok=true;for(let j=0;j<pat.length;j++){if(data[i+j]!==pat[j]){ok=false;break;}}
+      if(ok)matches.push({start:i,length:pat.length});
     }
-    return bytes.length > 0 ? bytes : null;
-  } else if (scope === 'all') {
-    const bytes = [];
-    for (let i = 0; i < data.length; i++) {
-      if (isEditable(i)) bytes.push(i);
-    }
-    return bytes;
-  } else if (scope === 'region') {
-    const selectedRegion = document.getElementById('regionSelect').value;
-    if (selectedRegion === 'none') return null;
-    const regionIndex = parseInt(selectedRegion);
-    const region = regions.filter(r => r.type === 'content')[regionIndex];
-    if (!region) return null;
-    const bytes = [];
-    for (let i = region.start; i < region.end; i++) {
-      if (isEditable(i)) bytes.push(i);
-    }
-    return bytes;
   }
-  
+  matches.sort((a,b)=>a.start-b.start);
+  return matches;
+}
+
+function findAll(){
+  const patterns=parseFindPatterns();
+  if(!patterns.length){document.getElementById('findStatus').textContent='Enter search term';document.getElementById('findStatus').style.color='var(--protected)';return;}
+  findMatches=computeFindMatches();
+  if(!findMatches.length){document.getElementById('findStatus').textContent='No matches';document.getElementById('findStatus').style.color='var(--protected)';return;}
+  findMatches.forEach(m=>{for(let j=0;j<m.length;j++)if(isEditable(m.start+j))selectedBytes.add(m.start+j);});
+  findMatchIdx=0;cursor=findMatches[0].start;scrollToCursor();
+  document.getElementById('findStatus').textContent=`Added ${findMatches.length} match${findMatches.length>1?'es':''} to selection`;
+  document.getElementById('findStatus').style.color='var(--editable)';
+  renderHex();updateSelectionInfo();updateScope();
+}
+
+function findNext(){
+  const patterns=parseFindPatterns();
+  if(!patterns.length){document.getElementById('findStatus').textContent='Enter search term';document.getElementById('findStatus').style.color='var(--protected)';return;}
+  findMatches=computeFindMatches();
+  if(!findMatches.length){document.getElementById('findStatus').textContent='No matches';document.getElementById('findStatus').style.color='var(--protected)';return;}
+  let ni=findMatches.findIndex(m=>m.start>cursor);if(ni===-1)ni=0;
+  findMatchIdx=ni;const match=findMatches[ni];
+  selectedBytes.clear();for(let j=0;j<match.length;j++)if(isEditable(match.start+j))selectedBytes.add(match.start+j);
+  cursor=match.start;scrollToCursor();
+  document.getElementById('findStatus').textContent=`Match ${ni+1} of ${findMatches.length}`;
+  document.getElementById('findStatus').style.color='var(--editable)';
+  renderHex();updateSelectionInfo();updateScope();
+}
+
+function findPrev(){
+  const patterns=parseFindPatterns();
+  if(!patterns.length){document.getElementById('findStatus').textContent='Enter search term';document.getElementById('findStatus').style.color='var(--protected)';return;}
+  findMatches=computeFindMatches();
+  if(!findMatches.length){document.getElementById('findStatus').textContent='No matches';document.getElementById('findStatus').style.color='var(--protected)';return;}
+  let pi=-1;for(let i=findMatches.length-1;i>=0;i--){if(findMatches[i].start<cursor){pi=i;break;}}
+  if(pi===-1)pi=findMatches.length-1;
+  findMatchIdx=pi;const match=findMatches[pi];
+  selectedBytes.clear();for(let j=0;j<match.length;j++)if(isEditable(match.start+j))selectedBytes.add(match.start+j);
+  cursor=match.start;scrollToCursor();
+  document.getElementById('findStatus').textContent=`Match ${pi+1} of ${findMatches.length}`;
+  document.getElementById('findStatus').style.color='var(--editable)';
+  renderHex();updateSelectionInfo();updateScope();
+}
+
+function scrollToCursor(){const cont=document.getElementById('hexView');const cr=Math.floor(cursor/BYTES_PER_ROW);cont.scrollTop=Math.max(0,(cr-5)*ROW_HEIGHT);setTimeout(()=>{const inp=document.querySelector(`input[data-index="${cursor}"]`);if(inp){inp.focus();inp.select();}},50);}
+
+// === SCOPE ===
+function updateScope(){
+  const scope=document.querySelector('input[name="scope"]:checked').value;
+  const rs=document.getElementById('regionSelect');
+  const sw=document.getElementById('regionSliderWrap');
+  const info=document.getElementById('scopeInfo');
+  rs.disabled=scope!=='region';
+  sw.classList.toggle('hidden',scope!=='region');
+  if(scope==='selection'){
+    if(!selectedBytes.size)info.innerHTML='<span style="color:var(--protected)">No selection</span>';
+    else{const edCount=Array.from(selectedBytes).filter(i=>isEditable(i)).length;info.innerHTML=`Scope: <span style="color:var(--accent)">${selectedBytes.size} bytes</span> (${edCount} editable)`;}
+  }else if(scope==='all'){
+    const c=data?Object.values(regionMap).filter(t=>t==='content').length:0;
+    info.innerHTML=`Scope: <span style="color:var(--accent)">All editable</span> (${c.toLocaleString()} bytes)`;
+  }else if(scope==='region'){onRegionChange();}
+}
+
+function onRegionChange(){
+  const v=document.getElementById('regionSelect').value;
+  const info=document.getElementById('scopeInfo');
+  if(v==='none'){info.innerHTML='<span style="color:var(--muted)">Select a region</span>';return;}
+  const ri=parseInt(v);const region=regions.filter(r=>r.type==='content')[ri];
+  if(!region){info.innerHTML='<span style="color:var(--muted)">Invalid region</span>';return;}
+  const sz=region.end-region.start;
+  const minP=parseInt(document.getElementById('rangeMin').value);
+  const maxP=parseInt(document.getElementById('rangeMax').value);
+  const startB=region.start+Math.floor(sz*minP/100);
+  const endB=region.start+Math.floor(sz*maxP/100);
+  info.innerHTML=`<span style="color:var(--accent)">${region.desc}</span><br>${(endB-startB).toLocaleString()} bytes (${minP}%–${maxP}%)`;
+}
+
+function updateDualRange(){
+  const minV=parseInt(document.getElementById('rangeMin').value);
+  const maxV=parseInt(document.getElementById('rangeMax').value);
+  if(minV>maxV)document.getElementById('rangeMin').value=maxV;
+  if(maxV<minV)document.getElementById('rangeMax').value=minV;
+  const mn=parseInt(document.getElementById('rangeMin').value);
+  const mx=parseInt(document.getElementById('rangeMax').value);
+  document.getElementById('rangeMinLabel').textContent=mn+'%';
+  document.getElementById('rangeMaxLabel').textContent=mx+'%';
+  document.getElementById('drFill').style.left=mn+'%';
+  document.getElementById('drFill').style.width=(mx-mn)+'%';
+  onRegionChange();
+}
+
+function getScopeBytes(){
+  const scope=document.querySelector('input[name="scope"]:checked').value;
+  if(scope==='selection'){return Array.from(selectedBytes).filter(i=>isEditable(i)).sort((a,b)=>a-b);}
+  else if(scope==='all'){const bytes=[];for(let i=0;i<data.length;i++){if(isEditable(i))bytes.push(i);}return bytes;}
+  else if(scope==='region'){
+    const v=document.getElementById('regionSelect').value;if(v==='none')return null;
+    const ri=parseInt(v);const region=regions.filter(r=>r.type==='content')[ri];if(!region)return null;
+    const sz=region.end-region.start;
+    const minP=parseInt(document.getElementById('rangeMin').value)/100;
+    const maxP=parseInt(document.getElementById('rangeMax').value)/100;
+    const startB=region.start+Math.floor(sz*minP);
+    const endB=region.start+Math.floor(sz*maxP);
+    const bytes=[];for(let i=startB;i<endB;i++){if(isEditable(i))bytes.push(i);}return bytes;
+  }
   return null;
 }
 
-function populateRegionDropdown() {
-  const regionSelect = document.getElementById('regionSelect');
-  const editableRegions = regions.filter(r => r.type === 'content');
-  
-  if (editableRegions.length === 0) {
-    regionSelect.innerHTML = '<option value="none">No editable regions</option>';
-    return;
-  }
-  
-  regionSelect.innerHTML = editableRegions.map((r, i) => {
-    const size = r.end - r.start;
-    return `<option value="${i}">${r.desc} (${size.toLocaleString()}b)</option>`;
-  }).join('');
-  
-  updateScope();
+function populateRegionDropdown(){
+  const rs=document.getElementById('regionSelect');
+  const er=regions.filter(r=>r.type==='content');
+  if(!er.length){rs.innerHTML='<option value="none">No editable regions</option>';return;}
+  rs.innerHTML=er.map((r,i)=>`<option value="${i}">${r.desc} (${(r.end-r.start).toLocaleString()}b)</option>`).join('');
 }
 
 // === HEX RENDERING ===
-function renderHex() {
-  const cont = document.getElementById('hexView');
-  if (!data) {
-    cont.innerHTML = '';
-    return;
-  }
-  
-  const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
-  
-  const scrollRow = Math.floor(scrollTop / ROW_HEIGHT);
-  const startRow = Math.max(0, scrollRow - BUFFER_ROWS);
-  const endRow = Math.min(totalRows, scrollRow + VISIBLE_ROWS + BUFFER_ROWS);
-  
-  let viewport = cont.querySelector('.hex-viewport');
-  if (!viewport) {
-    viewport = document.createElement('div');
-    viewport.className = 'hex-viewport';
-    cont.appendChild(viewport);
-  }
-  viewport.style.height = (totalRows * ROW_HEIGHT) + 'px';
-  
-  viewport.innerHTML = '';
-  
-  const selMin = selectionStart !== null ? Math.min(selectionStart, selectionEnd) : null;
-  const selMax = selectionStart !== null ? Math.max(selectionStart, selectionEnd) : null;
-  
-  for (let rowIdx = startRow; rowIdx < endRow; rowIdx++) {
-    const i = rowIdx * BYTES_PER_ROW;
-    if (i >= data.length) break;
-    
-    const row = document.createElement('div');
-    row.className = 'hex-row';
-    row.style.top = (rowIdx * ROW_HEIGHT) + 'px';
-    
-    const off = document.createElement('span');
-    off.className = 'hex-offset';
-    off.textContent = i.toString(16).toUpperCase().padStart(8, '0');
-    row.appendChild(off);
-    
-    const bd = document.createElement('div');
-    bd.className = 'hex-bytes';
-    const rb = data.slice(i, Math.min(i + BYTES_PER_ROW, data.length));
-    
-    Array.from(rb).forEach((b, j) => {
-      const pos = i + j;
-      const editable = regionMap[pos] === 'content';
-      const isSelected = selMin !== null && pos >= selMin && pos <= selMax;
-      const isCursor = pos === cursor;
-      
-      const inp = document.createElement('input');
-      inp.className = 'hex-byte';
-      if (editable) inp.classList.add('editable');
-      else inp.classList.add('protected', 'hex-byte-protected');
-      if (isCursor) inp.classList.add('cursor');
-      else if (isSelected) inp.classList.add('selected');
-      
-      inp.value = b.toString(16).toUpperCase().padStart(2, '0');
-      inp.maxLength = 2;
-      inp.dataset.index = pos;
-      inp.disabled = !editable;
-      
-      if (editable) {
-        inp.onclick = e => {
-          const idx = parseInt(inp.dataset.index);
-          if (e.shiftKey && selectionStart !== null) {
-            selectionEnd = idx;
-            cursor = idx;
-          } else if (e.shiftKey) {
-            selectionStart = cursor;
-            selectionEnd = idx;
-            cursor = idx;
-          } else {
-            clearSelection();
-            cursor = idx;
-          }
-          renderHex();
-          updateStatus();
-          const ni = document.querySelector(`input[data-index="${idx}"]`);
-          if (ni) { ni.focus(); ni.select(); }
+function renderHex(){
+  const cont=document.getElementById('hexView');
+  if(!data){cont.innerHTML='';return;}
+  const totalRows=Math.ceil(data.length/BYTES_PER_ROW);
+  const scrollRow=Math.floor(scrollTop/ROW_HEIGHT);
+  const startRow=Math.max(0,scrollRow-BUFFER_ROWS);
+  const endRow=Math.min(totalRows,scrollRow+VISIBLE_ROWS+BUFFER_ROWS);
+  let vp=cont.querySelector('.hex-viewport');
+  if(!vp){vp=document.createElement('div');vp.className='hex-viewport';cont.appendChild(vp);}
+  vp.style.height=(totalRows*ROW_HEIGHT)+'px';
+  vp.innerHTML='';
+  for(let rowIdx=startRow;rowIdx<endRow;rowIdx++){
+    const i=rowIdx*BYTES_PER_ROW;if(i>=data.length)break;
+    const row=document.createElement('div');row.className='hex-row';row.style.top=(rowIdx*ROW_HEIGHT)+'px';
+    const off=document.createElement('span');off.className='hex-offset';off.textContent=i.toString(16).toUpperCase().padStart(8,'0');row.appendChild(off);
+    const bd=document.createElement('div');bd.className='hex-bytes';
+    const rb=data.slice(i,Math.min(i+BYTES_PER_ROW,data.length));
+    Array.from(rb).forEach((b,j)=>{
+      const pos=i+j;const editable=regionMap[pos]==='content';
+      const isSel=selectedBytes.has(pos);const isCur=pos===cursor;
+      const inp=document.createElement('input');inp.className='hex-byte';
+      if(editable)inp.classList.add('editable');else inp.classList.add('protected','hex-byte-protected');
+      if(isCur)inp.classList.add('cursor');else if(isSel)inp.classList.add('selected');
+      inp.value=b.toString(16).toUpperCase().padStart(2,'0');inp.maxLength=2;inp.dataset.index=pos;inp.disabled=!editable;
+      if(editable){
+        inp.onclick=e=>{
+          const idx=parseInt(inp.dataset.index);
+          if(e.shiftKey){const mn=Math.min(cursor,idx),mx=Math.max(cursor,idx);for(let k=mn;k<=mx;k++)if(isEditable(k))selectedBytes.add(k);}
+          else if(e.ctrlKey||e.metaKey){selectedBytes.has(idx)?selectedBytes.delete(idx):selectedBytes.add(idx);}
+          else{selectedBytes.clear();selectedBytes.add(idx);}
+          cursor=idx;renderHex();updateStatus();
+          const ni=document.querySelector(`input[data-index="${idx}"]`);if(ni){ni.focus();ni.select();}
         };
-        
-        inp.onchange = () => editByte(pos, inp.value);
-        
-        inp.onkeydown = e => {
-          const idx = pos;
-          let ti = null;
-          if (e.key === 'ArrowRight' || e.key === 'Tab') { e.preventDefault(); ti = idx + 1; }
-          else if (e.key === 'ArrowLeft') { e.preventDefault(); ti = idx - 1; }
-          else if (e.key === 'ArrowDown') { e.preventDefault(); ti = idx + BYTES_PER_ROW; }
-          else if (e.key === 'ArrowUp') { e.preventDefault(); ti = idx - BYTES_PER_ROW; }
-          else if (e.key === 'Enter') { e.preventDefault(); inp.blur(); return; }
-          else if (e.key === 'Escape') { clearSelection(); searchMatches = []; currentMatchIndex = -1; renderHex(); return; }
-          
-          if (ti !== null && ti >= 0 && ti < data.length) {
-            cursor = ti;
-            if (e.shiftKey) {
-              if (selectionStart === null) selectionStart = idx;
-              selectionEnd = ti;
-            } else {
-              clearSelection();
-            }
-            
-            const cursorRow = Math.floor(ti / BYTES_PER_ROW);
-            const scrollRow = Math.floor(scrollTop / ROW_HEIGHT);
-            const viewportRows = Math.floor(cont.clientHeight / ROW_HEIGHT);
-            
-            if (cursorRow < scrollRow + 2) {
-              cont.scrollTop = Math.max(0, (cursorRow - 2) * ROW_HEIGHT);
-            } else if (cursorRow > scrollRow + viewportRows - 3) {
-              cont.scrollTop = (cursorRow - viewportRows + 3) * ROW_HEIGHT;
-            }
-            
-            renderHex();
-            updateStatus();
-            
-            setTimeout(() => {
-              const t = document.querySelector(`input[data-index="${ti}"]`);
-              if (t && !t.disabled) { t.focus(); t.select(); }
-            }, 0);
+        inp.onchange=()=>editByte(pos,inp.value);
+        inp.onkeydown=e=>{
+          const idx=pos;let ti=null;
+          if(e.key==='ArrowRight'||e.key==='Tab'){e.preventDefault();ti=idx+1;}
+          else if(e.key==='ArrowLeft'){e.preventDefault();ti=idx-1;}
+          else if(e.key==='ArrowDown'){e.preventDefault();ti=idx+BYTES_PER_ROW;}
+          else if(e.key==='ArrowUp'){e.preventDefault();ti=idx-BYTES_PER_ROW;}
+          else if(e.key==='Enter'){e.preventDefault();inp.blur();return;}
+          else if(e.key==='Escape'){clearSelectionAndRender();return;}
+          if(ti!==null&&ti>=0&&ti<data.length){
+            if(e.shiftKey){selectedBytes.add(ti);}else{selectedBytes.clear();selectedBytes.add(ti);}
+            cursor=ti;
+            const cr=Math.floor(ti/BYTES_PER_ROW),sr=Math.floor(scrollTop/ROW_HEIGHT),vr=Math.floor(cont.clientHeight/ROW_HEIGHT);
+            if(cr<sr+2)cont.scrollTop=Math.max(0,(cr-2)*ROW_HEIGHT);
+            else if(cr>sr+vr-3)cont.scrollTop=(cr-vr+3)*ROW_HEIGHT;
+            renderHex();updateStatus();
+            setTimeout(()=>{const t=document.querySelector(`input[data-index="${ti}"]`);if(t&&!t.disabled){t.focus();t.select();}},0);
           }
         };
       }
-      
       bd.appendChild(inp);
     });
     row.appendChild(bd);
-    
-    const asc = document.createElement('span');
-    asc.className = 'hex-ascii';
-    asc.textContent = Array.from(rb).map(b => (b >= 32 && b <= 126) ? String.fromCharCode(b) : '·').join('');
-    row.appendChild(asc);
-    
-    viewport.appendChild(row);
+    const asc=document.createElement('span');asc.className='hex-ascii';
+    asc.textContent=Array.from(rb).map(b=>(b>=32&&b<=126)?String.fromCharCode(b):'·').join('');
+    row.appendChild(asc);vp.appendChild(row);
   }
-  
   updateStatus();
 }
 
 let hexScrollTimeout;
-document.getElementById('hexView').addEventListener('scroll', function(e) {
-  scrollTop = this.scrollTop;
-  
-  clearTimeout(hexScrollTimeout);
-  hexScrollTimeout = setTimeout(() => {
-    renderHex();
-  }, 16);
-});
+document.getElementById('hexView').addEventListener('scroll',function(){scrollTop=this.scrollTop;clearTimeout(hexScrollTimeout);hexScrollTimeout=setTimeout(()=>renderHex(),16);});
 
-function editByte(pos, val) {
-  const v = parseInt(val, 16);
-  if (isNaN(v) || v < 0 || v > 255) {
-    renderHex();
-    return;
+function editByte(pos,val){const v=parseInt(val,16);if(isNaN(v)||v<0||v>255){renderHex();return;}pushUndo();data[pos]=v;renderHex();updatePreview();}
+
+function updateStatus(){
+  const el=document.getElementById('hexStatus');if(!data){el.innerHTML='';return;}
+  const editable=isEditable(cursor);
+  let s=`Position: <span class="pos">${cursor.toString(16).toUpperCase().padStart(8,'0')}</span> · <span class="${editable?'status-editable':'status-locked'}">${editable?'EDITABLE':'LOCKED'}</span>`;
+  if(selectedBytes.size)s+=` · <span style="color:var(--cursor)">Selected: ${selectedBytes.size}</span>`;
+  el.innerHTML=s;updatePositionIndicator();updateSelectionInfo();
+}
+
+// === FILL ACTIONS ===
+let fillMode='hex';
+function setFillMode(m){fillMode=m;document.getElementById('fillModeHex').classList.toggle('active',m==='hex');document.getElementById('fillModeAscii').classList.toggle('active',m==='ascii');document.getElementById('patternInput').placeholder=m==='hex'?'FF00FF':'Text...';document.getElementById('gradStart').placeholder=m==='hex'?'00':'A';document.getElementById('gradEnd').placeholder=m==='hex'?'FF':'Z';}
+
+function parseFillBytes(input){
+  if(fillMode==='hex'){
+    const hex=input.replace(/[^0-9a-fA-F]/g,'');
+    const b=[];for(let i=0;i<hex.length;i+=2)b.push(parseInt(hex.substr(i,2),16)||0);
+    return b;
+  }else{
+    return Array.from(input).map(c=>c.charCodeAt(0)&0xFF);
   }
+}
+
+function updateFillUI(){
+  const t=document.getElementById('fillType').value;
+  document.getElementById('fillPattern').classList.toggle('hidden',t!=='pattern');
+  document.getElementById('fillRandom').classList.toggle('hidden',t!=='random');
+  document.getElementById('fillGradient').classList.toggle('hidden',t!=='gradient');
+}
+
+function applyPattern(){
+  if(!data)return;const scopeBytes=getScopeBytes();
+  if(!scopeBytes||!scopeBytes.length){alert('No bytes in scope.');return;}
+  const pat=parseFillBytes(document.getElementById('patternInput').value);
+  const mode=document.getElementById('patternMode').value;
+  if(!pat.length){alert('Enter a valid pattern.');return;}
   pushUndo();
-  data[pos] = v;
-  renderHex();
-  updatePreview();
+  scopeBytes.forEach((pos,idx)=>{const p=pat[idx%pat.length];if(mode==='overwrite')data[pos]=p;else if(mode==='xor')data[pos]^=p;else if(mode==='add')data[pos]=(data[pos]+p)%256;else if(mode==='and')data[pos]&=p;else if(mode==='or')data[pos]|=p;});
+  renderHex();updatePreview();
 }
 
-function updateStatus() {
-  const el = document.getElementById('hexStatus');
-  if (!data) { el.innerHTML = ''; return; }
-  const editable = isEditable(cursor);
-  let statusHTML = `Position: <span class="pos">${cursor.toString(16).toUpperCase().padStart(8,'0')}</span> · <span class="${editable?'status-editable':'status-locked'}">${editable?'EDITABLE':'LOCKED'}</span>`;
-  statusHTML += ` · Mode: <span style="color:var(--accent)">${editMode.toUpperCase()}</span>`;
-  
-  if (selectionStart !== null) {
-    const selMin = Math.min(selectionStart, selectionEnd);
-    const selMax = Math.max(selectionStart, selectionEnd);
-    const selSize = selMax - selMin + 1;
-    statusHTML += ` · <span style="color:var(--cursor)">Selected: ${selSize} bytes</span>`;
-  }
-  
-  el.innerHTML = statusHTML;
-  updatePositionIndicator();
-  updateSelectionInfoPanel();
-}
-
-function updateSelectionInfoPanel() {
-  const el = document.getElementById('selectionInfo');
-  if (!el || !data) return;
-  
-  if (selectionStart === null) {
-    el.innerHTML = '<span style="color:var(--muted)">No selection</span><br><span style="color:var(--muted);font-size:10px">Use Shift+Click or Shift+Arrow</span>';
-    updateScope();
-    return;
-  }
-  
-  const selMin = Math.min(selectionStart, selectionEnd);
-  const selMax = Math.max(selectionStart, selectionEnd);
-  const selSize = selMax - selMin + 1;
-  const bytes = data.slice(selMin, selMax + 1);
-  
-  let editableInSelection = 0;
-  for (let i = selMin; i <= selMax; i++) {
-    if (isEditable(i)) editableInSelection++;
-  }
-  
-  let hexPreview = '';
-  let asciiPreview = '';
-  const maxPreview = 6;
-  
-  for (let i = 0; i < Math.min(bytes.length, maxPreview); i++) {
-    hexPreview += bytes[i].toString(16).toUpperCase().padStart(2, '0') + ' ';
-    asciiPreview += bytes[i] >= 32 && bytes[i] <= 126 ? String.fromCharCode(bytes[i]) : '.';
-  }
-  if (bytes.length > maxPreview) {
-    hexPreview += '...';
-    asciiPreview += '...';
-  }
-  
-  let html = `<span style="color:var(--cursor)">${selSize} bytes</span> selected`;
-  if (editableInSelection < selSize) {
-    html += ` <span style="color:var(--protected)">(${selSize - editableInSelection} protected)</span>`;
-  }
-  html += `<br><span style="color:var(--muted)">HEX:</span> <span style="color:var(--editable)">${hexPreview}</span>`;
-  html += `<br><span style="color:var(--muted)">ASCII:</span> <span style="color:var(--text)">${asciiPreview}</span>`;
-  
-  el.innerHTML = html;
-  updateScope();
-}
-
-function clearSelection() {
-  selectionStart = null;
-  selectionEnd = null;
-  updateScope();
-}
-
-function getSelectionRange() {
-  if (selectionStart === null) return null;
-  return { start: Math.min(selectionStart, selectionEnd), end: Math.max(selectionStart, selectionEnd) };
-}
-
-function setEditMode(mode) {
-  editMode = mode;
-  document.getElementById('editModeHex').classList.toggle('active', mode === 'hex');
-  document.getElementById('editModeAscii').classList.toggle('active', mode === 'ascii');
-}
-
-// === SEARCH FUNCTIONS ===
-let searchMode = 'ascii';
-
-function setSearchMode(mode) {
-  searchMode = mode;
-  document.getElementById('searchModeHex').classList.toggle('active', mode === 'hex');
-  document.getElementById('searchModeAscii').classList.toggle('active', mode === 'ascii');
-  document.getElementById('searchInput').placeholder = mode === 'hex' ? 'Hex bytes (e.g., FF 00 FF)' : 'Text to find...';
-  document.getElementById('replaceInput').placeholder = mode === 'hex' ? 'Hex bytes (e.g., 00 FF 00)' : 'Replacement text...';
-}
-
-function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  document.getElementById('replaceInput').value = '';
-  searchMatches = [];
-  currentMatchIndex = -1;
-  clearSelection();
-  document.getElementById('searchStatus').textContent = '';
-  document.getElementById('searchStatus').style.color = 'var(--muted)';
-  renderHex();
-}
-
-function getSearchBytes() {
-  const input = document.getElementById('searchInput').value;
-  if (!input) return null;
-  
-  if (searchMode === 'hex') {
-    const hex = input.replace(/[^0-9a-fA-F]/g, '');
-    if (hex.length < 2) return null;
-    const bytes = [];
-    for (let i = 0; i + 1 < hex.length; i += 2) {
-      bytes.push(parseInt(hex.substr(i, 2), 16));
-    }
-    return bytes.length > 0 ? bytes : null;
-  } else {
-    if (input.length === 0) return null;
-    return Array.from(input).map(c => c.charCodeAt(0) & 0xFF);
-  }
-}
-
-function getReplaceBytes() {
-  const input = document.getElementById('replaceInput').value;
-  
-  if (searchMode === 'hex') {
-    const hex = input.replace(/[^0-9a-fA-F]/g, '');
-    const bytes = [];
-    for (let i = 0; i + 1 < hex.length; i += 2) {
-      bytes.push(parseInt(hex.substr(i, 2), 16));
-    }
-    return bytes;
-  } else {
-    return Array.from(input).map(c => c.charCodeAt(0) & 0xFF);
-  }
-}
-
-function findMatches(searchBytes) {
-  const matches = [];
-  if (!data || !searchBytes || searchBytes.length === 0) return matches;
-  
-  for (let i = 0; i <= data.length - searchBytes.length; i++) {
-    let found = true;
-    for (let j = 0; j < searchBytes.length; j++) {
-      if (data[i + j] !== searchBytes[j]) {
-        found = false;
-        break;
-      }
-    }
-    if (found) {
-      matches.push({ start: i, length: searchBytes.length });
-    }
-  }
-  return matches;
-}
-
-function findNext() {
-  const searchBytes = getSearchBytes();
-  if (!searchBytes) {
-    document.getElementById('searchStatus').textContent = 'Enter search term';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
-  
-  searchMatches = findMatches(searchBytes);
-  if (searchMatches.length === 0) {
-    document.getElementById('searchStatus').textContent = 'No matches found';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    currentMatchIndex = -1;
-    clearSelection();
-    renderHex();
-    return;
-  }
-  
-  let nextIndex = searchMatches.findIndex(m => m.start > cursor);
-  if (nextIndex === -1) nextIndex = 0;
-  
-  currentMatchIndex = nextIndex;
-  const match = searchMatches[currentMatchIndex];
-  cursor = match.start;
-  selectionStart = match.start;
-  selectionEnd = match.start + match.length - 1;
-  
-  const cont = document.getElementById('hexView');
-  const cursorRow = Math.floor(cursor / BYTES_PER_ROW);
-  const targetScroll = (cursorRow - 5) * ROW_HEIGHT;
-  cont.scrollTop = Math.max(0, targetScroll);
-  
-  document.getElementById('searchStatus').textContent = `Match ${currentMatchIndex + 1} of ${searchMatches.length}`;
-  document.getElementById('searchStatus').style.color = 'var(--editable)';
-  renderHex();
-  
-  setTimeout(() => {
-    const inp = document.querySelector(`input[data-index="${cursor}"]`);
-    if (inp) { inp.focus(); inp.select(); }
-  }, 50);
-}
-
-function findPrev() {
-  const searchBytes = getSearchBytes();
-  if (!searchBytes) {
-    document.getElementById('searchStatus').textContent = 'Enter search term';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
-  
-  searchMatches = findMatches(searchBytes);
-  if (searchMatches.length === 0) {
-    document.getElementById('searchStatus').textContent = 'No matches found';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    currentMatchIndex = -1;
-    clearSelection();
-    renderHex();
-    return;
-  }
-  
-  let prevIndex = -1;
-  for (let i = searchMatches.length - 1; i >= 0; i--) {
-    if (searchMatches[i].start < cursor) {
-      prevIndex = i;
-      break;
-    }
-  }
-  if (prevIndex === -1) prevIndex = searchMatches.length - 1;
-  
-  currentMatchIndex = prevIndex;
-  const match = searchMatches[currentMatchIndex];
-  cursor = match.start;
-  selectionStart = match.start;
-  selectionEnd = match.start + match.length - 1;
-  
-  const cont = document.getElementById('hexView');
-  const cursorRow = Math.floor(cursor / BYTES_PER_ROW);
-  const targetScroll = (cursorRow - 5) * ROW_HEIGHT;
-  cont.scrollTop = Math.max(0, targetScroll);
-  
-  document.getElementById('searchStatus').textContent = `Match ${currentMatchIndex + 1} of ${searchMatches.length}`;
-  document.getElementById('searchStatus').style.color = 'var(--editable)';
-  renderHex();
-  
-  setTimeout(() => {
-    const inp = document.querySelector(`input[data-index="${cursor}"]`);
-    if (inp) { inp.focus(); inp.select(); }
-  }, 50);
-}
-
-function findAll() {
-  const searchBytes = getSearchBytes();
-  if (!searchBytes) {
-    document.getElementById('searchStatus').textContent = 'Enter search term';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
-  
-  searchMatches = findMatches(searchBytes);
-  currentMatchIndex = searchMatches.length > 0 ? 0 : -1;
-  
-  if (searchMatches.length === 0) {
-    document.getElementById('searchStatus').textContent = 'No matches found';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-  } else {
-    document.getElementById('searchStatus').textContent = `Found ${searchMatches.length} match${searchMatches.length > 1 ? 'es' : ''}`;
-    document.getElementById('searchStatus').style.color = 'var(--editable)';
-    cursor = searchMatches[0].start;
-    selectionStart = searchMatches[0].start;
-    selectionEnd = searchMatches[0].start + searchMatches[0].length - 1;
-    
-    const cont = document.getElementById('hexView');
-    const cursorRow = Math.floor(cursor / BYTES_PER_ROW);
-    const targetScroll = (cursorRow - 5) * ROW_HEIGHT;
-    cont.scrollTop = Math.max(0, targetScroll);
-  }
-  
-  renderHex();
-  
-  setTimeout(() => {
-    const inp = document.querySelector(`input[data-index="${cursor}"]`);
-    if (inp) { inp.focus(); inp.select(); }
-  }, 50);
-}
-
-function replaceCurrent() {
-  if (!data) return;
-  
-  const searchBytes = getSearchBytes();
-  if (!searchBytes) {
-    document.getElementById('searchStatus').textContent = 'Enter search term';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
-  
-  if (currentMatchIndex === -1 || searchMatches.length === 0) {
-    findNext();
-    if (currentMatchIndex === -1) return;
-  }
-  
-  const replaceBytes = getReplaceBytes();
-  const match = searchMatches[currentMatchIndex];
-  
-  for (let i = match.start; i < match.start + match.length; i++) {
-    if (!isEditable(i)) {
-      document.getElementById('searchStatus').textContent = 'Cannot replace: contains protected bytes';
-      document.getElementById('searchStatus').style.color = 'var(--protected)';
-      return;
-    }
-  }
-  
+function applyRandomization(){
+  if(!data)return;const scopeBytes=getScopeBytes();
+  if(!scopeBytes||!scopeBytes.length){alert('No bytes in scope.');return;}
   pushUndo();
-  
-  const bytesToWrite = Math.min(replaceBytes.length, match.length);
-  for (let i = 0; i < bytesToWrite; i++) {
-    data[match.start + i] = replaceBytes[i];
-  }
-  
-  searchMatches = findMatches(searchBytes);
-  if (searchMatches.length > 0) {
-    let nextIdx = searchMatches.findIndex(m => m.start >= match.start + bytesToWrite);
-    if (nextIdx === -1) nextIdx = 0;
-    currentMatchIndex = nextIdx;
-    
-    const nextMatch = searchMatches[currentMatchIndex];
-    cursor = nextMatch.start;
-    selectionStart = nextMatch.start;
-    selectionEnd = nextMatch.start + nextMatch.length - 1;
-    
-    document.getElementById('searchStatus').textContent = `Replaced · ${searchMatches.length} remaining`;
-    document.getElementById('searchStatus').style.color = 'var(--editable)';
-  } else {
-    currentMatchIndex = -1;
-    clearSelection();
-    document.getElementById('searchStatus').textContent = 'Replaced · No more matches';
-    document.getElementById('searchStatus').style.color = 'var(--editable)';
-  }
-  
-  renderHex();
-  updatePreview();
+  const intensity=document.getElementById('randomIntensity').value/100;
+  const mode=document.getElementById('randomMode').value;
+  scopeBytes.forEach(i=>{if(Math.random()>intensity)return;const r=Math.floor(Math.random()*256);if(mode==='xor')data[i]^=r;else if(mode==='add')data[i]=(data[i]+r)%256;else if(mode==='replace')data[i]=r;else if(mode==='bitflip')data[i]^=(1<<Math.floor(Math.random()*8));});
+  renderHex();updatePreview();
 }
 
-function replaceAll() {
-  if (!data) return;
-  
-  const searchBytes = getSearchBytes();
-  if (!searchBytes) {
-    document.getElementById('searchStatus').textContent = 'Enter search term';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
-  
-  const replaceBytes = getReplaceBytes();
-  searchMatches = findMatches(searchBytes);
-  
-  if (searchMatches.length === 0) {
-    document.getElementById('searchStatus').textContent = 'No matches found';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
-  
-  const editableMatches = searchMatches.filter(match => {
-    for (let i = match.start; i < match.start + match.length; i++) {
-      if (!isEditable(i)) return false;
-    }
-    return true;
-  });
-  
-  if (editableMatches.length === 0) {
-    document.getElementById('searchStatus').textContent = 'No matches in editable regions';
-    document.getElementById('searchStatus').style.color = 'var(--protected)';
-    return;
-  }
-  
+function applyGradient(){
+  if(!data)return;const scopeBytes=getScopeBytes();
+  if(!scopeBytes||!scopeBytes.length){alert('No bytes in scope.');return;}
+  const startRaw=document.getElementById('gradStart').value||'00';
+  const endRaw=document.getElementById('gradEnd').value||'FF';
+  let sv,ev;
+  if(fillMode==='hex'){sv=parseInt(startRaw,16);ev=parseInt(endRaw,16);}
+  else{sv=startRaw.charCodeAt(0)&0xFF;ev=endRaw.charCodeAt(0)&0xFF;}
+  if(isNaN(sv)||isNaN(ev)){alert('Enter valid start/end values.');return;}
   pushUndo();
-  
-  const bytesToWrite = Math.min(replaceBytes.length, searchBytes.length);
-  editableMatches.forEach(match => {
-    for (let i = 0; i < bytesToWrite; i++) {
-      data[match.start + i] = replaceBytes[i];
-    }
-  });
-  
-  searchMatches = [];
-  currentMatchIndex = -1;
-  clearSelection();
-  
-  document.getElementById('searchStatus').textContent = `Replaced ${editableMatches.length} match${editableMatches.length > 1 ? 'es' : ''}`;
-  document.getElementById('searchStatus').style.color = 'var(--editable)';
-  
-  renderHex();
-  updatePreview();
+  scopeBytes.forEach((pos,idx)=>{const p=scopeBytes.length>1?idx/(scopeBytes.length-1):0;data[pos]=Math.round(sv+(ev-sv)*p);});
+  renderHex();updatePreview();
 }
 
-// === ACTION FUNCTIONS ===
-function cutSelection() {
-  if (!data) {
-    alert('No file loaded');
-    return;
-  }
-  
-  if (selectionStart === null) {
-    alert('No selection. Use Shift+Click or Shift+Arrow to select bytes first.');
-    return;
-  }
-  
-  const start = Math.min(selectionStart, selectionEnd);
-  const end = Math.max(selectionStart, selectionEnd);
-  const bytes = data.slice(start, end + 1);
-  
-  let hexStr = '';
-  let asciiStr = '';
-  for (let i = 0; i < bytes.length; i++) {
-    hexStr += bytes[i].toString(16).toUpperCase().padStart(2, '0');
-    if (i < bytes.length - 1) hexStr += ' ';
-    asciiStr += bytes[i] >= 32 && bytes[i] <= 126 ? String.fromCharCode(bytes[i]) : '.';
-  }
-  
-  const textToCopy = editMode === 'hex' ? hexStr : asciiStr;
-  
-  navigator.clipboard.writeText(textToCopy).then(() => {
-    pushUndo();
-    let zeroedCount = 0;
-    for (let i = start; i <= end; i++) {
-      if (isEditable(i)) {
-        data[i] = 0x00;
-        zeroedCount++;
-      }
-    }
-    
-    renderHex();
-    updatePreview();
-    alert('Cut ' + bytes.length + ' bytes to clipboard. Zeroed ' + zeroedCount + ' editable bytes.');
-  }).catch(err => {
-    alert('Cut failed: ' + err.message);
-  });
+// === COPY / CUT / PASTE ===
+function copySelection(){
+  if(!data||!selectedBytes.size){alert('No selection');return;}
+  const arr=Array.from(selectedBytes).sort((a,b)=>a-b);
+  const hexStr=arr.map(i=>data[i].toString(16).toUpperCase().padStart(2,'0')).join(' ');
+  navigator.clipboard.writeText(hexStr).then(()=>{
+    document.getElementById('actionStatus').textContent=`Copied ${arr.length} bytes`;
+    document.getElementById('actionStatus').style.color='var(--editable)';
+  }).catch(e=>alert('Copy failed: '+e.message));
 }
 
-function pasteAtCursor() {
-  if (!data) {
-    alert('No file loaded');
-    return;
-  }
-  
-  if (!isEditable(cursor)) {
-    alert('Cannot paste at protected position. Move cursor to an editable (green) byte.');
-    return;
-  }
-  
-  navigator.clipboard.readText().then(text => {
-    if (!text) {
-      alert('Clipboard is empty');
-      return;
-    }
-    
-    let bytes = [];
-    
-    if (editMode === 'hex') {
-      const hex = text.replace(/[^0-9a-fA-F]/g, '');
-      for (let i = 0; i + 1 < hex.length; i += 2) {
-        bytes.push(parseInt(hex.substr(i, 2), 16));
-      }
-    } else {
-      bytes = Array.from(text).map(c => c.charCodeAt(0) & 0xFF);
-    }
-    
-    if (bytes.length === 0) {
-      alert('No valid bytes to paste.');
-      return;
-    }
-    
-    pushUndo();
-    
-    let pos = cursor;
-    let pastedCount = 0;
-    
-    for (let i = 0; i < bytes.length && pos < data.length; i++) {
-      if (isEditable(pos)) {
-        data[pos] = bytes[i];
-        pastedCount++;
-      }
-      pos++;
-    }
-    
-    cursor = Math.min(data.length - 1, pos);
-    clearSelection();
-    renderHex();
-    updatePreview();
-    
-    alert('Pasted ' + pastedCount + ' bytes.');
-  }).catch(err => {
-    alert('Paste failed: ' + err.message);
-  });
+function cutSelection(){
+  if(!data||!selectedBytes.size){alert('No selection');return;}
+  const arr=Array.from(selectedBytes).sort((a,b)=>a-b);
+  const hexStr=arr.map(i=>data[i].toString(16).toUpperCase().padStart(2,'0')).join(' ');
+  navigator.clipboard.writeText(hexStr).then(()=>{
+    pushUndo();let z=0;
+    arr.forEach(i=>{if(isEditable(i)){data[i]=0x00;z++;}});
+    renderHex();updatePreview();
+    document.getElementById('actionStatus').textContent=`Cut ${arr.length} bytes (${z} zeroed)`;
+    document.getElementById('actionStatus').style.color='var(--editable)';
+  }).catch(e=>alert('Cut failed: '+e.message));
 }
 
-function applyRandomization() {
-  if (!data) return;
-  
-  const scopeBytes = getScopeBytes();
-  if (!scopeBytes || scopeBytes.length === 0) {
-    alert('No bytes in scope. Check your selection or scope settings.');
-    return;
-  }
-  
-  const scope = document.querySelector('input[name="scope"]:checked').value;
-  const scopeDesc = scope === 'selection' ? 'selected bytes' : 
-                    scope === 'all' ? 'all editable bytes' : 
-                    'region: ' + document.getElementById('regionSelect').options[document.getElementById('regionSelect').selectedIndex].text;
-  
-  if (!confirm(`Apply randomization to ${scopeBytes.length.toLocaleString()} bytes (${scopeDesc})?`)) return;
-  
-  pushUndo();
-  const intensity = document.getElementById('randomIntensity').value / 100;
-  const mode = document.getElementById('randomMode').value;
-  
-  scopeBytes.forEach(i => {
-    if (Math.random() > intensity) return;
-    const rand = Math.floor(Math.random() * 256);
-    if (mode === 'xor') data[i] ^= rand;
-    else if (mode === 'add') data[i] = (data[i] + rand) % 256;
-    else if (mode === 'replace') data[i] = rand;
-    else if (mode === 'bitflip') data[i] ^= (1 << Math.floor(Math.random() * 8));
-  });
-  
-  renderHex();
-  updatePreview();
+function pasteAtCursor(){
+  if(!data){alert('No file loaded');return;}
+  if(!isEditable(cursor)){alert('Cursor not on editable byte.');return;}
+  navigator.clipboard.readText().then(text=>{
+    if(!text){alert('Clipboard empty');return;}
+    const hex=text.replace(/[^0-9a-fA-F]/g,'');const bytes=[];
+    for(let i=0;i+1<hex.length;i+=2)bytes.push(parseInt(hex.substr(i,2),16));
+    if(!bytes.length){alert('No valid hex bytes to paste.');return;}
+    pushUndo();let pos=cursor,cnt=0;
+    for(let i=0;i<bytes.length&&pos<data.length;i++){if(isEditable(pos)){data[pos]=bytes[i];cnt++;}pos++;}
+    cursor=Math.min(data.length-1,pos);clearSelection();
+    renderHex();updatePreview();
+    document.getElementById('actionStatus').textContent=`Pasted ${cnt} bytes`;
+    document.getElementById('actionStatus').style.color='var(--editable)';
+  }).catch(e=>alert('Paste failed: '+e.message));
 }
 
-function applyPattern() {
-  if (!data) return;
-  
-  const scopeBytes = getScopeBytes();
-  if (!scopeBytes || scopeBytes.length === 0) {
-    alert('No bytes in scope. Check your selection or scope settings.');
-    return;
-  }
-  
-  const scope = document.querySelector('input[name="scope"]:checked').value;
-  const scopeDesc = scope === 'selection' ? 'selected bytes' : 
-                    scope === 'all' ? 'all editable bytes' : 
-                    'region: ' + document.getElementById('regionSelect').options[document.getElementById('regionSelect').selectedIndex].text;
-  
-  const hex = document.getElementById('patternInput').value.replace(/[^0-9a-fA-F]/g, '');
-  const mode = document.getElementById('patternMode').value;
-  const patternBytes = [];
-  for (let i = 0; i < hex.length; i += 2) patternBytes.push(parseInt(hex.substr(i, 2), 16) || 0);
-  if (!patternBytes.length) {
-    alert('Enter a valid hex pattern (e.g., FF00FF)');
-    return;
-  }
-  
-  if (!confirm(`Apply pattern to ${scopeBytes.length.toLocaleString()} bytes (${scopeDesc})?`)) return;
-  
-  pushUndo();
-  
-  scopeBytes.forEach((pos, idx) => {
-    const p = patternBytes[idx % patternBytes.length];
-    if (mode === 'overwrite') data[pos] = p;
-    else if (mode === 'xor') data[pos] ^= p;
-    else if (mode === 'add') data[pos] = (data[pos] + p) % 256;
-    else if (mode === 'and') data[pos] &= p;
-    else if (mode === 'or') data[pos] |= p;
-  });
-  
-  renderHex();
-  updatePreview();
+// === PREVIEW ===
+function updatePreview(){
+  const box=document.getElementById('previewBox');
+  if(!data){box.innerHTML='<span style="color:var(--muted);font-size:12px">No image</span>';updatePositionIndicator();return;}
+  const blob=new Blob([data]);const url=URL.createObjectURL(blob);const img=new Image();
+  img.onload=()=>{imageWidth=img.naturalWidth;imageHeight=img.naturalHeight;img.className=`zoom-${currentZoom}x`;img.id='previewImg';box.innerHTML='';box.appendChild(img);updatePositionIndicator();};
+  img.onerror=()=>{imageWidth=0;imageHeight=0;box.innerHTML='<div class="preview-error"><div class="icon">⚠ DECODE ERROR</div><div class="msg">(normal during databending)</div></div>';updatePositionIndicator();};
+  img.src=url;
 }
-
-// === PREVIEW FUNCTIONS ===
-function updatePreview() {
-  const box = document.getElementById('previewBox');
-  if (!data) {
-    box.innerHTML = '<span style="color:var(--muted);font-size:12px">No image</span>';
-    updatePositionIndicator();
-    return;
-  }
-  const blob = new Blob([data]);
-  const url = URL.createObjectURL(blob);
-  const img = new Image();
-  img.onload = () => {
-    imageWidth = img.naturalWidth;
-    imageHeight = img.naturalHeight;
-    img.className = `zoom-${currentZoom}x`;
-    img.id = 'previewImg';
-    box.innerHTML = '';
-    box.appendChild(img);
-    updatePositionIndicator();
-  };
-  img.onerror = () => {
-    imageWidth = 0;
-    imageHeight = 0;
-    box.innerHTML = '<div class="preview-error"><div class="icon">⚠ DECODE ERROR</div><div class="msg">(normal during databending)</div></div>';
-    updatePositionIndicator();
-  };
-  img.src = url;
+function setZoom(l){currentZoom=l;document.querySelectorAll('.zoom-btn').forEach((b,i)=>b.classList.toggle('active',[1,2,4][i]===l));const img=document.getElementById('previewImg');if(img){img.className=`zoom-${l}x`;setTimeout(updatePositionIndicator,50);}}
+function updatePositionIndicator(){
+  const el=document.getElementById('previewPosition');if(!data||!regions.length){el.innerHTML='';return;}
+  let inR=null,cS=0,cE=0;for(const r of regions){if(r.type==='content'&&cursor>=r.start&&cursor<r.end){inR=r;cS=r.start;cE=r.end;break;}}
+  if(!inR){el.innerHTML='<span class="note">Cursor in protected header region</span>';removePixelMarker();return;}
+  const pC=cursor-cS,cSz=cE-cS,pct=((pC/cSz)*100).toFixed(1);
+  if(format==='BMP'&&imageWidth>0&&imageHeight>0){const bpp=Math.ceil(bitsPerPixel/8),rs=Math.ceil((imageWidth*bpp)/4)*4,row=Math.floor(pC/rs),col=Math.floor((pC%rs)/bpp),y=imageHeight-1-row,x=Math.min(col,imageWidth-1);if(y>=0&&y<imageHeight&&x>=0&&x<imageWidth){el.innerHTML=`<span class="label">PIXEL:</span> <span class="value">(${x}, ${y})</span><br><span class="label">STREAM:</span> <span class="value">${pct}%</span>`;showPixelMarker(x,y);}else{el.innerHTML=`<span class="label">STREAM:</span> <span class="value">${pct}%</span> <span class="note">(padding)</span>`;removePixelMarker();}}
+  else{const eY=Math.floor((pC/cSz)*(imageHeight||100));el.innerHTML=`<span class="label">STREAM:</span> <span class="value">${pct}%</span><br><span class="note">~row ${eY} (compressed)</span>`;showPixelMarker(-1,eY);}
 }
+function showPixelMarker(x,y){const box=document.getElementById('previewBox'),img=document.getElementById('previewImg');if(!img||!imageWidth||!imageHeight){removePixelMarker();return;}let m=document.getElementById('pixelMarker');if(!m){m=document.createElement('div');m.id='pixelMarker';m.className='pixel-marker';box.appendChild(m);}const bR=box.getBoundingClientRect(),iR=img.getBoundingClientRect(),sX=iR.width/imageWidth,sY=iR.height/imageHeight,oX=iR.left-bR.left+box.scrollLeft,oY=iR.top-bR.top+box.scrollTop;if(x>=0){m.style.left=(oX+(x+.5)*sX)+'px';m.style.top=(oY+(y+.5)*sY)+'px';m.style.width='8px';m.style.height='8px';}else{m.style.left=(oX+iR.width/2)+'px';m.style.top=(oY+(y/imageHeight)*iR.height)+'px';m.style.width=(iR.width*.8)+'px';m.style.height='2px';}m.style.display='block';}
+function removePixelMarker(){const m=document.getElementById('pixelMarker');if(m)m.style.display='none';}
 
-function setZoom(level) {
-  currentZoom = level;
-  document.querySelectorAll('.zoom-btn').forEach((btn, i) => {
-    btn.classList.toggle('active', [1,2,4][i] === level);
-  });
-  const img = document.getElementById('previewImg');
-  if (img) {
-    img.className = `zoom-${level}x`;
-    setTimeout(updatePositionIndicator, 50);
-  }
+// === STRUCTURE ===
+function updateStructure(){
+  const el=document.getElementById('structureList');if(!regions.length){el.innerHTML='<p style="color:var(--muted);font-size:12px;margin-top:16px">No file loaded</p>';return;}
+  el.innerHTML=regions.map(r=>`<div class="structure-item ${r.type==='content'?'editable':''}" style="border-color:var(--${r.type==='content'?'editable':'protected'})" onclick="jumpTo(${r.start})"><div class="desc" style="color:var(--${r.type==='content'?'editable':'protected'})">${r.desc}</div><div class="offset">${r.start.toString(16).toUpperCase().padStart(8,'0')} · ${(r.end-r.start).toLocaleString()}B</div></div>`).join('');
 }
+function jumpTo(pos){cursor=pos;clearSelection();const cont=document.getElementById('hexView');cont.scrollTop=Math.max(0,(Math.floor(pos/BYTES_PER_ROW)-5)*ROW_HEIGHT);renderHex();setTimeout(()=>{const inp=document.querySelector(`input[data-index="${pos}"]`);if(inp){inp.focus();inp.select();}},50);}
 
-function updatePositionIndicator() {
-  const el = document.getElementById('previewPosition');
-  if (!data || !regions.length) { el.innerHTML = ''; return; }
-  
-  let inContentRegion = null;
-  let contentStart = 0, contentEnd = 0;
-  for (const r of regions) {
-    if (r.type === 'content' && cursor >= r.start && cursor < r.end) {
-      inContentRegion = r;
-      contentStart = r.start;
-      contentEnd = r.end;
-      break;
-    }
-  }
-  
-  if (!inContentRegion) {
-    el.innerHTML = '<span class="note">Cursor in protected header region</span>';
-    removePixelMarker();
-    return;
-  }
-  
-  const posInContent = cursor - contentStart;
-  const contentSize = contentEnd - contentStart;
-  const percent = ((posInContent / contentSize) * 100).toFixed(1);
-  
-  if (format === 'BMP' && imageWidth > 0 && imageHeight > 0) {
-    const bytesPerPixel = Math.ceil(bitsPerPixel / 8);
-    const rowSize = Math.ceil((imageWidth * bytesPerPixel) / 4) * 4;
-    const row = Math.floor(posInContent / rowSize);
-    const col = Math.floor((posInContent % rowSize) / bytesPerPixel);
-    const y = imageHeight - 1 - row;
-    const x = Math.min(col, imageWidth - 1);
-    
-    if (y >= 0 && y < imageHeight && x >= 0 && x < imageWidth) {
-      el.innerHTML = `<span class="label">PIXEL:</span> <span class="value">(${x}, ${y})</span><br><span class="label">STREAM:</span> <span class="value">${percent}%</span>`;
-      showPixelMarker(x, y);
-    } else {
-      el.innerHTML = `<span class="label">STREAM:</span> <span class="value">${percent}%</span> <span class="note">(padding)</span>`;
-      removePixelMarker();
-    }
-  } else {
-    const estY = Math.floor((posInContent / contentSize) * (imageHeight || 100));
-    el.innerHTML = `<span class="label">STREAM:</span> <span class="value">${percent}%</span><br><span class="note">~row ${estY} (compressed)</span>`;
-    showPixelMarker(-1, estY);
-  }
-}
-
-function showPixelMarker(x, y) {
-  const box = document.getElementById('previewBox');
-  const img = document.getElementById('previewImg');
-  if (!img || !imageWidth || !imageHeight) { removePixelMarker(); return; }
-  
-  let marker = document.getElementById('pixelMarker');
-  if (!marker) {
-    marker = document.createElement('div');
-    marker.id = 'pixelMarker';
-    marker.className = 'pixel-marker';
-    box.appendChild(marker);
-  }
-  
-  const boxRect = box.getBoundingClientRect();
-  const imgRect = img.getBoundingClientRect();
-  
-  const scaleX = imgRect.width / imageWidth;
-  const scaleY = imgRect.height / imageHeight;
-  
-  const offsetX = imgRect.left - boxRect.left + box.scrollLeft;
-  const offsetY = imgRect.top - boxRect.top + box.scrollTop;
-  
-  if (x >= 0) {
-    marker.style.left = (offsetX + (x + 0.5) * scaleX) + 'px';
-    marker.style.top = (offsetY + (y + 0.5) * scaleY) + 'px';
-    marker.style.width = '8px';
-    marker.style.height = '8px';
-  } else {
-    marker.style.left = (offsetX + imgRect.width / 2) + 'px';
-    marker.style.top = (offsetY + (y / imageHeight) * imgRect.height) + 'px';
-    marker.style.width = (imgRect.width * 0.8) + 'px';
-    marker.style.height = '2px';
-  }
-  marker.style.display = 'block';
-}
-
-function removePixelMarker() {
-  const marker = document.getElementById('pixelMarker');
-  if (marker) marker.style.display = 'none';
-}
-
-// === STRUCTURE FUNCTIONS ===
-function updateStructure() {
-  const el = document.getElementById('structureList');
-  if (!regions.length) {
-    el.innerHTML = '<p style="color:var(--muted);font-size:12px;margin-top:16px">No file loaded</p>';
-    return;
-  }
-  el.innerHTML = regions.map((r, i) => `<div class="structure-item ${r.type==='content'?'editable':''}" style="border-color:var(--${r.type==='content'?'editable':'protected'})" onclick="jumpTo(${r.start})"><div class="desc" style="color:var(--${r.type==='content'?'editable':'protected'})">${r.desc}</div><div class="offset">${r.start.toString(16).toUpperCase().padStart(8,'0')} · ${(r.end-r.start).toLocaleString()}B</div></div>`).join('');
-}
-
-function jumpTo(pos) {
-  cursor = pos;
-  clearSelection();
-  
-  const cont = document.getElementById('hexView');
-  const cursorRow = Math.floor(pos / BYTES_PER_ROW);
-  const targetScroll = (cursorRow - 5) * ROW_HEIGHT;
-  cont.scrollTop = Math.max(0, targetScroll);
-  
-  renderHex();
-  
-  setTimeout(() => {
-    const inp = document.querySelector(`input[data-index="${pos}"]`);
-    if (inp) {
-      inp.focus();
-      inp.select();
-    }
-  }, 50);
-}
-
-// === FILE FUNCTIONS ===
-function loadFile(file) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    const bytes = new Uint8Array(e.target.result);
-    bitsPerPixel = 24;
-    const result = parseFormat(bytes, file.name);
-    if (!result.regions) {
-      alert('Unsupported format.\nSupported: JPEG, PNG, GIF, WebP, BMP, TIFF');
-      return;
-    }
-    data = bytes;
-    originalData = new Uint8Array(bytes);
-    regions = result.regions;
-    format = result.format;
-    filename = file.name;
-    regionMap = {};
-    regions.forEach(r => { for(let i=r.start;i<r.end;i++) regionMap[i]=r.type; });
-    cursor = 0;
-    scrollTop = 0;
-    imageWidth = 0;
-    imageHeight = 0;
-    undoStack = [];
-    clearSelection();
-    searchMatches = [];
-    currentMatchIndex = -1;
-    updateUndoButton();
-    const editableCount = Object.values(regionMap).filter(t=>t==='content').length;
-    const pct = ((editableCount/data.length)*100).toFixed(1);
-    document.getElementById('fileInfo').innerHTML = `<span class="format">${format}</span> · ${data.length.toLocaleString()} bytes · <span class="editable">${pct}% editable</span>`;
-    document.getElementById('saveBtn').disabled = false;
-    document.getElementById('resetBtn').disabled = false;
-    document.getElementById('toolsBtn').disabled = false;
-    
-    document.getElementById('hexView').scrollTop = 0;
-    
-    updateStructure();
-    populateRegionDropdown();
-    renderHex();
-    updatePreview();
-    updateSelectionInfoPanel();
+// === FILE ===
+function loadFile(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const bytes=new Uint8Array(e.target.result);bitsPerPixel=24;
+    const result=parseFormat(bytes,file.name);
+    if(!result.regions){alert('Unsupported format.\nSupported: JPEG, PNG, GIF, WebP, BMP, TIFF');return;}
+    data=bytes;originalData=new Uint8Array(bytes);regions=result.regions;format=result.format;filename=file.name;
+    regionMap={};regions.forEach(r=>{for(let i=r.start;i<r.end;i++)regionMap[i]=r.type;});
+    cursor=0;scrollTop=0;imageWidth=0;imageHeight=0;undoStack=[];
+    clearSelection();updateUndoButton();
+    const ec=Object.values(regionMap).filter(t=>t==='content').length;
+    const pct=((ec/data.length)*100).toFixed(1);
+    document.getElementById('fileInfo').innerHTML=`<span class="format">${format}</span> · ${data.length.toLocaleString()} bytes · <span class="editable">${pct}% editable</span>`;
+    document.getElementById('saveBtn').disabled=false;
+    document.getElementById('resetBtn').disabled=false;
+    document.getElementById('toolsBtn').disabled=false;
+    document.getElementById('hexView').scrollTop=0;
+    updateStructure();populateRegionDropdown();renderHex();updatePreview();updateScope();
   };
   reader.readAsArrayBuffer(file);
 }
+function saveFile(){if(!data)return;const blob=new Blob([data]);const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`glitched_${filename}`;a.click();URL.revokeObjectURL(url);}
+function resetFile(){if(!originalData)return;data=new Uint8Array(originalData);undoStack=[];clearSelection();updateUndoButton();renderHex();updatePreview();}
+function toggleTools(){const p=document.getElementById('toolsPanel'),b=document.getElementById('toolsBtn');p.classList.toggle('show');b.textContent=p.classList.contains('show')?'− TOOLS':'+ TOOLS';}
 
-function saveFile() {
-  if (!data) return;
-  const blob = new Blob([data]);
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `glitched_${filename}`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function resetFile() {
-  if (!originalData) return;
-  data = new Uint8Array(originalData);
-  undoStack = [];
-  clearSelection();
-  updateUndoButton();
-  renderHex();
-  updatePreview();
-}
-
-function toggleTools() {
-  const panel = document.getElementById('toolsPanel');
-  const btn = document.getElementById('toolsBtn');
-  panel.classList.toggle('show');
-  btn.textContent = panel.classList.contains('show') ? '− TOOLS' : '+ TOOLS';
-}
-
-// === EVENT LISTENERS ===
-document.getElementById('fileInput').addEventListener('change', e => {
-  if(e.target.files[0]) loadFile(e.target.files[0]);
-});
-
-document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-    e.preventDefault();
-    undo();
-  }
-});
-
-updateUndoButton();
-updateSelectionInfoPanel();
-updateScope();
+// === EVENTS ===
+document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0]);});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undo();}});
+updateUndoButton();updateScope();
 </script>
 </body>
 </html>
