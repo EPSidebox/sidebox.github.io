@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xorter</title>
+
+<!-- Zotero / Citation Metadata -->
+<meta name="citation_title" content="Xorter">
+<meta name="citation_author" content="Peña, Ernesto">
+<meta name="citation_publication_date" content="2026/03/18">
+<meta name="citation_technical_report_institution" content="Northeastern University">
+<meta name="citation_technical_report_number" content="v1.0">
+<meta name="citation_abstract" content="A browser-based image pixel sorting tool for databending and glitch art. Sort pixel rows or columns by channel values with selection masks, channel operations, and preset recording.">
+<meta name="citation_keywords" content="pixel sorting; databending; glitch art; glitch pedagogy; digital media; image manipulation">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Xorter",
+  "author": {
+    "@type": "Person",
+    "name": "Ernesto Peña",
+    "affiliation": "Northeastern University",
+    "url": "https://ernestopena.com"
+  },
+  "datePublished": "2026-03-18",
+  "version": "1.0",
+  "description": "A browser-based image pixel sorting tool for databending and glitch art. Sort pixel rows or columns by channel values with selection masks, channel operations, and preset recording.",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Web browser",
+  "keywords": ["pixel sorting", "databending", "glitch art", "glitch pedagogy", "digital media", "image manipulation"]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* === THEME VARIABLES === */
+:root {
+  --bg:#121212;--bg2:#1e1e1e;--bg3:#2a2a2a;
+  --fg:#e0e0e0;--fg2:#888;
+  --mag:#ff00ff;--cyan:#00bcd4;--red:#ff4444;--grn:#4caf50;
+  --border:#333;--canvas-bg:#0a0a0a;
+}
+[data-theme="light"] {
+  --bg:#f4f4f4;--bg2:#ffffff;--bg3:#e8e8e8;
+  --fg:#1a1a1a;--fg2:#666;
+  --mag:#cc00cc;--cyan:#00838f;--red:#d32f2f;--grn:#388e3c;
+  --border:#ccc;--canvas-bg:#e0e0e0;
+}
+
+body{font-family:'Roboto Mono',monospace;background:var(--bg);color:var(--fg);overflow-x:hidden;font-size:13px;height:100vh;display:flex;flex-direction:column;transition:background .2s,color .2s}
+button{font-family:inherit;font-size:11px;padding:5px 10px;border:1px solid var(--border);background:var(--bg3);color:var(--fg);cursor:pointer;border-radius:3px;transition:all .15s;white-space:nowrap}
+button:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan)}
+button:disabled{opacity:.35;cursor:default}
+button.accent{border-color:var(--mag);color:var(--mag)}
+button.accent:hover:not(:disabled){background:var(--mag);color:#000}
+button.active-toggle{background:var(--mag);color:#fff;border-color:var(--mag)}
+[data-theme="light"] button.active-toggle{color:#fff}
+select,input[type=number],input[type=text]{font-family:inherit;font-size:11px;padding:4px 6px;border:1px solid var(--border);background:var(--bg);color:var(--fg);border-radius:3px;outline:none;transition:border-color .15s,background .2s,color .2s}
+select:focus,input:focus{border-color:var(--cyan)}
+input[type=number]{width:58px}
+label{font-size:10px;color:var(--fg2);text-transform:uppercase;letter-spacing:.5px}
+
+/* Header */
+.header{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg2);border-bottom:1px solid var(--border);flex-wrap:wrap;flex-shrink:0;transition:background .2s}
+.header h1{font-size:14px;font-weight:700;background:linear-gradient(90deg,var(--mag),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+.header .info{font-size:10px;color:var(--fg2);margin-left:auto}
+.toolbar{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+
+.theme-toggle{display:flex;align-items:center;gap:5px;font-size:11px;padding:5px 10px;cursor:pointer}
+.theme-toggle:hover{border-color:var(--mag);color:var(--mag)}
+
+/* Main 2-col layout */
+.main{display:flex;flex:1;min-height:0;overflow:hidden}
+
+/* Left: canvas */
+.canvas-area{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;background:var(--canvas-bg);position:relative;min-width:0;overflow:hidden;transition:background .2s}
+.canvas-area.empty::after{content:'Load an image to begin';color:var(--fg2);font-size:14px;position:absolute}
+.canvas-stack{position:relative;display:inline-block;max-width:100%;max-height:100%}
+.canvas-stack canvas{image-rendering:pixelated;display:block;max-width:100%;max-height:100%}
+#overlayCanvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;image-rendering:pixelated}
+.seed-marker{position:absolute;width:14px;height:14px;border:2px solid var(--mag);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 6px var(--mag);z-index:5}
+
+/* Footer */
+footer{padding:6px 14px;text-align:center;font-size:10px;color:var(--fg2);border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0;transition:background .2s}
+footer a{color:var(--mag);text-decoration:underline}
+footer a:hover{text-decoration:none;color:var(--fg)}
+
+/* Right: tools sidebar */
+.sidebar{width:310px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;gap:0;transition:background .2s}
+.panel{padding:10px 12px;border-bottom:1px solid var(--border)}
+.panel:last-child{border-bottom:none}
+.panel-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--cyan);margin-bottom:7px}
+.row{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.row+.row{margin-top:6px}
+.field{display:flex;flex-direction:column;gap:2px}
+.btn-group{display:flex;gap:0}
+.btn-group button{border-radius:0;padding:4px 8px}
+.btn-group button:first-child{border-radius:3px 0 0 3px}
+.btn-group button:last-child{border-radius:0 3px 3px 0}
+.btn-group button.active{background:var(--mag);color:#fff;border-color:var(--mag)}
+.rec-indicator{display:inline-flex;align-items:center;gap:4px;color:var(--red);font-size:10px;font-weight:700}
+.rec-indicator .dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.history-info{font-size:10px;color:var(--fg2)}
+.hidden{display:none!important}
+#fileInput{display:none}
+.selection-params{margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+.sel-info{font-size:10px;color:var(--mag);margin-top:4px}
+.idx-total{font-size:10px;color:var(--fg2);white-space:nowrap}
+.field-row{display:flex;align-items:center;gap:4px}
+.field-row label{margin:0}
+
+@media(max-width:750px){
+  .main{flex-direction:column}
+  .canvas-area{min-height:40vh}
+  .sidebar{width:100%;flex-shrink:1;border-left:none;border-top:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>XORTER</h1>
+  <div class="toolbar">
+    <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.bmp,.webp">
+    <button onclick="document.getElementById('fileInput').click()">Load</button>
+    <button id="btnReset" disabled onclick="resetImage()">Reset</button>
+    <button id="btnUndo" disabled onclick="undo()">Undo</button>
+    <button id="btnRedo" disabled onclick="redo()">Redo</button>
+    <span class="history-info" id="histInfo"></span>
+    <span id="recBadge" class="rec-indicator hidden"><span class="dot"></span>REC <span id="recCount">0</span></span>
+  </div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <span id="themeIcon">☀️</span><span id="themeText">Light</span>
+  </button>
+  <div class="info" id="imgInfo">No image</div>
+</div>
+
+<div class="main">
+  <div class="canvas-area empty" id="canvasWrap">
+    <div class="canvas-stack" id="canvasStack">
+      <canvas id="cvs"></canvas>
+      <canvas id="overlayCanvas"></canvas>
+    </div>
+    <div class="seed-marker hidden" id="seedMarker"></div>
+  </div>
+
+  <div class="sidebar">
+    <!-- Sorting -->
+    <div class="panel">
+      <div class="panel-title">Sorting</div>
+      <div class="row">
+        <div class="field"><label>Channel</label>
+          <div class="btn-group" id="chGroup">
+            <button class="active" data-v="R">R</button>
+            <button data-v="G">G</button>
+            <button data-v="B">B</button>
+            <button data-v="ALL">All</button>
+          </div>
+        </div>
+        <div class="field"><label>Direction</label>
+          <div class="btn-group" id="dirGroup">
+            <button class="active" data-v="horizontal">H</button>
+            <button data-v="vertical">V</button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label id="idxLabel">Column</label>
+          <div style="display:flex;align-items:center;gap:4px">
+            <input type="number" id="sortIdx" value="0" min="0">
+            <span class="idx-total" id="idxTotal"></span>
+          </div>
+        </div>
+        <div class="field"><label>Order</label>
+          <div class="btn-group" id="ordGroup">
+            <button class="active" data-v="asc">Asc</button>
+            <button data-v="desc">Desc</button>
+          </div>
+        </div>
+        <div class="field"><label>&nbsp;</label>
+          <button class="accent" id="btnSort" disabled onclick="execSort()">SORT</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selection -->
+    <div class="panel">
+      <div class="panel-title">Selection</div>
+      <div class="row">
+        <div class="field"><label>Mode</label>
+          <div class="btn-group" id="selGroup">
+            <button class="active" data-v="none">None</button>
+            <button data-v="range">Range</button>
+            <button data-v="seed">Seed</button>
+            <button data-v="mask">Mask</button>
+          </div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <button id="btnPreview" disabled onclick="togglePreview()">Preview Selection</button>
+      </div>
+      <div class="selection-params hidden" id="selParams">
+        <div class="row" id="rangeParams">
+          <div class="field"><label>Min</label><input type="number" id="selMin" value="0" min="0" max="255"></div>
+          <div class="field"><label>Max</label><input type="number" id="selMax" value="255" min="0" max="255"></div>
+        </div>
+        <div class="row hidden" id="seedParams">
+          <div class="field"><label>Seed X</label><input type="number" id="seedX" value="0" min="0" readonly style="width:50px"></div>
+          <div class="field"><label>Seed Y</label><input type="number" id="seedY" value="0" min="0" readonly style="width:50px"></div>
+          <div class="field"><label>Tol</label><input type="number" id="seedTol" value="30" min="0" max="255" style="width:50px"></div>
+        </div>
+        <div class="hidden" id="seedContigWrap" style="margin-top:5px">
+          <div class="field-row"><input type="checkbox" id="seedContig"><label for="seedContig" style="cursor:pointer">Contiguous</label></div>
+        </div>
+      </div>
+      <div class="sel-info hidden" id="selInfo"></div>
+    </div>
+
+    <!-- Channel Ops -->
+    <div class="panel">
+      <div class="panel-title">Channel Ops</div>
+      <div class="row">
+        <div class="field"><label>Swap</label>
+          <select id="swapSel"><option>R↔G</option><option>R↔B</option><option>G↔B</option></select>
+        </div>
+        <div class="field"><label>&nbsp;</label><button id="btnSwap" disabled onclick="swapChannels()">Swap</button></div>
+        <div class="field"><label>&nbsp;</label><button id="btnRotate" disabled onclick="rotateChannels()">Rotate</button></div>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="panel">
+      <div class="panel-title">Presets</div>
+      <div class="row">
+        <div class="field"><label>Preset</label><select id="presetSel" style="width:140px"></select></div>
+        <div class="field"><label>&nbsp;</label><button id="btnPreset" disabled onclick="applyPreset()">Apply</button></div>
+      </div>
+      <div class="row">
+        <button id="btnRecStart" disabled onclick="startRec()">● Rec</button>
+        <button id="btnRecStop" disabled onclick="stopRec()">■ Stop</button>
+        <button id="btnPresetDel" onclick="deletePreset()">Del</button>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="panel">
+      <div class="panel-title">Export</div>
+      <div class="row">
+        <button id="btnPng" disabled onclick="exportPng()">PNG</button>
+        <button id="btnRaw" disabled onclick="exportRaw()">RAW</button>
+        <div class="field"><label>Fmt</label>
+          <select id="rawFmt"><option value="planar">Planar</option><option value="interleaved">Interlv</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Xorter — A Glitch Pedagogy Tool · Created by Ernesto Peña | <a href="https://ernestopena.com" target="_blank">ernestopena.com</a>
+</footer>
+
+<script>
+// === THEME ===
+const html = document.documentElement;
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const themeText = document.getElementById('themeText');
+
+function getPreferredTheme() {
+  const saved = localStorage.getItem('xorter_theme');
+  if (saved) return saved;
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+function setTheme(t) {
+  if (t === 'light') {
+    html.setAttribute('data-theme', 'light');
+    themeIcon.textContent = '🌙'; themeText.textContent = 'Dark';
+  } else {
+    html.removeAttribute('data-theme');
+    themeIcon.textContent = '☀️'; themeText.textContent = 'Light';
+  }
+  localStorage.setItem('xorter_theme', t);
+}
+
+setTheme(getPreferredTheme());
+themeToggle.addEventListener('click', () => {
+  setTheme(html.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+});
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+  if (!localStorage.getItem('xorter_theme')) setTheme(e.matches ? 'light' : 'dark');
+});
+
+// === STATE ===
+const S = {
+  original: null, channels: null, width: 0, height: 0,
+  history: { undo: [], redo: [], max: 10 },
+  recording: { active: false, ops: [] },
+  seed: { x: null, y: null },
+  customPresets: {},
+  previewActive: false
+};
+
+const cvs = document.getElementById('cvs');
+const ctx = cvs.getContext('2d', { willReadFrequently: true });
+const overlayCvs = document.getElementById('overlayCanvas');
+const overlayCtx = overlayCvs.getContext('2d', { willReadFrequently: true });
+
+// === BUTTON GROUPS ===
+function setupGroup(id, onChange) {
+  const el = document.getElementById(id);
+  el.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => {
+      el.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      if (onChange) onChange(b.dataset.v);
+    });
+  });
+  return () => el.querySelector('.active')?.dataset.v;
+}
+const getCh = setupGroup('chGroup', () => { if (S.previewActive) drawOverlay(); });
+const getDir = setupGroup('dirGroup', v => {
+  document.getElementById('idxLabel').textContent = v === 'horizontal' ? 'Column' : 'Row';
+  clampIdx();
+  if (S.previewActive) drawOverlay();
+});
+const getOrd = setupGroup('ordGroup');
+const getSelMode = setupGroup('selGroup', v => {
+  const sp = document.getElementById('selParams');
+  const rp = document.getElementById('rangeParams');
+  const sdp = document.getElementById('seedParams');
+  const scw = document.getElementById('seedContigWrap');
+  if (v === 'none') { sp.classList.add('hidden'); clearOverlay(); }
+  else {
+    sp.classList.remove('hidden');
+    rp.classList.toggle('hidden', v === 'seed');
+    sdp.classList.toggle('hidden', v !== 'seed');
+    scw.classList.toggle('hidden', v !== 'seed');
+  }
+  if (S.previewActive) drawOverlay();
+});
+
+['selMin','selMax','seedTol','sortIdx'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    if (id === 'sortIdx') clampIdx();
+    if (S.previewActive) drawOverlay();
+  });
+});
+document.getElementById('seedContig').addEventListener('change', () => { if (S.previewActive) drawOverlay(); });
+
+// === HELPERS ===
+function clampIdx() {
+  const inp = document.getElementById('sortIdx');
+  const max = getDir() === 'horizontal' ? S.width - 1 : S.height - 1;
+  const total = getDir() === 'horizontal' ? S.width : S.height;
+  inp.max = max || 0;
+  if (+inp.value > max) inp.value = max;
+  if (+inp.value < 0) inp.value = 0;
+  document.getElementById('idxTotal').textContent = `/ ${total}`;
+}
+function gp(ch, x, y) { return S.channels[ch][y * S.width + x]; }
+function getRow(ch, y) { const s = y * S.width; return S.channels[ch].slice(s, s + S.width); }
+function setRow(ch, y, d) { S.channels[ch].set(d, y * S.width); }
+function getCol(ch, x) {
+  const c = new Uint8Array(S.height);
+  for (let y = 0; y < S.height; y++) c[y] = S.channels[ch][y * S.width + x];
+  return c;
+}
+function setCol(ch, x, d) { for (let y = 0; y < S.height; y++) S.channels[ch][y * S.width + x] = d[y]; }
+function cloneChannels(c) {
+  return { R: new Uint8Array(c.R), G: new Uint8Array(c.G), B: new Uint8Array(c.B), A: new Uint8Array(c.A) };
+}
+
+// === HISTORY ===
+function pushHistory() {
+  S.history.redo = [];
+  S.history.undo.push(cloneChannels(S.channels));
+  if (S.history.undo.length > S.history.max) S.history.undo.shift();
+  updateHistUI();
+}
+function undo() {
+  if (!S.history.undo.length) return;
+  S.history.redo.push(cloneChannels(S.channels));
+  S.channels = S.history.undo.pop();
+  render(); updateHistUI();
+}
+function redo() {
+  if (!S.history.redo.length) return;
+  S.history.undo.push(cloneChannels(S.channels));
+  S.channels = S.history.redo.pop();
+  render(); updateHistUI();
+}
+function updateHistUI() {
+  document.getElementById('btnUndo').disabled = !S.history.undo.length;
+  document.getElementById('btnRedo').disabled = !S.history.redo.length;
+  document.getElementById('histInfo').textContent = `↩${S.history.undo.length} ↪${S.history.redo.length}`;
+}
+
+// === IMAGE LOADING ===
+document.getElementById('fileInput').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const img = new Image();
+  img.onload = () => {
+    S.width = img.width; S.height = img.height;
+    cvs.width = S.width; cvs.height = S.height;
+    overlayCvs.width = S.width; overlayCvs.height = S.height;
+    ctx.drawImage(img, 0, 0);
+    const d = ctx.getImageData(0, 0, S.width, S.height).data;
+    const n = S.width * S.height;
+    const ch = { R: new Uint8Array(n), G: new Uint8Array(n), B: new Uint8Array(n), A: new Uint8Array(n) };
+    for (let i = 0; i < n; i++) { ch.R[i]=d[i*4]; ch.G[i]=d[i*4+1]; ch.B[i]=d[i*4+2]; ch.A[i]=d[i*4+3]; }
+    S.original = cloneChannels(ch); S.channels = ch;
+    S.history = { undo: [], redo: [], max: 10 };
+    S.seed = { x: null, y: null }; S.previewActive = false;
+    document.getElementById('canvasWrap').classList.remove('empty');
+    document.getElementById('seedMarker').classList.add('hidden');
+    document.getElementById('btnPreview').classList.remove('active-toggle');
+    document.getElementById('imgInfo').textContent = `${S.width}×${S.height}`;
+    clampIdx(); clearOverlay(); enableUI(true); render(); updateHistUI();
+    if (S.width > 4096 || S.height > 4096) alert('Large image — operations may be slow.');
+  };
+  img.onerror = () => alert('Failed to load image.');
+  img.src = URL.createObjectURL(f);
+});
+
+function enableUI(on) {
+  ['btnReset','btnSort','btnSwap','btnRotate','btnPreset','btnRecStart','btnPng','btnRaw','btnPreview'].forEach(id =>
+    document.getElementById(id).disabled = !on);
+}
+
+// === RENDER ===
+function render() {
+  const id = ctx.createImageData(S.width, S.height);
+  const d = id.data; const n = S.width * S.height;
+  for (let i = 0; i < n; i++) { d[i*4]=S.channels.R[i]; d[i*4+1]=S.channels.G[i]; d[i*4+2]=S.channels.B[i]; d[i*4+3]=S.channels.A[i]; }
+  ctx.putImageData(id, 0, 0);
+  if (S.previewActive) drawOverlay();
+}
+
+// === SELECTION OVERLAY ===
+function togglePreview() {
+  S.previewActive = !S.previewActive;
+  document.getElementById('btnPreview').classList.toggle('active-toggle', S.previewActive);
+  if (S.previewActive) drawOverlay(); else clearOverlay();
+}
+function clearOverlay() {
+  overlayCtx.clearRect(0, 0, overlayCvs.width, overlayCvs.height);
+  document.getElementById('selInfo').classList.add('hidden');
+}
+function drawOverlay() {
+  if (!S.channels) return;
+  const mode = getSelMode();
+  overlayCtx.clearRect(0, 0, S.width, S.height);
+  const infoEl = document.getElementById('selInfo');
+  if (mode === 'none') { infoEl.classList.add('hidden'); clearOverlay(); return; }
+  const ch = getCh(), refCh = ch === 'ALL' ? 'R' : ch;
+  const dir = getDir(), idx = +document.getElementById('sortIdx').value;
+  const res = buildSelectionSet(refCh, dir, idx, mode);
+  if (!res) { clearOverlay(); return; }
+  const { selectedSet, totalAffected, totalPossible } = res;
+  const id = overlayCtx.createImageData(S.width, S.height);
+  const d = id.data;
+  if (dir === 'horizontal') {
+    for (let y = 0; y < S.height; y++) {
+      const sel = selectedSet.has(y);
+      for (let x = 0; x < S.width; x++) {
+        const i = (y * S.width + x) * 4;
+        if (sel) { d[i]=255;d[i+1]=0;d[i+2]=255;d[i+3]=50; }
+        else { d[i]=0;d[i+1]=0;d[i+2]=0;d[i+3]=140; }
+      }
+    }
+    for (let y = 0; y < S.height; y++) {
+      const i = (y * S.width + idx) * 4;
+      if (selectedSet.has(y)) { d[i]=0;d[i+1]=255;d[i+2]=212;d[i+3]=160; }
+      else { d[i]=0;d[i+1]=188;d[i+2]=212;d[i+3]=80; }
+    }
+  } else {
+    for (let y = 0; y < S.height; y++) {
+      for (let x = 0; x < S.width; x++) {
+        const i = (y * S.width + x) * 4;
+        if (selectedSet.has(x)) { d[i]=255;d[i+1]=0;d[i+2]=255;d[i+3]=50; }
+        else { d[i]=0;d[i+1]=0;d[i+2]=0;d[i+3]=140; }
+      }
+    }
+    for (let x = 0; x < S.width; x++) {
+      const i = (idx * S.width + x) * 4;
+      if (selectedSet.has(x)) { d[i]=0;d[i+1]=255;d[i+2]=212;d[i+3]=160; }
+      else { d[i]=0;d[i+1]=188;d[i+2]=212;d[i+3]=80; }
+    }
+  }
+  overlayCtx.putImageData(id, 0, 0);
+  infoEl.classList.remove('hidden');
+  infoEl.textContent = `Selected: ${totalAffected}/${totalPossible} ${dir==='horizontal'?'rows':'cols'}`;
+}
+
+function buildSelectionSet(refCh, dir, idx, mode) {
+  const ss = new Set();
+  if (mode === 'range' || mode === 'mask') {
+    const mn = +document.getElementById('selMin').value, mx = +document.getElementById('selMax').value;
+    if (dir === 'horizontal') {
+      for (let y = 0; y < S.height; y++) if (gp(refCh,idx,y)>=mn && gp(refCh,idx,y)<=mx) ss.add(y);
+      return { selectedSet:ss, totalAffected:ss.size, totalPossible:S.height };
+    } else {
+      for (let x = 0; x < S.width; x++) if (gp(refCh,x,idx)>=mn && gp(refCh,x,idx)<=mx) ss.add(x);
+      return { selectedSet:ss, totalAffected:ss.size, totalPossible:S.width };
+    }
+  }
+  if (mode === 'seed') {
+    if (S.seed.x === null) return null;
+    const tol = +document.getElementById('seedTol').value;
+    const contig = document.getElementById('seedContig').checked;
+    const sv = gp(refCh, S.seed.x, S.seed.y);
+    if (contig) {
+      const flood = floodSelect(refCh, S.seed.x, S.seed.y, tol);
+      if (dir === 'horizontal') { flood.forEach(k => ss.add(+k.split(',')[1])); return {selectedSet:ss,totalAffected:ss.size,totalPossible:S.height}; }
+      else { flood.forEach(k => ss.add(+k.split(',')[0])); return {selectedSet:ss,totalAffected:ss.size,totalPossible:S.width}; }
+    } else {
+      if (dir === 'horizontal') {
+        for (let y=0;y<S.height;y++) if (Math.abs(gp(refCh,idx,y)-sv)<=tol) ss.add(y);
+        return {selectedSet:ss,totalAffected:ss.size,totalPossible:S.height};
+      } else {
+        for (let x=0;x<S.width;x++) if (Math.abs(gp(refCh,x,idx)-sv)<=tol) ss.add(x);
+        return {selectedSet:ss,totalAffected:ss.size,totalPossible:S.width};
+      }
+    }
+  }
+  return null;
+}
+
+// === CANVAS CLICK ===
+cvs.addEventListener('click', e => {
+  if (!S.channels) return;
+  const r = cvs.getBoundingClientRect();
+  const sx = S.width / r.width, sy = S.height / r.height;
+  const x = Math.min(Math.floor((e.clientX - r.left) * sx), S.width-1);
+  const y = Math.min(Math.floor((e.clientY - r.top) * sy), S.height-1);
+  S.seed = { x, y };
+  document.getElementById('seedX').value = x;
+  document.getElementById('seedY').value = y;
+  const mk = document.getElementById('seedMarker');
+  mk.classList.remove('hidden');
+  const wrap = document.getElementById('canvasWrap').getBoundingClientRect();
+  const cr = cvs.getBoundingClientRect();
+  mk.style.left = (x / S.width * cr.width + cr.left - wrap.left) + 'px';
+  mk.style.top = (y / S.height * cr.height + cr.top - wrap.top) + 'px';
+  if (S.previewActive) drawOverlay();
+});
+
+// === SELECTION FN (for sorting) ===
+function getSelectionFn(ch) {
+  const mode = getSelMode();
+  if (mode === 'none') return () => true;
+  if (mode === 'range' || mode === 'mask') {
+    const mn = +document.getElementById('selMin').value, mx = +document.getElementById('selMax').value;
+    return kv => kv >= mn && kv <= mx;
+  }
+  if (mode === 'seed') {
+    if (S.seed.x === null) { alert('Click on image to set seed point'); return null; }
+    const tol = +document.getElementById('seedTol').value;
+    const contig = document.getElementById('seedContig').checked;
+    const sv = gp(ch, S.seed.x, S.seed.y);
+    if (contig) {
+      const sel = floodSelect(ch, S.seed.x, S.seed.y, tol);
+      const dir = getDir();
+      if (dir === 'horizontal') { const rows = new Set(); sel.forEach(k => rows.add(+k.split(',')[1])); return (_kv,_x,y) => rows.has(y); }
+      else { const cols = new Set(); sel.forEach(k => cols.add(+k.split(',')[0])); return (_kv,x) => cols.has(x); }
+    }
+    return kv => Math.abs(kv - sv) <= tol;
+  }
+  return () => true;
+}
+
+function floodSelect(ch, sx, sy, tol) {
+  const sv = gp(ch, sx, sy), visited = new Set(), selected = new Set(), q = [[sx,sy]];
+  while (q.length) {
+    const [x,y] = q.pop(); const k = x+','+y;
+    if (visited.has(k)) continue; visited.add(k);
+    if (x<0||x>=S.width||y<0||y>=S.height) continue;
+    if (Math.abs(gp(ch,x,y)-sv)<=tol) { selected.add(k); q.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]); }
+  }
+  return selected;
+}
+
+// === SORT ===
+function sortChannel(ch, dir, idx, asc, selFn) {
+  if (dir === 'horizontal') {
+    const rows = [];
+    for (let y=0;y<S.height;y++) { const kv=gp(ch,idx,y); if(selFn(kv,idx,y)) rows.push({y,kv,data:getRow(ch,y)}); }
+    rows.sort((a,b) => asc ? a.kv-b.kv : b.kv-a.kv);
+    const origYs = rows.map(r=>r.y).sort((a,b)=>a-b);
+    for (let i=0;i<rows.length;i++) setRow(ch, origYs[i], rows[i].data);
+  } else {
+    const cols = [];
+    for (let x=0;x<S.width;x++) { const kv=gp(ch,x,idx); if(selFn(kv,x,idx)) cols.push({x,kv,data:getCol(ch,x)}); }
+    cols.sort((a,b) => asc ? a.kv-b.kv : b.kv-a.kv);
+    const origXs = cols.map(c=>c.x).sort((a,b)=>a-b);
+    for (let i=0;i<cols.length;i++) setCol(ch, origXs[i], cols[i].data);
+  }
+}
+
+function execSort() {
+  if (!S.channels) return;
+  const ch=getCh(), dir=getDir(), idx=+document.getElementById('sortIdx').value, asc=getOrd()==='asc';
+  const chs = ch==='ALL' ? ['R','G','B'] : [ch];
+  const selFn = getSelectionFn(chs[0]); if (!selFn) return;
+  pushHistory();
+  for (const c of chs) sortChannel(c, dir, idx, asc, selFn);
+  render();
+  if (S.recording.active) {
+    S.recording.ops.push({ type:'sort',channel:ch,direction:dir,index:idx,order:asc?'asc':'desc',
+      selection:{mode:getSelMode(),min:+document.getElementById('selMin').value,max:+document.getElementById('selMax').value,
+        seedX:S.seed.x,seedY:S.seed.y,tolerance:+document.getElementById('seedTol').value,contiguous:document.getElementById('seedContig').checked}});
+    document.getElementById('recCount').textContent = S.recording.ops.length;
+  }
+}
+
+// === CHANNEL OPS ===
+function swapChannels() {
+  if (!S.channels) return; pushHistory();
+  const sel=document.getElementById('swapSel').value; let a,b;
+  if(sel==='R↔G'){a='R';b='G';}else if(sel==='R↔B'){a='R';b='B';}else{a='G';b='B';}
+  const tmp=S.channels[a]; S.channels[a]=S.channels[b]; S.channels[b]=tmp;
+  render();
+  if(S.recording.active){S.recording.ops.push({type:'swap',a,b});document.getElementById('recCount').textContent=S.recording.ops.length;}
+}
+function rotateChannels() {
+  if (!S.channels) return; pushHistory();
+  const tmp=S.channels.R; S.channels.R=S.channels.G; S.channels.G=S.channels.B; S.channels.B=tmp;
+  render();
+  if(S.recording.active){S.recording.ops.push({type:'rotate'});document.getElementById('recCount').textContent=S.recording.ops.length;}
+}
+
+// === RESET ===
+function resetImage() {
+  if (!S.original) return; pushHistory();
+  S.channels = cloneChannels(S.original); render();
+}
+
+// === PRESETS ===
+const BUILTIN = {
+  'Horiz Red Bands':{ops:[{type:'sort',channel:'R',direction:'horizontal',index:0,order:'asc',selection:{mode:'none'}}]},
+  'Vert Green Bands':{ops:[{type:'sort',channel:'G',direction:'vertical',index:0,order:'asc',selection:{mode:'none'}}]},
+  'RGB Shift':{ops:[{type:'rotate'}]},
+  'Swap R↔B':{ops:[{type:'swap',a:'R',b:'B'}]},
+  'Multi-Ch Glitch':{ops:[
+    {type:'sort',channel:'R',direction:'horizontal',index:0,order:'asc',selection:{mode:'none'}},
+    {type:'sort',channel:'G',direction:'vertical',index:0,order:'desc',selection:{mode:'none'}},
+    {type:'sort',channel:'B',direction:'horizontal',index:50,order:'asc',selection:{mode:'range',min:50,max:200}}]},
+  'Edge Sort':{ops:[{type:'sort',channel:'ALL',direction:'horizontal',index:'max',order:'asc',selection:{mode:'none'}}]},
+  'Center Sort H':{ops:[{type:'sort',channel:'ALL',direction:'horizontal',index:'midW',order:'asc',selection:{mode:'none'}}]},
+  'Center Sort V':{ops:[{type:'sort',channel:'ALL',direction:'vertical',index:'midH',order:'asc',selection:{mode:'none'}}]},
+  'Diagonal Seq':{ops:[
+    {type:'sort',channel:'R',direction:'horizontal',index:'midW',order:'asc',selection:{mode:'none'}},
+    {type:'sort',channel:'G',direction:'vertical',index:'midH',order:'desc',selection:{mode:'none'}}]},
+  'Dark Band Isolate':{ops:[{type:'sort',channel:'ALL',direction:'horizontal',index:0,order:'asc',selection:{mode:'range',min:0,max:80}}]}
+};
+
+function resolveIdx(v) {
+  if(v==='max') return S.width-1; if(v==='midW') return Math.floor(S.width/2);
+  if(v==='midH') return Math.floor(S.height/2); return Math.min(+v, Math.max(S.width,S.height)-1);
+}
+function loadPresetList() {
+  const sel=document.getElementById('presetSel'); sel.innerHTML='';
+  for(const n of Object.keys(BUILTIN)) sel.innerHTML+=`<option value="b:${n}">${n}</option>`;
+  try{S.customPresets=JSON.parse(localStorage.getItem('imageSorter_customPresets')||'{}');}catch(e){S.customPresets={};}
+  for(const n of Object.keys(S.customPresets)) sel.innerHTML+=`<option value="c:${n}">★ ${n}</option>`;
+}
+function applyPreset() {
+  if(!S.channels) return;
+  const v=document.getElementById('presetSel').value;
+  const [type,...rest]=v.split(':'); const name=rest.join(':');
+  const preset = type==='b' ? BUILTIN[name] : S.customPresets[name]; if(!preset) return;
+  pushHistory();
+  for(const op of preset.ops) {
+    if(op.type==='sort'){
+      const chs=op.channel==='ALL'?['R','G','B']:[op.channel]; const idx=resolveIdx(op.index); const asc=op.order==='asc';
+      let selFn=()=>true;
+      if(op.selection?.mode==='range'||op.selection?.mode==='mask'){const mn=op.selection.min??0,mx=op.selection.max??255;selFn=kv=>kv>=mn&&kv<=mx;}
+      for(const c of chs) sortChannel(c,op.direction,idx,asc,selFn);
+    } else if(op.type==='swap'){const tmp=S.channels[op.a];S.channels[op.a]=S.channels[op.b];S.channels[op.b]=tmp;}
+    else if(op.type==='rotate'){const tmp=S.channels.R;S.channels.R=S.channels.G;S.channels.G=S.channels.B;S.channels.B=tmp;}
+  }
+  render();
+}
+function startRec(){
+  S.recording={active:true,ops:[]};document.getElementById('recBadge').classList.remove('hidden');
+  document.getElementById('recCount').textContent='0';document.getElementById('btnRecStart').disabled=true;document.getElementById('btnRecStop').disabled=false;
+}
+function stopRec(){
+  S.recording.active=false;document.getElementById('recBadge').classList.add('hidden');
+  document.getElementById('btnRecStart').disabled=!S.channels;document.getElementById('btnRecStop').disabled=true;
+  if(!S.recording.ops.length) return;
+  const name=prompt('Preset name:'); if(!name) return;
+  S.customPresets[name]={name,ops:S.recording.ops};
+  try{localStorage.setItem('imageSorter_customPresets',JSON.stringify(S.customPresets));}catch(e){}
+  loadPresetList();
+}
+function deletePreset(){
+  const v=document.getElementById('presetSel').value;
+  if(!v.startsWith('c:')){alert('Can only delete custom presets');return;}
+  const name=v.slice(2); if(!confirm(`Delete "${name}"?`)) return;
+  delete S.customPresets[name];
+  try{localStorage.setItem('imageSorter_customPresets',JSON.stringify(S.customPresets));}catch(e){}
+  loadPresetList();
+}
+
+// === EXPORT ===
+function exportPng(){
+  if(!S.channels) return;
+  const c2=document.createElement('canvas'); c2.width=S.width; c2.height=S.height;
+  const x2=c2.getContext('2d'); const id=x2.createImageData(S.width,S.height);
+  const d=id.data; const n=S.width*S.height;
+  for(let i=0;i<n;i++){d[i*4]=S.channels.R[i];d[i*4+1]=S.channels.G[i];d[i*4+2]=S.channels.B[i];d[i*4+3]=S.channels.A[i];}
+  x2.putImageData(id,0,0);
+  c2.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='xorter.png';a.click();});
+}
+function exportRaw(){
+  if(!S.channels) return; const n=S.width*S.height; const fmt=document.getElementById('rawFmt').value; let buf;
+  if(fmt==='planar'){buf=new Uint8Array(n*3);buf.set(S.channels.R,0);buf.set(S.channels.G,n);buf.set(S.channels.B,n*2);}
+  else{buf=new Uint8Array(n*3);for(let i=0;i<n;i++){buf[i*3]=S.channels.R[i];buf[i*3+1]=S.channels.G[i];buf[i*3+2]=S.channels.B[i];}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/octet-stream'}));a.download='xorter.raw';a.click();
+}
+
+// === KEYBOARD ===
+document.addEventListener('keydown', e => {
+  if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo();}
+  if(e.ctrlKey&&e.key==='y'){e.preventDefault();redo();}
+});
+
+// === INIT ===
+loadPresetList(); updateHistUI();
+document.getElementById('btnRecStop').disabled = true;
+</script>
+</body>
+</html>
