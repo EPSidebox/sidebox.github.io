@@ -132,6 +132,14 @@
       background: var(--text);
       color: var(--bg);
     }
+    /* Experimental: distinguished by BORDER STYLE, not colour — 21:1 like
+       tag-glitch, and a dashed edge reads as provisional, which is the point.
+       An inverse-magenta version was tried first and measured 3.14:1. */
+    .tag-exp {
+      background: var(--bg);
+      color: var(--text);
+      border-style: dashed;
+    }
     .card:hover .tag-glitch {
       background: var(--hover-text);
       color: var(--hover-bg);
@@ -145,6 +153,12 @@
       background: var(--hover-text);
       color: var(--hover-bg);
       border-color: var(--hover-text);
+    }
+    .card:hover .tag-exp {
+      background: var(--hover-bg);
+      color: var(--hover-text);
+      border-color: var(--hover-text);
+      border-style: dashed;
     }
     
     /* === FOOTER === */
@@ -236,6 +250,12 @@
         <div class="card-tags"><span class="tag tag-type">Typography</span></div>
         <h2>Line Length Calculator<span class="card-arrow">→</span></h2>
         <p>Calculate optimal line length based on typeface metrics and character density. Upload any font to measure LCA' and determine ideal line lengths for novice and expert readers.</p>
+      </a>
+
+      <a href="greenlist.html" class="card" target="_blank">
+        <div class="card-tags"><span class="tag tag-exp">Experimental</span></div>
+        <h2>Greenlist~<span class="card-arrow">→</span></h2>
+        <p>A real AI text watermark, run without the restraint it depends on. A secret key decides which words are permitted at each position; forbidden ones are overwritten with permitted ones, and the certification score climbs as the passage comes apart. Three vocabulary sources, word and field views, fully offline.</p>
       </a>
     </div>
   </main>
