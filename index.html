@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Google tag (gtag.js) -->
+
+  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-8XQLL5N022"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -11,258 +12,544 @@
     gtag('js', new Date());
     gtag('config', 'G-8XQLL5N022');
   </script>
+
   <title>Sidebox</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
   <style>
-    /* === BASE RESET === */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    /* === TYPOGRAPHY & COLORS === */
+    /* @import must be the first rule in the stylesheet. */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300..700;1,300..700&display=swap');
+
+    /* =====================================================================
+       BASELINE RESPONSIVE — inlined, standalone
+       ---------------------------------------------------------------------
+       A two-input typographic system: set --type-size and --leading below and
+       the type scale, vertical rhythm, spacing, measure, and grid all derive
+       from those two values.
+
+       Adapted from "Baseline" by Stephane Curzi (2009, ProjetUrbain.com),
+       CC BY-SA 3.0. Matches the Baseline Responsive WordPress theme; if you
+       change --leading or --type-size in one, change it in the other.
+       ===================================================================== */
+
+    /* ==========================================================================
+       THE TWO INPUTS — change these, everything else follows
+       ========================================================================== */
+
     :root {
-      --font: 'Roboto Mono', monospace;
-      --bg: #fff;
-      --text: #000;
-      --accent: #FF00FF;
-      --muted: #666;
-      --border: #000;
-      --hover-bg: #000;
-      --hover-text: #fff;
+      --type-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);  /* 16px → 18px */
+      --leading: 1.5;
+
+      /* Literal fallback for sqrt(1.5); upgraded live below where supported.
+         If you change --leading, update this number too. */
+      --scale-ratio: 1.22474487;
+
+      /* Derived rhythm */
+      --rhythm: calc(var(--type-size) * var(--leading));
+      --rhythm-half: calc(var(--rhythm) / 2);
+      --rhythm-quarter: calc(var(--rhythm) / 4);
+
+      /* Derived type scale. Letters not digits — a WordPress kebab-casing quirk
+         in the theme build, kept here so both codebases stay in sync. */
+      --step-xxs: calc(var(--step-xs) / var(--scale-ratio));
+      --step-xs: calc(var(--step-sm) / var(--scale-ratio));
+      --step-sm: calc(var(--type-size) / var(--scale-ratio));
+      --step-base: var(--type-size);
+      --step-md: calc(var(--step-base) * var(--scale-ratio));
+      --step-lg: calc(var(--step-md) * var(--scale-ratio));
+      --step-xl: calc(var(--step-lg) * var(--scale-ratio));
+      --step-xxl: calc(var(--step-xl) * var(--scale-ratio));
+
+      /* Derived layout */
+      --page-max: calc(var(--rhythm) * 44);
+      --content-measure: calc(var(--rhythm) * 34);
+      --col-min: calc(var(--rhythm) * 10);
+      --margin: var(--rhythm);
+
+      /* Palette */
+      --color-base: #ffffff;
+      --color-contrast: #111111;
+      --color-contrast-soft: #4a4a4a;
+      --color-rule: #d8d8d8;
+      --color-accent: #1f5eff;
+
+      /* Accent variant for small text on a light background. The display accent
+         is often too light to pass contrast at body sizes; this is the readable
+         sibling. Both default to the same value; sites override as needed. */
+      --color-accent-text: var(--color-accent);
     }
-    
+
+    @supports (width: calc(sqrt(4) * 1px)) {
+      :root { --scale-ratio: sqrt(var(--leading)); }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-base: #0f0f10;
+        --color-contrast: #ededec;
+        --color-contrast-soft: #a3a3a1;
+        --color-rule: #2b2b2c;
+        --color-accent: #6a97ff;
+      }
+    }
+
+
+    /* ==========================================================================
+       RESET
+       ========================================================================== */
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body, h1, h2, h3, h4, h5, h6, p, ul, ol, dl, dd, figure, blockquote {
+      margin: 0;
+    }
+
     body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
+      background: var(--color-base);
+      color: var(--color-contrast);
+      font-family: "Roboto Mono", ui-monospace, "SF Mono", Consolas, monospace;
+      font-size: var(--type-size);
+      line-height: var(--leading);
+      padding: var(--margin);
+      -webkit-text-size-adjust: 100%;
+    }
+
+    img, svg, video, canvas { max-width: 100%; height: auto; display: block; }
+
+
+    /* ==========================================================================
+       TYPE SCALE
+       Line-heights are whole multiples of the rhythm: h1/h2 = 2 units, the rest 1.
+       Weights run inverse to size — large type needs less weight to read as
+       emphatic in Roboto Mono.
+       ========================================================================== */
+
+    h1 { font-size: var(--step-xxl); line-height: calc(var(--rhythm) * 2); font-weight: 300; }
+    h2 { font-size: var(--step-xl);  line-height: calc(var(--rhythm) * 2); font-weight: 400; }
+    h3 { font-size: var(--step-lg);  line-height: var(--rhythm);           font-weight: 500; }
+    h4 { font-size: var(--step-md);  line-height: var(--rhythm);           font-weight: 600; }
+    h5,
+    h6 { font-size: var(--step-base); line-height: var(--rhythm);          font-weight: 600;
+         text-transform: uppercase; letter-spacing: 0.04em; }
+
+    p, li, dd, dt, figcaption, blockquote {
+      line-height: var(--leading);
+    }
+
+    small, .small, figcaption {
+      font-size: var(--step-sm);
+      color: var(--color-contrast-soft);
+    }
+
+    .xs  { font-size: var(--step-xs); }
+    .xxs { font-size: var(--step-xxs); letter-spacing: 0.05em; }
+
+    /* Vertical spacing: every gap is a whole rhythm unit */
+    h1, h2, h3, h4, h5, h6 { margin-block-start: calc(var(--rhythm) * 2); }
+    h1:first-child, h2:first-child, h3:first-child,
+    h4:first-child, h5:first-child, h6:first-child { margin-block-start: 0; }
+
+    p, ul, ol, dl, figure, blockquote, table, pre { margin-block-end: var(--rhythm); }
+    h1, h2, h3, h4, h5, h6 { margin-block-end: var(--rhythm); }
+
+
+    /* ==========================================================================
+       BASELINE SNAP
+       Computed from Roboto Mono's real metrics: unitsPerEm 2048, ascent 2146,
+       descent 555 → content area 1.3188em. hhea, OS/2 usWin and OS/2 typo are all
+       identical in this family and across every weight, so one value per element is
+       correct on all platforms.
+       In em, because the offset is a constant fraction of each element's own size —
+       so a single set of values covers the whole clamp() range.
+       Add class "no-baseline-snap" to any container to switch it off.
+       ========================================================================== */
+
+    p, h1, h2, h3, h4, h5, h6, li, dt, dd { position: relative; }
+
+    p, li, dt, dd { top: 0.3616em; }  /*  6.51px at an 18px base */
+    h6            { top: 0.3616em; }
+    h5            { top: 0.3616em; }
+    h4            { top: 0.2239em; }  /*  4.94px */
+    h3            { top: 0.1116em; }  /*  3.01px */
+    h2            { top: 0.4281em; }  /* 14.16px */
+    h1            { top: 0.2782em; }  /* 11.27px */
+
+    small, .small, figcaption, nav a { top: 0.5301em; } /* 7.79px — smaller type, more half-leading to clear */
+
+    /* `top` moves the whole box, borders and backgrounds included. */
+    .no-baseline-snap :where(p, h1, h2, h3, h4, h5, h6, li, dt, dd),
+    blockquote :where(p),
+    figure :where(p),
+    table :where(p) {
+      top: 0;
+    }
+
+
+    /* ==========================================================================
+       ELEMENTS
+       ========================================================================== */
+
+    a { color: var(--color-accent); text-underline-offset: 0.15em; }
+    a:hover { color: var(--color-contrast); }
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+    hr {
+      border: 0;
+      border-top: 1px solid var(--color-rule);
+      margin-block: var(--rhythm);
+    }
+
+    blockquote {
+      border-left: 2px solid var(--color-rule);
+      padding-left: var(--rhythm-half);
+      color: var(--color-contrast-soft);
+    }
+
+    code, kbd, samp, pre { font-family: inherit; }
+    pre { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--step-sm);
+      border-top: 2px solid var(--color-contrast);
+    }
+    th, td {
+      text-align: left;
+      padding: var(--rhythm-quarter) var(--rhythm-half) var(--rhythm-quarter) 0;
+      border-bottom: 1px solid var(--color-rule);
+    }
+
+    ul, ol { padding-left: var(--rhythm); }
+
+
+    /* ==========================================================================
+       LAYOUT
+       ========================================================================== */
+
+    .page {
+      max-width: var(--content-measure);
+      margin-inline: auto;
+    }
+
+    .wide {
+      max-width: var(--page-max);
+      margin-inline: auto;
+    }
+
+    /* Auto-fit grid — the same minimum column width the WordPress build feeds to
+       the Grid block. Good fit for the tool index on the Sidebox home page. */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(var(--col-min), 1fr));
+      gap: var(--rhythm);
+    }
+
+    /* Navigation / link lists */
+    nav ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--rhythm); }
+    nav a { font-size: var(--step-sm); font-weight: 600; text-decoration: none; color: var(--color-contrast); position: relative; }
+    nav a:hover { color: var(--color-accent); }
+
+
+    /* ==========================================================================
+       DEVELOPMENT AID
+       Add class "show-baseline-grid" to <body> to see the rhythm.
+       ========================================================================== */
+
+    .show-baseline-grid {
+      background-image: repeating-linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--color-accent) 18%, transparent) 0,
+        color-mix(in srgb, var(--color-accent) 18%, transparent) 1px,
+        transparent 1px,
+        transparent var(--rhythm)
+      );
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* =====================================================================
+       SIDEBOX — site-specific layer on top of baseline.css
+       Everything here is either identity (the magenta, the inverting cards)
+       or a deliberate override. All measurements are rhythm multiples.
+       ===================================================================== */
+
+    :root {
+      /* Sidebox keeps its magenta rather than the system blue. */
+      --color-accent: #FF00FF;
+
+      /* #FF00FF on white is only 3.14:1 — below AA for body text. This darker
+         sibling is 5.07:1 and is used for small text on light backgrounds.
+         The full-strength magenta stays for arrows and tags, where it sits on
+         black or is decorative. */
+      --color-accent-text: #C400C4;
+
+      --color-contrast: #000;
+      --color-rule: #000;
+
+      /* 26 rhythm units ~ 702px, near the original 690px but on the grid. */
+      --measure: calc(var(--rhythm) * 26);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-contrast: #ededec;
+        --color-rule: #2b2b2c;
+        /* Magenta clears AA on dark, so no substitute needed. */
+        --color-accent-text: var(--color-accent);
+      }
+    }
+
+    body {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      padding: 0;
     }
-    
-    /* === HEADER === */
-    header {
-      padding: 40px 20px;
-      border-bottom: 0px solid var(--border);
+
+    .container {
+      max-width: var(--measure);
+      margin-inline: auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
     }
-    
-    header h1 {
-      font-size: 36px;
-      font-weight: 400;
-      letter-spacing: 0.00em;
+
+    header,
+    footer {
+      padding: calc(var(--rhythm) * 1.5) var(--rhythm);
     }
-    
-    /* === MAIN CONTENT === */
+
     main {
       flex: 1;
-      padding: 40px 20px;
+      padding: calc(var(--rhythm) * 1.5) var(--rhythm);
     }
-    
-    .container {
-    max-width: 690px;
-    margin: 0 auto;
-  }
-    
+
+    header h1 { margin-block-end: 0; }
+
     .intro {
-      margin-bottom: 40px;
-      line-height: 1.6;
-      font-size: 18px;
+      margin-block-end: calc(var(--rhythm) * 1.5);
     }
-    
-    /* === CARD GRID === */
+
+    /* === CARD GRID ===================================================== */
+
     .card-grid {
       display: grid;
-      gap: 20px;
+      gap: var(--rhythm);
     }
-    
+
     .card {
-      border: 1px solid var(--border);
-      padding: 24px;
+      border: 1px solid var(--color-rule);
+      padding: var(--rhythm);
       text-decoration: none;
-      color: var(--text);
-      transition: all 0.15s;
+      color: var(--color-contrast);
+      transition: background-color 0.15s, color 0.15s;
       display: block;
     }
-    .card:hover {
-      background: var(--hover-bg);
-      color: var(--hover-text);
+
+    .card:hover,
+    .card:focus-visible {
+      background: var(--color-contrast);
+      color: var(--color-base);
     }
-    .card:hover .card-arrow { color: var(--accent); }
-    
+
+    .card:hover .card-arrow,
+    .card:focus-visible .card-arrow {
+      color: var(--color-accent);
+    }
+
+    /* Card titles are h2 for document structure but sit at base size, not the
+       33px the scale gives h2. Weight 600 follows the ramp: heavier at small
+       sizes, lighter at large. */
     .card h2 {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
+      font-size: var(--step-base);
+      line-height: var(--rhythm);
+      font-weight: 600;
+      margin: 0 0 var(--rhythm-quarter);
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: baseline;
+      gap: var(--rhythm-half);
     }
+
     .card-arrow {
       font-weight: 400;
       transition: color 0.15s;
     }
+
+    /* step-xs is exactly two scale steps below base — 12px at an 18px base,
+       which is the size this already used. Colour replaces the old opacity so
+       contrast stays predictable on both card states. */
     .card p {
-      font-size: 12px;
-      line-height: 1.5;
-      opacity: 0.7;
+      font-size: var(--step-xs);
+      line-height: var(--leading);
+      color: var(--color-contrast-soft);
+      margin: 0;
     }
-    
-    /* === CATEGORY TAGS === */
+
+    .card:hover p,
+    .card:focus-visible p {
+      color: var(--color-base);
+    }
+
+    /* === CATEGORY TAGS ================================================== */
+
     .card-tags {
       display: flex;
-      gap: 6px;
-      margin-bottom: 12px;
+      gap: var(--rhythm-quarter);
+      margin-block-end: var(--rhythm-half);
     }
+
     .tag {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border: 1px solid var(--border);
+      font-size: var(--step-xxs);
+      font-weight: 600;
+      line-height: var(--rhythm-half);
+      padding: 0 var(--rhythm-quarter);
+      border: 1px solid var(--color-rule);
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      white-space: nowrap;
     }
-    .tag-glitch { 
-      background: var(--bg);
-      color: var(--text);
-    }
-    .tag-type { 
-      background: var(--accent);
-      color: var(--bg);
-      border-color: var(--accent);
-    }
-    .tag-dh { 
-      background: var(--text);
-      color: var(--bg);
-    }
-    /* Experimental: distinguished by BORDER STYLE, not colour — 21:1 like
+
+    .tag-glitch { background: var(--color-base); color: var(--color-contrast); }
+    .tag-type   { background: var(--color-accent); color: var(--color-base); border-color: var(--color-accent); }
+    .tag-dh     { background: var(--color-contrast); color: var(--color-base); }
+
+    /* Experimental: distinguished by BORDER STYLE, not colour — same 21:1 as
        tag-glitch, and a dashed edge reads as provisional, which is the point.
        An inverse-magenta version was tried first and measured 3.14:1. */
     .tag-exp {
-      background: var(--bg);
-      color: var(--text);
+      background: var(--color-base);
+      color: var(--color-contrast);
       border-style: dashed;
     }
-    .card:hover .tag-glitch {
-      background: var(--hover-text);
-      color: var(--hover-bg);
-    }
-    .card:hover .tag-type {
-      background: var(--hover-text);
-      color: var(--accent);
-      border-color: var(--hover-text);
-    }
-    .card:hover .tag-dh {
-      background: var(--hover-text);
-      color: var(--hover-bg);
-      border-color: var(--hover-text);
-    }
+
+    .card:hover .tag-glitch { background: var(--color-base); color: var(--color-contrast); }
+    .card:hover .tag-type   { background: var(--color-base); color: var(--color-accent); border-color: var(--color-base); }
+    .card:hover .tag-dh     { background: var(--color-base); color: var(--color-contrast); border-color: var(--color-base); }
+
+    /* Stays hollow against the inverted card — the dashed outline is the
+       signal, so it should not fill in on hover like the others. */
     .card:hover .tag-exp {
-      background: var(--hover-bg);
-      color: var(--hover-text);
-      border-color: var(--hover-text);
+      background: var(--color-contrast);
+      color: var(--color-base);
+      border-color: var(--color-base);
       border-style: dashed;
     }
-    
-    /* === FOOTER === */
+
+    /* === FOOTER ========================================================= */
+
     footer {
-      padding: 40px 20px;
-      border-top: 1px solid var(--border);
-      font-size: 14px;
+      border-top: 1px solid var(--color-rule);
+      font-size: var(--step-sm);
     }
+
     footer a {
-      color: var(--accent);
+      color: var(--color-accent-text);
       text-decoration: none;
     }
-    footer a:hover {
-      text-decoration: underline;
-    }
+    footer a:hover { text-decoration: underline; }
+
+    /* Cards are independent boxes, not continuous text flow, so the baseline
+       nudge inside them would align to nothing. Snapping stays on for the
+       header, intro, and footer, where the grid actually reads. */
+    .card-grid :where(h2, p) { top: 0; }
   </style>
 </head>
 <body>
   <div class="container">
-  <header>
-    <h1>Sidebox</h1>
-  </header>
-  
-  <main>
-    <p class="intro">This is a repository of tools and resources for glitch-related teaching and experimentation</p>
-    
-    <div class="card-grid">
-      <a href="zalgo.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-        <h2>Zalgo Text Generator<span class="card-arrow">→</span></h2>
-        <p>Generate zalgo text with Unicode combining characters for glitch typography effects.</p>
-      </a>
+    <header>
+      <h1>Sidebox</h1>
+    </header>
 
-      <a href="transmediator.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-        <h2>Transmediator<span class="card-arrow">→</span></h2>
-        <p>A relatively simple data dictionary between text, image and audio data. Based on my work with Dr Kedrick James.</p>
-      </a>
+    <main>
+      <p class="intro">This is a repository of tools and resources for glitch-related teaching and experimentation</p>
 
-      <a href="hex.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-        <h2>Hex Editor<span class="card-arrow">→</span></h2>
-        <p>A web-based hex editor that identifies and locks header data from compressed image files.</p>
-      </a>
+      <div class="card-grid">
+        <a href="zalgo.html" class="card" target="_blank">
+          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
+          <h2>Zalgo Text Generator<span class="card-arrow">→</span></h2>
+          <p>Generate zalgo text with Unicode combining characters for glitch typography effects.</p>
+        </a>
 
-      <a href="image2table.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-        <h2>Image ↔︎ Table Converter<span class="card-arrow">→</span></h2>
-        <p>Image-to-table, table-to-image converter limited to 640^2 pixels.</p>
-      </a>
-      
-      <a href="pixelsorter.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-        <h2>Pixel Sorter<span class="card-arrow">→</span></h2>
-        <p>Basic HTML-based pixel sorter based on Kim Asendorf's work.</p>
-      </a>
+        <a href="transmediator.html" class="card" target="_blank">
+          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
+          <h2>Transmediator<span class="card-arrow">→</span></h2>
+          <p>A relatively simple data dictionary between text, image and audio data. Based on my work with Dr Kedrick James.</p>
+        </a>
 
-      <a href="xorter.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-        <h2>Xorter<span class="card-arrow">→</span></h2>
-        <p>Channel-based pixel row/column sorter with selection masks, channel swap/rotate operations, preset recording, and PNG/RAW export.</p>
-      </a>
+        <a href="hex.html" class="card" target="_blank">
+          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
+          <h2>Hex Editor<span class="card-arrow">→</span></h2>
+          <p>A web-based hex editor that identifies and locks header data from compressed image files.</p>
+        </a>
 
-      <a href="datafoldsynth.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-        <h2>Datafoldsynth v.2<span class="card-arrow">→</span></h2>
-        <p>Harmonic grid sorting with adaptive 2D zone detection, waveshape distribution, and per-channel processing. Advanced datafolding synthesizer.</p>
-      </a>
+        <a href="image2table.html" class="card" target="_blank">
+          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
+          <h2>Image ↔︎ Table Converter<span class="card-arrow">→</span></h2>
+          <p>Image-to-table, table-to-image converter limited to 640^2 pixels.</p>
+        </a>
 
-      <a href="datamoshlab.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-        <h2>Datamosh Lab<span class="card-arrow">→</span></h2>
-        <p>Frame structure analysis + motion vector visualization + Datamosh simulation</p>
-      </a>
+        <a href="pixelsorter.html" class="card" target="_blank">
+          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
+          <h2>Pixel Sorter<span class="card-arrow">→</span></h2>
+          <p>Basic HTML-based pixel sorter based on Kim Asendorf's work.</p>
+        </a>
 
-      <a href="avihex.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-        <h2>AVI Hex Frame Editor<span class="card-arrow">→</span></h2>
-        <p>Advanced AVI hex editing with datamoshing capabilities and frame-by-frame control.</p>
-      </a>
+        <a href="xorter.html" class="card" target="_blank">
+          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
+          <h2>Xorter<span class="card-arrow">→</span></h2>
+          <p>Channel-based pixel row/column sorter with selection masks, channel swap/rotate operations, preset recording, and PNG/RAW export.</p>
+        </a>
 
-      <a href="acuity.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-type">Typography</span></div>
-        <h2>Font Visual Acuity Analyzer<span class="card-arrow">→</span></h2>
-        <p>Calculate minimum visible units (1μ) and relative acuity for typefaces based on visual acuity protocol.</p>
-      </a>
+        <a href="datafoldsynth.html" class="card" target="_blank">
+          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
+          <h2>Datafoldsynth v.2<span class="card-arrow">→</span></h2>
+          <p>Harmonic grid sorting with adaptive 2D zone detection, waveshape distribution, and per-channel processing. Advanced datafolding synthesizer.</p>
+        </a>
 
-      <a href="linecalculator.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-type">Typography</span></div>
-        <h2>Line Length Calculator<span class="card-arrow">→</span></h2>
-        <p>Calculate optimal line length based on typeface metrics and character density. Upload any font to measure LCA' and determine ideal line lengths for novice and expert readers.</p>
-      </a>
+        <a href="datamoshlab.html" class="card" target="_blank">
+          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
+          <h2>Datamosh Lab<span class="card-arrow">→</span></h2>
+          <p>Frame structure analysis + motion vector visualization + Datamosh simulation</p>
+        </a>
+
+        <a href="avihex.html" class="card" target="_blank">
+          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
+          <h2>AVI Hex Frame Editor<span class="card-arrow">→</span></h2>
+          <p>Advanced AVI hex editing with datamoshing capabilities and frame-by-frame control.</p>
+        </a>
+
+        <a href="acuity.html" class="card" target="_blank">
+          <div class="card-tags"><span class="tag tag-type">Typography</span></div>
+          <h2>Font Visual Acuity Analyzer<span class="card-arrow">→</span></h2>
+          <p>Calculate minimum visible units (1μ) and relative acuity for typefaces based on visual acuity protocol.</p>
+        </a>
+
+        <a href="linecalculator.html" class="card" target="_blank">
+          <div class="card-tags"><span class="tag tag-type">Typography</span></div>
+          <h2>Line Length Calculator<span class="card-arrow">→</span></h2>
+          <p>Calculate optimal line length based on typeface metrics and character density. Upload any font to measure LCA' and determine ideal line lengths for novice and expert readers.</p>
+        </a>
 
       <a href="greenlist.html" class="card" target="_blank">
         <div class="card-tags"><span class="tag tag-exp">Experimental</span></div>
         <h2>Greenlist~<span class="card-arrow">→</span></h2>
         <p>A real AI text watermark, run without the restraint it depends on. A secret key decides which words are permitted at each position; forbidden ones are overwritten with permitted ones, and the certification score climbs as the passage comes apart. Three vocabulary sources, word and field views, fully offline.</p>
       </a>
-    </div>
-  </main>
-  
-  <footer>
-    <a href="https://ernestopena.com">ernestopena.com</a>
-  </footer>
+      </div>
+    </main>
+
+    <footer>
+      <a href="https://ernestopena.com">ernestopena.com</a>
+    </footer>
   </div>
 </body>
 </html>
