@@ -16,6 +16,7 @@
   <title>Sidebox</title>
 
   <style>
+
     /* @import must be the first rule in the stylesheet. */
     @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300..700;1,300..700&display=swap');
 
@@ -275,137 +276,116 @@
     }
 
     /* =====================================================================
-       SIDEBOX — site-specific layer on top of baseline.css
-       Everything here is either identity (the magenta, the inverting cards)
-       or a deliberate override. All measurements are rhythm multiples.
+       SIDEBOX — site layer
+       Shell and list component mirror the WordPress theme's header/footer
+       parts and Query Loop pattern. Palette stays Sidebox.
        ===================================================================== */
 
     :root {
-      /* Sidebox keeps its magenta rather than the system blue. */
       --color-accent: #FF00FF;
-
-      /* #FF00FF on white is only 3.14:1 — below AA for body text. This darker
-         sibling is 5.07:1 and is used for small text on light backgrounds.
-         The full-strength magenta stays for arrows and tags, where it sits on
-         black or is decorative. */
-      --color-accent-text: #C400C4;
-
       --color-contrast: #000;
       --color-rule: #000;
-
-      /* 26 rhythm units ~ 702px, near the original 690px but on the grid. */
-      --measure: calc(var(--rhythm) * 26);
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
         --color-contrast: #ededec;
         --color-rule: #2b2b2c;
-        /* Magenta clears AA on dark, so no substitute needed. */
-        --color-accent-text: var(--color-accent);
       }
     }
 
+    /* --- shell: matches the theme's root padding and constrained layout --- */
+
     body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: 0;
+      padding: 0 var(--rhythm);
     }
 
-    .container {
-      max-width: var(--measure);
+    .site {
+      max-width: var(--content-measure); /* 34 rhythm units, as theme.json */
       margin-inline: auto;
       width: 100%;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
+      padding-block: calc(var(--rhythm) * 2);
     }
 
-    header,
-    footer {
-      padding: calc(var(--rhythm) * 1.5) var(--rhythm);
+    /* The one way back out. No margin of its own — the h1's two-unit top
+       margin supplies the gap, which keeps the spacing on the rhythm. */
+    .backlink {
+      font-size: var(--step-sm);
+      margin: 0;
     }
 
-    main {
-      flex: 1;
-      padding: calc(var(--rhythm) * 1.5) var(--rhythm);
+    .backlink a {
+      color: var(--color-accent);
+      text-decoration: none;
     }
 
-    header h1 { margin-block-end: 0; }
+    .backlink a:hover,
+    .backlink a:focus-visible { text-decoration: underline; }
 
-    .intro {
-      margin-block-end: calc(var(--rhythm) * 1.5);
-    }
+    /* Restored: this was removed by accident when the header and footer styles
+       came out, leaving the intro with no separation from the list. */
+    .intro { margin-block-end: calc(var(--rhythm) * 2); }
 
-    /* === CARD GRID ===================================================== */
+    /* --- list component: the theme's Query Loop pattern ------------------
+       Each entry is title → meta → excerpt → hairline, exactly as
+       patterns/latest-posts-with-categories.php renders a post. The card
+       borders are gone, so the baseline grid now runs unbroken down the page.
+       --------------------------------------------------------------------- */
 
-    .card-grid {
-      display: grid;
-      gap: var(--rhythm);
-    }
-
-    .card {
-      border: 1px solid var(--color-rule);
-      padding: var(--rhythm);
+    .entry {
+      display: block;
       text-decoration: none;
       color: var(--color-contrast);
-      transition: background-color 0.15s, color 0.15s;
-      display: block;
+      padding-block-end: var(--rhythm);
+      border-bottom: 1px solid var(--color-rule);
+      margin-block-end: var(--rhythm);
     }
 
-    .card:hover,
-    .card:focus-visible {
-      background: var(--color-contrast);
-      color: var(--color-base);
+    /* Closes the list at the top. Without it the run of hairlines opens
+       unbounded and only terminates at the bottom. Padding matches the
+       bottom so the first entry is not lopsided. */
+    .entry:first-child {
+      border-top: 1px solid var(--color-rule);
+      padding-block-start: var(--rhythm);
     }
 
-    .card:hover .card-arrow,
-    .card:focus-visible .card-arrow {
-      color: var(--color-accent);
-    }
-
-    /* Card titles are h2 for document structure but sit at base size, not the
-       33px the scale gives h2. Weight 600 follows the ramp: heavier at small
-       sizes, lighter at large. */
-    .card h2 {
+    /* h2 for the document outline, but sized and weighted like the theme's
+       Paragraph-level post title — 600 at base size, per the weight ramp. */
+    .entry-title {
       font-size: var(--step-base);
       line-height: var(--rhythm);
       font-weight: 600;
-      margin: 0 0 var(--rhythm-quarter);
+      margin: 0;
       display: flex;
       justify-content: space-between;
       align-items: baseline;
       gap: var(--rhythm-half);
     }
 
-    .card-arrow {
-      font-weight: 400;
-      transition: color 0.15s;
+    .entry:hover .entry-title,
+    .entry:focus-visible .entry-title { color: var(--color-accent-text); }
+
+    .entry-arrow { font-weight: 400; transition: color 0.15s; }
+    .entry:hover .entry-arrow { color: var(--color-accent-text); }
+
+    /* meta line — where the theme puts date and post terms */
+    /* Leads the entry, as in the original card layout — category first, then
+       name. Gap sits below it now rather than above. */
+    .entry-meta {
+      display: flex;
+      gap: var(--rhythm-quarter);
+      margin-block: 0 var(--rhythm-half);
     }
 
-    /* step-xs is exactly two scale steps below base — 12px at an 18px base,
-       which is the size this already used. Colour replaces the old opacity so
-       contrast stays predictable on both card states. */
-    .card p {
+    .entry p {
       font-size: var(--step-xs);
       line-height: var(--leading);
       color: var(--color-contrast-soft);
-      margin: 0;
+      margin-block-start: var(--rhythm-quarter);
+      margin-block-end: 0;
     }
 
-    .card:hover p,
-    .card:focus-visible p {
-      color: var(--color-base);
-    }
-
-    /* === CATEGORY TAGS ================================================== */
-
-    .card-tags {
-      display: flex;
-      gap: var(--rhythm-quarter);
-      margin-block-end: var(--rhythm-half);
-    }
+    /* --- category tags --------------------------------------------------- */
 
     .tag {
       font-size: var(--step-xxs);
@@ -416,6 +396,7 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       white-space: nowrap;
+      top: 0;
     }
 
     .tag-glitch { background: var(--color-base); color: var(--color-contrast); }
@@ -430,126 +411,83 @@
       color: var(--color-contrast);
       border-style: dashed;
     }
-
-    .card:hover .tag-glitch { background: var(--color-base); color: var(--color-contrast); }
-    .card:hover .tag-type   { background: var(--color-base); color: var(--color-accent); border-color: var(--color-base); }
-    .card:hover .tag-dh     { background: var(--color-base); color: var(--color-contrast); border-color: var(--color-base); }
-
-    /* Stays hollow against the inverted card — the dashed outline is the
-       signal, so it should not fill in on hover like the others. */
-    .card:hover .tag-exp {
-      background: var(--color-contrast);
-      color: var(--color-base);
-      border-color: var(--color-base);
-      border-style: dashed;
-    }
-
-    /* === FOOTER ========================================================= */
-
-    footer {
-      border-top: 1px solid var(--color-rule);
-      font-size: var(--step-sm);
-    }
-
-    footer a {
-      color: var(--color-accent-text);
-      text-decoration: none;
-    }
-    footer a:hover { text-decoration: underline; }
-
-    /* Cards are independent boxes, not continuous text flow, so the baseline
-       nudge inside them would align to nothing. Snapping stays on for the
-       header, intro, and footer, where the grid actually reads. */
-    .card-grid :where(h2, p) { top: 0; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Sidebox</h1>
-    </header>
+  <div class="site">
+
 
     <main>
+      <p class="backlink"><a href="https://ernestopena.com">← ernestopena.com</a></p>
+
+      <h1>Sidebox</h1>
       <p class="intro">This is a repository of tools and resources for glitch-related teaching and experimentation</p>
 
-      <div class="card-grid">
-        <a href="zalgo.html" class="card" target="_blank">
-          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-          <h2>Zalgo Text Generator<span class="card-arrow">→</span></h2>
+      <div id="tools">
+        <a href="zalgo.html" class="entry" target="_blank">
+          <div class="entry-meta"><span class="tag tag-glitch">Glitch</span></div>
+          <h2 class="entry-title">Zalgo Text Generator<span class="entry-arrow">→</span></h2>
           <p>Generate zalgo text with Unicode combining characters for glitch typography effects.</p>
         </a>
-
-        <a href="transmediator.html" class="card" target="_blank">
-          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-          <h2>Transmediator<span class="card-arrow">→</span></h2>
+        <a href="transmediator.html" class="entry" target="_blank">
+          <div class="entry-meta"><span class="tag tag-glitch">Glitch</span></div>
+          <h2 class="entry-title">Transmediator<span class="entry-arrow">→</span></h2>
           <p>A relatively simple data dictionary between text, image and audio data. Based on my work with Dr Kedrick James.</p>
         </a>
-
-        <a href="hex.html" class="card" target="_blank">
-          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-          <h2>Hex Editor<span class="card-arrow">→</span></h2>
+        <a href="hex.html" class="entry" target="_blank">
+          <div class="entry-meta"><span class="tag tag-glitch">Glitch</span></div>
+          <h2 class="entry-title">Hex Editor<span class="entry-arrow">→</span></h2>
           <p>A web-based hex editor that identifies and locks header data from compressed image files.</p>
         </a>
-
-        <a href="image2table.html" class="card" target="_blank">
-          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-          <h2>Image ↔︎ Table Converter<span class="card-arrow">→</span></h2>
+        <a href="image2table.html" class="entry" target="_blank">
+          <div class="entry-meta"><span class="tag tag-glitch">Glitch</span></div>
+          <h2 class="entry-title">Image ↔︎ Table Converter<span class="entry-arrow">→</span></h2>
           <p>Image-to-table, table-to-image converter limited to 640^2 pixels.</p>
         </a>
-
-        <a href="pixelsorter.html" class="card" target="_blank">
-          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-          <h2>Pixel Sorter<span class="card-arrow">→</span></h2>
+        <a href="pixelsorter.html" class="entry" target="_blank">
+          <div class="entry-meta"><span class="tag tag-glitch">Glitch</span></div>
+          <h2 class="entry-title">Pixel Sorter<span class="entry-arrow">→</span></h2>
           <p>Basic HTML-based pixel sorter based on Kim Asendorf's work.</p>
         </a>
-
-        <a href="xorter.html" class="card" target="_blank">
-          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-          <h2>Xorter<span class="card-arrow">→</span></h2>
+        <a href="xorter.html" class="entry" target="_blank">
+          <div class="entry-meta"><span class="tag tag-glitch">Glitch</span></div>
+          <h2 class="entry-title">Xorter<span class="entry-arrow">→</span></h2>
           <p>Channel-based pixel row/column sorter with selection masks, channel swap/rotate operations, preset recording, and PNG/RAW export.</p>
         </a>
-
-        <a href="datafoldsynth.html" class="card" target="_blank">
-          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-          <h2>Datafoldsynth v.2<span class="card-arrow">→</span></h2>
+        <a href="datafoldsynth.html" class="entry" target="_blank">
+          <div class="entry-meta"><span class="tag tag-glitch">Glitch</span></div>
+          <h2 class="entry-title">Datafoldsynth v.2<span class="entry-arrow">→</span></h2>
           <p>Harmonic grid sorting with adaptive 2D zone detection, waveshape distribution, and per-channel processing. Advanced datafolding synthesizer.</p>
         </a>
-
-        <a href="datamoshlab.html" class="card" target="_blank">
-          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-          <h2>Datamosh Lab<span class="card-arrow">→</span></h2>
+        <a href="datamoshlab.html" class="entry" target="_blank">
+          <div class="entry-meta"><span class="tag tag-glitch">Glitch</span></div>
+          <h2 class="entry-title">Datamosh Lab<span class="entry-arrow">→</span></h2>
           <p>Frame structure analysis + motion vector visualization + Datamosh simulation</p>
         </a>
-
-        <a href="avihex.html" class="card" target="_blank">
-          <div class="card-tags"><span class="tag tag-glitch">Glitch</span></div>
-          <h2>AVI Hex Frame Editor<span class="card-arrow">→</span></h2>
+        <a href="avihex.html" class="entry" target="_blank">
+          <div class="entry-meta"><span class="tag tag-glitch">Glitch</span></div>
+          <h2 class="entry-title">AVI Hex Frame Editor<span class="entry-arrow">→</span></h2>
           <p>Advanced AVI hex editing with datamoshing capabilities and frame-by-frame control.</p>
         </a>
-
-        <a href="acuity.html" class="card" target="_blank">
-          <div class="card-tags"><span class="tag tag-type">Typography</span></div>
-          <h2>Font Visual Acuity Analyzer<span class="card-arrow">→</span></h2>
+        <a href="acuity.html" class="entry" target="_blank">
+          <div class="entry-meta"><span class="tag tag-type">Typography</span></div>
+          <h2 class="entry-title">Font Visual Acuity Analyzer<span class="entry-arrow">→</span></h2>
           <p>Calculate minimum visible units (1μ) and relative acuity for typefaces based on visual acuity protocol.</p>
         </a>
-
-        <a href="linecalculator.html" class="card" target="_blank">
-          <div class="card-tags"><span class="tag tag-type">Typography</span></div>
-          <h2>Line Length Calculator<span class="card-arrow">→</span></h2>
+        <a href="linecalculator.html" class="entry" target="_blank">
+          <div class="entry-meta"><span class="tag tag-type">Typography</span></div>
+          <h2 class="entry-title">Line Length Calculator<span class="entry-arrow">→</span></h2>
           <p>Calculate optimal line length based on typeface metrics and character density. Upload any font to measure LCA' and determine ideal line lengths for novice and expert readers.</p>
         </a>
-
-      <a href="greenlist.html" class="card" target="_blank">
-        <div class="card-tags"><span class="tag tag-exp">Experimental</span></div>
-        <h2>Greenlist~<span class="card-arrow">→</span></h2>
-        <p>A real AI text watermark, run without the restraint it depends on. A secret key decides which words are permitted at each position; forbidden ones are overwritten with permitted ones, and the certification score climbs as the passage comes apart. Three vocabulary sources, word and field views, fully offline.</p>
-      </a>
+        <a href="greenlist.html" class="entry" target="_blank">
+          <div class="entry-meta"><span class="tag tag-exp">Experimental</span></div>
+          <h2 class="entry-title">Greenlist~<span class="entry-arrow">→</span></h2>
+          <p>A real AI text watermark, run without the restraint it depends on. A secret key decides which words are permitted at each position; forbidden ones are overwritten with permitted ones, and the certification score climbs as the passage comes apart. Three vocabulary sources, word and field views, fully offline.</p>
+        </a>
       </div>
     </main>
 
-    <footer>
-      <a href="https://ernestopena.com">ernestopena.com</a>
-    </footer>
+
   </div>
 </body>
 </html>
